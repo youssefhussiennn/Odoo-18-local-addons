@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sales Bonus Report Wizard View -->
+    <record id="sales_bonus_report_view_form" model="ir.ui.view">
+        <field name="name">sales.bonus.wizard.form</field>
+        <field name="model">sales.bonus.report</field>
+        <field name="arch" type="xml">
+            <form string="Sales Bonus Report Wizard">
+                <group>
+                    <field name="partner_id" options="{'no_create': True}"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </group>
+                <footer>
+                    <!-- Print XLSX Report Button -->
+                    <button string="Print XLSX Bonus Report"
+                            name="action_print_xlsx_report"
+                            type="object" class="oe_highlight"/>
+                    <!-- Print XLSX Summary Report Button -->
+                    <button string="Print XLSX Bonus Report Summary"
+                            name="action_print_xlsx_report_new"
+                            type="object" class="oe_highlight"/>
+                    <button string="Cancel" special="cancel" class="oe_link"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Sales Bonus Report Wizard Action -->
+    <record id="sales_bonus_report_action_wizard"
+            model="ir.actions.act_window">
+        <field name="name">Sales Bonus Report</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sales.bonus.report</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="sales_bonus_report_view_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Sales Bonus Excel Report Action -->
+    <record id="action_sales_bonus_xlsx" model="ir.actions.report">
+        <field name="name">Sales Bonus Report (XLSX)</field>
+        <field name="model">sales.bonus.report</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">bonus_module.sales_bonus_xlsx</field>
+        <field name="print_report_name">'Sales Bonus Report - ' + object.partner_id.name</field>
+    </record>
+
+    <!-- Sales Bonus Excel Summary Report Action -->
+    <record id="action_sales_bonus_xlsx_summary" model="ir.actions.report">
+        <field name="name">Sales Bonus Report Summary (XLSX)</field>
+        <field name="model">sales.bonus.report</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">bonus_module.sales_bonus_xlsx_summary</field>
+        <field name="print_report_name">'Sales Bonus Report Summary - ' + object.partner_id.name</field>
+    </record>
+</odoo>

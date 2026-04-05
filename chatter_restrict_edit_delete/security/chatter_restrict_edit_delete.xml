@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Chatter Restrict Edit and Delete Group -->
+        <record id="chatter_restrict_edit_delete_group_user" model="res.groups">
+            <field name="name">Chatter Restrict Edit and Delete</field>
+        </record>
+
+    </data>
+</odoo>

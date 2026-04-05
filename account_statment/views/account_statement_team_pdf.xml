@@ -1,0 +1,478 @@
+<odoo>
+    <data>
+
+
+        <record id="action_report_account_statment_team_layout" model="ir.actions.report">
+            <field name="name">Account Statement Team</field>
+            <field name="model">account.move.line</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">account_statment.account_statment_team_document</field>
+            <field name="report_file">account_statment.account_statment_team_document</field>
+            <field name="paperformat_id" ref="account_statment.paperformat_portrait" />
+            <field name="binding_model_id" eval="False" />
+            <field name="binding_type">report</field>
+        </record>
+
+
+        <template id="account_statment_team_document">
+            <t t-call="web.html_container">
+                <t t-call="account_statment.custom_external_layout_account_statment">
+
+                    <t t-set="lines" t-value="docs.mapped('partner_id.user_id')"/>
+                    <t t-foreach="lines" t-as="o">
+                        <t t-set="all_data" t-value="docs.filtered(lambda x: x.partner_id.user_id.name == o.name).sorted(key=lambda x: x.date)"/>
+                        
+                        <t t-set="partner_lines" t-value="all_data.mapped('partner_id')"/>
+                    
+                        <t t-foreach="partner_lines" t-as="o">
+                            <t t-set="data" t-value="all_data.filtered(lambda x: x.partner_id.name == o.name).sorted(key=lambda x: x.date)"/>
+                            <div class="page">
+                                <t t-set="total_initial_balance" t-value="request.env['account.move.line'].sudo().get_initial_balance(data[0].partner_id, data[0].date)"/>
+                                <br/>
+                                <br/>
+                                <div class="row" style="direction:rtl">
+                                    <div style="width:50%;" >
+                                        <h4 style="float:right">التاريخ:
+                                            <span t-esc="datetime.datetime.now().strftime('%Y-%m-%d')"/>
+                                        </h4>
+                                    </div>
+                                    <div style="width:50%;">
+                                        <img t-if="data.company_id.logo"
+                                            t-att-src="image_data_uri(data.company_id.logo)"
+                                            style="max-height: 320px;max-width: 170px;float:left" alt="Logo"/>
+                                    </div>
+                                </div>
+                                <!-- <br/> -->
+                                <div class="row">
+                                    <div style="width:100%">
+                                        <center>
+                                            <h3 style = "text-align:center" t-field="data.company_id.name"/>
+                                        </center>
+                                    </div>
+                                </div>
+                                <br/>
+
+                                <div class="row">
+                                    <div style="width:100%">
+                                        <center>
+                                            <h3 style = "text-align:center">
+                                                كشف حساب تفصيلي اصناف العميل 
+                                                <span t-field="data[0].partner_id.name"/>
+                                            </h3>
+
+                                        </center>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="row">
+                                    <div style="width:100%">
+                                        <center>
+                                            <h3 style = "text-align:center">
+                                                مهندس مبيعات
+                                                <span t-field="data[0].partner_id.user_id.name"/>
+                                            </h3>
+                                        </center>
+                                    </div>
+                                </div>
+                                <br/>
+                                <table class="table table-bordered " style='direction: rtl;'>
+                                    <thead>
+                                        <tr>
+                                            <th class="text-right"><span style="float:right">تاريخ</span></th>
+                                            <th class="text-right"><span style="float:right">مستند</span></th>
+                                            <th class="text-right"><span style="float:right">بيان</span></th>
+                                            <th class="text-right"><span style="float:right">الصنف</span></th>
+                                            <th class="text-right"><span style="float:right">كمية</span></th>
+                                            <th class="text-right"><span style="float:right">سعر</span></th>
+                                            <th class="text-right"><span style="float:right">مدين</span></th>
+                                            <th class="text-right"><span style="float:right">دائن</span></th>
+                                            <th class="text-right"><span>رصيد</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="balance" t-value="total_initial_balance"/>
+                                        <t t-set="old_invoices" t-value="'moves:'"/>
+                                        <t t-set="total_sales_after_discount" t-value="0"/>
+                                        <t t-set="total_sales_before_discount" t-value="0"/>
+                                        <t t-set="discount" t-value="0"/>
+                                        <t t-set="total_purchase" t-value="0"/>
+                                        <t t-set="total_refund" t-value="0"/>
+                                        <t t-set="total_payment" t-value="0"/>
+                                        <t t-set="total_debit" t-value="0"/>
+                                        <t t-set="total_credit" t-value="0"/>
+                                        <t t-set="payment_percentage" t-value="0"/>
+                                        <t t-set="discount_percentage" t-value="0"/>
+                                        <t t-set="refund_percentage" t-value="0"/>
+                                        <t t-set="total_safty_checks" t-value="0"/>
+                                        <t t-set="total_collection_checks" t-value="0"/>
+                                        <t t-set="total_discount" t-value="0"/>
+                                        <t t-set="purchase_total_discount" t-value="0"/>
+                                        <t t-set="total_customer_allowed_discount" t-value="0"/>
+                                        <tr>
+                                            <td colspan="8">
+                                                <span style="float:right">رصيد افتتاحي
+                                                </span>
+                                            </td>
+                                            <t t-set="total_initial_balance" t-value="total_initial_balance + abs(sum(data.filtered(lambda x:x.move_id.is_opening_balance == True).mapped(lambda x:x.debit - x.credit)))"/>
+                                            <t t-set="balance" t-value="total_initial_balance"/>
+                                            <td><span t-esc="total_initial_balance"/></td>
+                                        </tr>
+                                        <t t-foreach="data" t-as="line">
+
+                                            <t t-if="line.move_id.move_type == 'entry' and line.account_id.customer_allowed_discount == True">
+                                                <t t-set="total_customer_allowed_discount" t-value="round((total_customer_allowed_discount - line.credit),2)"/>
+                                                <t t-set="total_customer_allowed_discount" t-value="round((total_customer_allowed_discount + line.debit),2)"/>
+                                            </t>
+
+                                            <t t-if="line.move_id.move_type == 'entry' and line.account_id.is_safty_account == True">
+                                                <t t-set="total_safty_checks" t-value="round((total_safty_checks - line.credit),2)"/>
+                                                <t t-set="total_safty_checks" t-value="round((total_safty_checks + line.debit),2)"/>
+                                            </t>
+
+                                            <t t-elif="line.move_id.move_type == 'entry' and line.account_id.is_collection_account == True">
+                                                <t t-set="total_collection_checks" t-value="round((total_collection_checks - line.credit),2)"/>
+                                                <t t-set="total_collection_checks" t-value="round((total_collection_checks + line.debit),2)"/>
+                                            </t>
+                                            
+                                            <t t-elif="line.move_id.move_type == 'entry' and line.account_id.is_safty_account == False and line.account_id.is_collection_account == False and line.account_id.customer_allowed_discount == False and line.move_id.is_customer_discount == False">
+                                                <t t-if="line.move_id.is_opening_balance == False">
+                                               
+                                                    <tr>
+                                                        <td class="text-right">
+                                                            <span style="float:right" t-field="line.date"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span t-field="line.move_id.name"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <t t-if="line.journal_id.type == 'bank'">
+                                                                <span style="float:right">شيك</span>
+                                                            </t>
+
+                                                            <t t-if="line.journal_id.type == 'general'">
+                                                                <span style="float:right">قيود عامة</span>
+                                                            </t>
+                                                            
+                                                            <t t-else="">
+                                                                <span style="float:right">سداد نقدي</span>
+                                                            </t>
+
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span style="float:right" t-field="line.name"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span style="float:right">0</span>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span style="float:right">0</span>
+                                                        </td>
+                                                        <!-- <td class="text-right"/> -->
+                                                        <td class="text-right">
+                                                            <t t-if="line.debit != 0">
+                                                                <span style="float:right" t-field="line.debit"/>
+                                                            </t>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <t t-if="line.credit != 0">
+                                                                <span style="float:right" t-field="line.credit"/>
+                                                            </t>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <!-- <span t-field="inv.partner_id.total_due"/> -->
+                                                            <!-- <t t-if="line.partner_id.name == data[0].partner_id.name"> -->
+                                                                <t t-if="line.journal_id.type != 'general'">
+                                                                    <t t-set="total_payment" t-value="round((total_payment + (line.credit-line.debit)),2)"/>
+                                                                </t>
+                                                                <t t-set="balance" t-value="round((balance - line.credit),2)"/>
+                                                                <t t-set="balance" t-value="round((balance + line.debit),2)"/>
+
+                                                                <t t-set="total_credit" t-value="round((total_credit + line.credit),2)"/>
+                                                            <!-- </t>
+                                                            <t t-else="">
+                                                                <t t-set="total_payment" t-value="0"/>
+                                                                <t t-set="balance" t-value="0"/>
+                                                                <t t-set="total_credit" t-value="0"/>
+                                                            </t> -->
+                                                            <span style="float:right" t-esc="balance" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                
+                                            </t>
+
+                                            <t t-if="line.move_id.invoice_line_ids and line.move_id.move_type in ('out_refund', 'in_refund', 'out_invoice', 'in_invoice') and line.account_id.is_safty_account == False and line.account_id.is_collection_account == False and line.account_id.customer_allowed_discount == False and line.move_id.name not in old_invoices and line.move_id.is_customer_discount == False">
+                                                <t t-set="old_invoices" t-value="old_invoices+ ' , '+ line.move_id.name"/>
+                                                <t t-foreach="line.move_id.invoice_line_ids" t-as="inv">
+                                                    <tr>
+                                                        <td class="text-right">
+                                                            <span style="float:right" t-field="inv.date"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span style="float:right" t-field="inv.move_id.name"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <t t-if="line.move_id.move_type in ('out_refund', 'in_refund')">
+                                                                <span style="float:right">مرتجع</span>
+                                                            </t>
+                                                            <t t-elif="line.move_id.move_type in ('in_invoice')">
+                                                                <span style="float:right">فاتورة مشتريات</span>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span style="float:right">فاتورة مبيعات</span>
+                                                            </t>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span style="float:right" t-field="inv.name"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span style="float:right" t-esc="round((inv.quantity),2)"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <!-- <t t-if="inv.discount"> -->
+                                                            <span style="float:right" t-esc="round((inv.price_unit-((inv.price_unit*inv.discount)/100)),2)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                                            <!-- </t> -->
+                                                            <t t-if="inv.discount > 0 and line.move_id.move_type in ('out_invoice')">
+                                                                <t t-set="total_discount" t-value="round((total_discount + (inv.price_unit * ((inv.discount or 0.0) / 100.0) * inv.quantity)),2)"/>
+                                                            </t>
+
+                                                            <t t-if="inv.discount > 0 and line.move_id.move_type in ('in_invoice')">
+                                                                <t t-set="purchase_total_discount" t-value="round((purchase_total_discount + (inv.price_unit * ((inv.discount or 0.0) / 100.0) * inv.quantity)),2)"/>
+                                                            </t>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <t t-if="line.move_id.move_type not in ('out_refund', 'in_invoice')">
+                                                                <span style="float:right" t-esc="round((inv.price_subtotal),2)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                                            </t>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <t t-if="line.move_id.move_type in ('out_refund', 'in_invoice')">
+                                                                <span style="float:right" t-esc="round((inv.price_subtotal),2)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                                            </t>
+                                                        </td>
+                                                        
+                                                        <td class="text-right">
+                                                            <!-- <span t-field="inv.partner_id.total_due"/> -->
+                                                            <!-- <t t-if="line.partner_id.name == data[0].partner_id.name"> -->
+                                                                <t t-if="line.move_id.move_type not in ('out_refund', 'in_invoice')">
+                                                                    <!-- <t t-set="total_sales_after_discount" t-value="round((total_sales_after_discount + inv.price_subtotal),2)"/> -->
+                                                                    <t t-set="total_debit" t-value="round((total_debit + inv.price_subtotal),2)"/>
+                                                                    <t t-set="balance" t-value="round((balance + inv.price_subtotal),2)"/>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <!-- <t t-set="total_purchase" t-value="round((total_purchase + inv.price_subtotal),2)"/> -->
+                                                                    <t t-set="total_credit" t-value="round((total_credit + inv.price_subtotal),2)"/>
+                                                                    <t t-set="balance" t-value="round((balance - inv.price_subtotal),2)"/>
+                                                                </t>
+                                                                <t t-if="line.move_id.move_type in ('out_refund', 'in_refund')">
+                                                                    <t t-set="total_refund" t-value="round((total_refund + inv.price_subtotal),2)"/>
+                                                                </t>
+                                                                <t t-if="line.move_id.move_type in ('in_invoice')">
+                                                                    <t t-set="total_purchase" t-value="round((total_purchase + inv.price_subtotal),2)"/>
+                                                                </t>
+
+                                                                <t t-if="line.move_id.move_type in ('out_invoice')">
+                                                                    <t t-set="total_sales_after_discount" t-value="round((total_sales_after_discount + inv.price_subtotal),2)"/>
+                                                                    <t t-set="total_sales_before_discount" t-value="round((total_sales_before_discount + (inv.quantity*inv.price_unit)),2)"/>
+                                                                </t>
+
+        
+                                                            <!-- </t>
+                                                            <t t-else="">
+                                                                <t t-set="balance" t-value="0"/>
+                                                                <t t-set="total_sales_after_discount" t-value="0"/>
+                                                                <t t-set="total_refund" t-value="0"/>   
+                                                                <t t-set="total_credit" t-value="0"/>
+                                                                <t t-set="total_debit" t-value="0"/>
+                                                                
+                                                            </t> -->
+                                                            <span style="float:right" t-esc="balance" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+            
+                                                        </td>
+                                                    </tr>
+                                            
+                                                </t>
+                                            </t>
+                                            
+                                            
+                                        </t>
+                                        <tr>
+                                            <td colspan="6">
+                                                <span style="float:right">الرصيد</span>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="total_debit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="total_credit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                            <td>
+                                                <!-- <span t-esc="balance - abs(total_customer_allowed_discount)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/> -->
+                                                <span t-esc="balance" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="8">
+                                                <span style="float:right">اجمالي مبيعات</span>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="total_sales_before_discount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="4">
+                                                <span style="float:right">اجمالي الخصم</span>
+
+                                            </td>
+                                            <td>
+                                                <!-- <span t-esc="total_discount - total_sales_after_discount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/> -->
+                                                <t t-if="total_discount !=0">
+                                                    <span t-esc="total_discount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-set="discount" t-value="0"/>
+
+                                                    <span t-esc="discount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                                </t>
+                                            </td>
+                                            <td colspan="3">
+                                                <span style="float:right">نسبة الخصم</span>
+
+                                            </td>
+                                            <td>
+                                                <t t-if="total_sales_before_discount!=0">
+                                                    <t t-set="discount_percentage" t-value="round(((total_discount/total_sales_before_discount)*100),2)"/>
+
+                                                </t>
+                                                <span t-esc="discount_percentage"/>
+                                                <span>%</span>
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="8">
+                                                <span style="float:right">صافي مبيعات</span>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="total_sales_after_discount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="4">
+                                                <span style="float:right">اجمالي سداد</span>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="total_payment" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                            <td colspan="3">
+                                                <span style="float:right">نسبة التحصيل</span>
+
+                                            </td>
+                                            <td>
+                                                <t t-if="balance !=0 and total_payment!=0">
+                                                    <t t-set="new_balance" t-value="balance+total_payment"/>
+                                                    <t t-if="new_balance !=0">
+                                                        <t t-set="payment_percentage" t-value="round(((total_payment/(balance+total_payment))*100),2)"/>
+                                                    </t>
+
+                                                </t>
+                                                <span t-esc="payment_percentage"/>
+                                                <span>%</span>
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="4">
+                                                <span style="float:right">اجمالي مرتجعات</span>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="total_refund" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                            <td colspan="3">
+                                                <span style="float:right">نسبة المرتجعات</span>
+
+                                            </td>
+                                            <td>
+                                                <t t-if="total_sales_after_discount !=0">
+                                                
+                                                    <t t-set="refund_percentage" t-value="round(((total_refund/total_sales_after_discount)*100),2)"/>
+                                                </t>
+                                                <span t-esc="refund_percentage"/>
+                                                <span>%</span>
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="8">
+                                                <span style="float:right; width:100px">الخصم الممنوح للعميل</span>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="abs(total_customer_allowed_discount)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <td colspan="8">
+                                                <span style="float:right">اجمالي مشتريات</span>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="total_purchase" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="8">
+                                                <span style="float:right; width:100px">شيكات ضمان</span>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="abs(total_safty_checks)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="8">
+                                                <span style="float:right;width:170px">شيكات تحت التحصيل</span>
+
+                                            </td>
+                                            <td>
+                                                <span t-esc="abs(total_collection_checks)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+
+                                <p style="page-break-before:always;"> </p>
+                            </div>
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+     <record id="invoice_report_add_commission" model="ir.ui.view">
+      <field name="model">account.invoice.report</field>
+      <field name="inherit_id" ref="account.view_account_invoice_report_search"/>
+      <field name="arch" type="xml">
+        <xpath expr="//group" position="inside">
+            <filter string="Commission Type" name="commission_type" context="{'group_by':'commission_type'}"/>
+            <filter string="Commission Percentage" name="commission_percentage" context="{'group_by':'commission_percentage'}"/>
+            <filter string="Commission Total" name="commission_percentage_amount" context="{'group_by':'commission_percentage_amount'}"/>
+        </xpath>
+      </field>
+     </record>
+
+     <record id="add_commission_in_invoice_report" model="ir.ui.view">
+      <field name="model">account.invoice.report</field>
+      <field name="inherit_id" ref="account.account_invoice_report_view_tree"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='product_id']" position="after">
+          <field name="commission_type" />
+          <field name="commission_percentage" />
+          <field name="commission_percentage_amount" />
+          <field name="commission_state" widget="selection"/>
+        </xpath>
+      </field>
+     </record>
+    </data>
+  </odoo>

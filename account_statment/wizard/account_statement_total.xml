@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+    
+        <record model="ir.ui.view" id="account_statement_total_wizard_form">
+            <field name="name">account_statement_total_wizard.form</field>
+            <field name="model">account.statement.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+            <form string="Account Statement">
+                <group>
+                    <field name="team_id"/>
+                    <field name="allowed_members" widget="many2many_tags" invisible='1'/>
+                    <field name="report_type" invisible='1'/>
+                    <field name="user_ids" widget="many2many_tags" domain="[('id','in',allowed_members)]"/>
+                    <field name="currency_id"/>
+                    <field name="hide_zero_balance"/>
+                </group>
+                
+                <!-- <group string="Option in Pdf only" invisible="1">
+                    <field name="analytic_tags" widget="many2many_tags" invisible='1'/>
+                    <field name="analytic_accounts" widget="many2many_tags" invisible='1'/>
+                </group> -->
+
+                <group>
+                    <group>
+                        <field name="date_start" required="1"/>
+                    </group>
+                    <group>
+                        <field name="date_end"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="get_account_statement_total_report_new" string="Print Pdf" type="object" />
+                    <button name="get_account_statement_total_report_excel" string="Print Excel" type="object" />
+                </footer>
+            </form>
+            </field>
+        </record>
+
+        <record id="wizard_account_statement_total_pdf_report_form_view" model="ir.ui.view">
+            <field name="name">wizard.account.state.total.report.form.view</field>
+            <field name="model">wizard.account.statement.excel.report</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="namexlsx" invisible="1"/>
+                            <h3>
+                                <field name="reportxlsx" filename="namexlsx"/>
+                            </h3>
+                        </group>
+
+                        <group>
+                            <field name="namexlsx_no_sales" invisible="1"/>
+                            <h3>
+                                <field name="reportxlsx_no_sales" filename="namexlsx_no_sales"/>
+                            </h3>
+                        </group>
+                        <footer>
+                            <button special="cancel" string="Cancel" class="oe_link"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+          <record id="account_statement_total_wizard_action_window" model="ir.actions.act_window">
+            <field name="name">Account Statement Total</field>
+            <field name="res_model">account.statement.wizard</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_report_type':'sales_team_total'}</field>
+            <field name="view_id" ref="account_statement_total_wizard_form"/>
+        </record>
+        
+        <menuitem action="account_statement_total_wizard_action_window" id="account_statement_total_wizard_menu" sequence="66" parent="account.menu_finance_reports"/>
+        <!-- <menuitem action="account_statement_total_wizard_action_window" id="account_statement_total_wizard_menu_so" sequence="66" parent="sale.sale_order_menu"/> -->
+        
+    
+    </data>
+    
+
+</odoo>

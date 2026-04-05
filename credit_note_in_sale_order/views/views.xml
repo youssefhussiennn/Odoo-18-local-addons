@@ -1,0 +1,17 @@
+<odoo>
+  <data>
+    <record id="show_validation_button" model="ir.ui.view">
+      <field name="name">show validation button</field>
+      <field name="model">stock.picking</field>
+      <field name="inherit_id" ref="stock.view_picking_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//button[@name='button_validate'][1]" position="replace">
+          <button name="button_validate" modifiers="{'invisible': ['|', ('state', 'in', ('waiting','confirmed')), ('show_validate', '=', False)]}" string="Validate" type="object" class="oe_highlight" groups="stock.group_stock_user" data-hotkey="v"/>
+        </xpath>
+        <xpath expr="//button[@name='button_validate'][2]" position="replace">
+          <button name="button_validate" modifiers="{'invisible': ['|', ('state', 'not in', ('waiting', 'confirmed')), ('show_validate', '=', False)]}" string="Validate" type="object" groups="stock.group_stock_user" class="o_btn_validate" data-hotkey="v"/>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>

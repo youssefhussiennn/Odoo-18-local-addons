@@ -1,0 +1,22 @@
+<odoo>
+    <record id="view_user_access_wizard" model="ir.ui.view">
+        <field name="name">user.access.wizard.form</field>
+        <field name="model">user.access.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Export User Access" create="false" edit="false">
+                <group>
+                    <field name="user_ids" widget="many2many_tags"/>
+                    <field name="model_ids" widget="many2many_tags"/>
+                </group>
+                <footer>
+                    <button name="action_export" type="object" class="btn-primary" string="Generate CSV"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+                <group attrs="{'invisible': [('file_data','=',False)]}">
+                    <field name="file_name" invisible="1"/>
+                    <field name="file_data" filename="file_name" widget="binary" class="oe_inline"/>
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>

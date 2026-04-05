@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+    
+        <record id="account_account_form_view_inherit" model="ir.ui.view">
+            <field name="name">account.account.view.form.inherit</field>
+            <field name="model">account.account</field>
+            <field name="inherit_id" ref="account.view_account_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='deprecated']" position="after">
+                    <field name="is_safty_account" />
+                    <field name="is_collection_account" />
+                    <field name="customer_allowed_discount" />
+                </xpath>
+            </field>
+        </record>
+    
+    </data>
+    
+</odoo>

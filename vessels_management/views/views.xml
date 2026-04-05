@@ -1,0 +1,189 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="vessels_management.list">
+      <field name="name">vessels_management list</field>
+      <field name="model">vessels_management.vessels_management</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name" />
+          <field name="vessel_type_ids" widget="many2many_tags"/>
+          <field name="imo_no" />
+          <field name="flag" />
+          <field name="status" />
+        </list>
+      </field>
+    </record>
+    <!-- explicit form view definition -->
+
+    <record model="ir.ui.view" id="vessels_management_form">
+      <field name="name">vessels_management.form</field>
+      <field name="model">vessels_management.vessels_management</field>
+      <field name="arch" type="xml">
+
+        <form string="Vessel">
+          <header>
+            <field name="status" widget="statusbar"
+              statusbar_visible="active,inactive,under_maintenance" readonly='0' />
+
+            <button name="action_active" string="Active" type="object" class="btn-success"
+              invisible="status in ('active')" />
+
+            <button name="action_under_maintenance" string="Under Maintenance" type="object"
+              class="btn-primary"
+              invisible="status in ('under_maintenance')" />
+
+            <button name="action_inactive" string="In-active" type="object"
+              class="btn-primary" invisible="status in ('draft')" />
+
+          </header>
+
+          <sheet>
+            <div class="oe_button_box" name="button_box">
+              <button name="action_view_sale_orders"
+                type="object"
+                class="oe_stat_button"
+                icon="fa-shopping-cart"
+                context="{'create': False}">
+                <field name="sale_order_count" widget="statinfo" string="Sale Orders" />
+              </button>
+            </div>
+
+            <group>
+              <field name="name" />
+              <field name="vessel_type_ids" widget="many2many_tags" />
+              <field name="imo_no" />
+              <field name="flag" />
+              <field name="gt_itc69" />
+              <field name="nt_itc69" />
+              <field name="dead_weight_tonnage" />
+              <field name="built_yyyymm" />
+              <field name="port_of_registry" />
+            </group>
+
+            <notebook>
+              <page string="Dimensions">
+                <group>
+                  <field name="length_oa_m" />
+                  <field name="length_bp_m" />
+                  <field name="breadth_ext_m" />
+                  <field name="breadth_mld_m" />
+                  <field name="depth_mld_m" />
+                  <field name="summer_draught_m" />
+                  <field name="displacement_tonnes" />
+                </group>
+              </page>
+
+              <page string="Build and Hull">
+                <group>
+                  <field name="builder" />
+                  <field name="mat_of_hull" />
+                  <field name="yard_no" />
+                  <field name="dt_keel_laid" />
+                </group>
+              </page>
+
+              <page string="Crew and Propulsion">
+                <group>
+                  <field name="no_of_crew" />
+                  <field name="no_of_propulsion_units" />
+                  <field name="speed" />
+                </group>
+              </page>
+
+              <page string="Cargo and Capacity">
+                <group>
+                  <field name="no_of_holds" />
+                  <field name="no_of_decks_in_cargo_area" />
+                  <field name="no_of_passenger" />
+                </group>
+              </page>
+
+              <page string="Management Details">
+                <group>
+                  <field name="vessel_owner_id" />
+                  <field name="vessel_manager_id" />
+                  <field name="vessel_registered_id" />
+                  <field name="vessel_billing_contact" />
+                </group>
+              </page>
+
+              <page string="Classification">
+                <group>
+                  <field name="current_class" />
+                </group>
+              </page>
+            </notebook>
+          </sheet>
+          <chatter />
+        </form>
+      </field>
+    </record>
+
+    <record id="view_vessel_type_list" model="ir.ui.view">
+      <field name="name">vessels_management.vessel_type.list</field>
+      <field name="model">vessels_management.vessel_type</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name" />
+          <field name="color" widget="color_picker" />
+        </list>
+      </field>
+    </record>
+
+
+    <!-- Action Window -->
+
+    <record id="action_vessels_management" model="ir.actions.act_window">
+      <field name="name">Vessels</field>
+      <field name="res_model">vessels_management.vessels_management</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Main Menu -->
+    <menuitem id="menu_vessels_management_root"
+      name="Vessels"
+      sequence="10"
+      web_icon="vessels_management,static/description/img.png" />
+
+    <!-- Sub Menu -->
+
+    <menuitem id="menu_vessels_management_main"
+      name="Vessels"
+      parent="menu_vessels_management_root"
+      action="action_vessels_management"
+      sequence="20" />
+
+
+    <!-- Configuration submenu -->
+    <menuitem
+      id="menu_vessels_management_configuration"
+      name="Configuration"
+      parent="menu_vessels_management_root"
+      sequence="100"
+    />
+
+    <!-- Vessel Types action -->
+    <record id="action_vessel_type" model="ir.actions.act_window">
+      <field name="name">Vessel Types</field>
+      <field name="res_model">vessels_management.vessel_type</field>
+      <field name="view_mode">list,form</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Create and manage the different types of vessels.
+        </p>
+      </field>
+    </record>
+
+    <!-- Vessel Types menu under Configuration -->
+    <menuitem
+      id="menu_vessel_type_config"
+      name="Vessel Types"
+      parent="menu_vessels_management_configuration"
+      action="action_vessel_type"
+      sequence="10"
+    />
+
+  </data>
+</odoo>

@@ -1,0 +1,4 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+access_sales_bonus,access.sales.bonus,model_sales_bonus,base.group_user,1,1,1,1
+access_product_based_sales_bonus,access.product.based.sales.bonus,model_product_based_sales_bonus,base.group_user,1,1,1,1
+access_sales_bonus_report,access.sales.bonus.report,model_sales_bonus_report,base.group_user,1,1,1,1

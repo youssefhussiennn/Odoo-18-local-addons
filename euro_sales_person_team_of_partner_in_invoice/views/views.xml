@@ -1,0 +1,15 @@
+<odoo>
+  <data>
+    <record id="groupby_customer_sales_person_team" model="ir.ui.view">
+      <field name="model">account.move</field>
+      <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+      <field name="arch" type="xml">
+        <xpath expr="//group" position="inside">
+          <filter string="Partner SalesPerson" name="partner_sales_person" context="{'group_by': 'partner_sales_person'}"/>
+          <!-- <filter string="Partner SalesTeam" name="partner_sales_team" context="{'group_by': 'partner_sales_team'}"/> -->
+          
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>

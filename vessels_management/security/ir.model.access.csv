@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vessels_management_vessels_management,vessels_management.vessels_management,model_vessels_management_vessels_management,base.group_user,1,1,1,1
+access_vessel_type_user,vessels_management.vessel_type,model_vessels_management_vessel_type,base.group_user,1,1,1,1

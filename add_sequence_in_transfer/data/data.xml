@@ -1,0 +1,21 @@
+<odoo>
+    <data>
+        <record id="new_sequence_for_out_transfer" model="ir.sequence">
+            <field name="name">New Sequence For Validated Out Transfer</field>
+            <field name="implementation">standard</field>
+            <field name="active">True</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+            <field name="number_next_actual">1</field>
+        </record>
+
+        <record id="new_sequence_for_return_transfer" model="ir.sequence">
+            <field name="name">New Sequence For Validated return Transfer</field>
+            <field name="implementation">standard</field>
+            <field name="active">True</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+            <field name="number_next_actual">1</field>
+        </record>
+    </data>
+</odoo>

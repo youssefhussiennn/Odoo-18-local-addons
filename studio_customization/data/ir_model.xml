@@ -1,0 +1,399 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+  <record id="purchase_requisition.model_purchase_requisition_line" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">purchase.requisition.line</field>
+    <field name="name">Purchase Requisition Line</field>
+    <field name="state">base</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_0fdfb57d-5187-4c17-b267-1e11b41d961e" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_ab6d8</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_1bd09c77-f29c-42d8-b97e-55cdd08b0df2" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_0d8f9</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_20084b78-90b0-4d34-a83c-2cf05f35a2c7" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_6ff43</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_2759a26f-eeda-4141-b27b-d450d998e2e5" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_730c0</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_3a9d9912-55e1-4a97-82ad-a170f64f43b9" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_38bd6</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_4299bc14-8873-48f7-9004-7776c80fb8e2" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_d8fbb</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_4a84d417-420e-43a5-bc85-9f7a92553291" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_f2167</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_5062cba8-8c83-4a41-85b8-a8e0378fb1f6" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_f2318</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_54afcd55-410f-4ec2-b6be-1b404aeb839a" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_9308f</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_5bdfa1a2-b2cb-4c74-9ce9-db07d6b72854" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_a4749</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_618f2a7a-3619-4769-b99a-ce357db9c578" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_ae1a3</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_8f6a9ddc-63fb-4b73-9afc-d6f98a3ca7c6" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_38911</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_94c89771-02cd-4170-b26a-11e2b35118a4" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_c8398</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_9df5b9f4-8e8a-462c-aad0-1463344e66a9" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_bbfaa</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_9e3b26d9-7fb2-49a7-9658-20f23c57bdff" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_c66bf</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_a14fd7ed-5599-46d5-ad5e-285e0e44efd8" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_de7d4</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_order_lines_d12e2d07-5c5a-4f72-bde4-4dda8ed24413" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_order_line_cc11a</field>
+    <field name="name">Purchase Order  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_requisition_765ec4db-a474-44ec-b2b3-ad2b9830cdba" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_purchase_requisition_line_line_481e4</field>
+    <field name="name">Purchase Requisition Line  Lines</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.r_d_56434773-fbe7-4c8b-881f-e28194c6702a" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="True"/>
+    <field name="is_mail_activity" eval="True"/>
+    <field name="model">x_r_d</field>
+    <field name="name">R&amp;D</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.r_d_categories_712cf38c-c76b-48f4-803d-936216cf75e3" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_r_d_categories</field>
+    <field name="name">R&amp;D Categories</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+  <record id="studio_customization.r_d_tags_be67adb1-6481-4b87-8f20-d02543889482" model="ir.model" context="{'studio': True}">
+    <field name="info"> Main super-class for regular database-persisted Odoo models.
+
+    Odoo models are created by inheriting from this class::
+
+        class user(Model):
+            ...
+
+    The system will later instantiate the class once per database (on
+    which the class' module is installed).
+    </field>
+    <field name="is_mail_thread" eval="False"/>
+    <field name="is_mail_activity" eval="False"/>
+    <field name="model">x_r_d_tag</field>
+    <field name="name">R&amp;D Tags</field>
+    <field name="state">manual</field>
+    <field name="transient" eval="False"/>
+  </record>
+</odoo>

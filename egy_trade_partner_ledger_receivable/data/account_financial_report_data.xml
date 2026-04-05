@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_account_report_partner_ledger_receivable" model="ir.actions.client">
+            <field name="name">Partner Ledger Receivable</field>
+            <field name="tag">account_report</field>
+            <field name="context" eval="{'model': 'account.partner.ledger.receivable'}" />
+        </record>
+        <menuitem id="menu_action_account_report_partner_ledger_receivable" name="Partner Ledger Receivable" action="action_account_report_partner_ledger_receivable" parent="sale.sale_order_menu" groups="account.group_account_user,sales_team.group_sale_salesman" />
+
+
+        <record id="general_ledger_action" model="ir.actions.act_window">
+            <field name="name">General Ledger</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.move.line</field>
+            <field name="view_mode">list,pivot,graph</field>
+            <!-- ('account_id','ilike','عهد') -->
+            <field name="domain">[('display_type', 'not in', ('line_section', 'line_note')), ('account_id','ilike','عهد')]</field>
+            <!-- <field name="search_view_id" ref="account.view_account_move_line_filter_with_root_selection"/> -->
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('account.view_move_line_tree_grouped_general')})]" />
+            <field name="context">{'journal_type':'general', 'search_default_group_by_account': 1, 'search_default_posted':1}</field>
+        </record>
+        <menuitem id="menu_action_general_ledger_action" name="General Ledger" action="general_ledger_action" parent="sale.sale_order_menu" groups="account.group_account_user" />
+    </data>
+</odoo>

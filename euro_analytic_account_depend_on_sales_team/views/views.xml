@@ -1,0 +1,24 @@
+<odoo>
+  <data>
+    <record id="add_analytic_account_in_sales_team" model="ir.ui.view">
+      <field name="model">crm.team</field>
+      <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='company_id']" position="after">
+          <field name="analytic_account_id" groups="account.group_account_manager"/>
+          <field name="payment_analytic_account_id" groups="account.group_account_manager"/>
+        </xpath>
+      </field>
+    </record>
+
+    <record id="account_move_analytic_account_in_move" model="ir.ui.view">
+      <field name="model">account.move</field>
+      <field name="inherit_id" ref="account.view_move_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='partner_id']" position="after">
+          <field name="analytic_account_flag" invisible='1'/>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>

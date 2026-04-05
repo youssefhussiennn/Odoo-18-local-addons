@@ -1,0 +1,35 @@
+<odoo>
+    <data>
+     <record id="sale_commission_account_move" model="ir.ui.view">
+      <field name="model">account.move</field>
+      <field name="inherit_id" ref="account.view_move_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//group[@id='header_left_group']" position="inside">
+          <field name="commission_id" options='{"always_reload": True, "no_open": True, "no_create": True}'/>
+          <field name="commission_percntage" groups="sale_commission_custom.access_sale_commission"/>
+          <field name="commission_state" groups="sale_commission_custom.access_sale_commission" widget="selection"/>
+        </xpath>
+      </field>
+     </record>
+
+     <!-- <record id="add_commission_state_in_invoice_list_view" model="ir.ui.view">
+      <field name="model">account.move</field>
+      <field name="inherit_id" ref="account.view_invoice_tree"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='state']" position="after">
+          <field name="commission_state" widget="badge" decoration-success="commission_state == 'paid'" decoration-info="commission_state == 'not_paid'" optional="show"/>
+        </xpath>
+      </field>
+     </record> -->
+
+     <record model="ir.actions.server" id="action_update_commission_state_view_ir_srver">
+      <field name="name">Mark Paid Commision</field>
+      <field name="model_id" ref="account.model_account_move"/>
+      <field name="binding_model_id" ref="account.model_account_move"/>
+      <field name="state">code</field>
+      <field name="code">
+        if records:
+          action = records.action_update_commission_state()</field>
+    </record>
+    </data>
+  </odoo>

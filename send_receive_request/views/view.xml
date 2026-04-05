@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_acount_journal_form_inherit" model="ir.ui.view">
+        <field name="name">Journal Form Inheri</field>
+        <field name="model">account.journal</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='country_code']" position="after">
+                <field name="pay_type" modifiers="{'invisible': [('type', 'not in', ('cash', 'bank'))]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_account_document_out_payment" model="ir.actions.act_window">
+        <!-- <field name="type">ir.actions.act_window</field> -->
+        <field name="name">Documents Out</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{ 'default_is_document': True,
+                                'default_payment_type': 'outbound',
+                                'default_partner_type': 'supplier'}
+        </field>
+        <field name="domain">[('is_document','=',True), ('payment_type','=',False), ('payment_type','=', 'outbound')]</field>
+    </record>
+
+    <record id="action_account_document_in_payment" model="ir.actions.act_window">
+        <!-- <field name="type">ir.actions.act_window</field> -->
+        <field name="name">Documents In</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{ 'default_is_document': True,
+                                'default_payment_type': 'inbound',
+                                'default_partner_type': 'customer'}
+        </field>
+        <field name="domain">[('is_document','=',True), ('payment_type','=',False),('payment_type','=', 'inbound')]</field>
+    </record>
+
+    <record id="action_account_document_internal_payment" model="ir.actions.act_window">
+        <!-- <field name="type">ir.actions.act_window</field> -->
+        <field name="name">Internal Transfer</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{ 'default_is_document': True,
+                                'default_payment_type': 'outbound',
+                                'default_is_internal_transfer': True,}
+        </field>
+        <field name="domain">[('is_document','=',True),('payment_type','=', True)]</field>
+    </record>
+
+    <!-- out -->
+    <record id="view_account_payment_document_out_tree" model="ir.ui.view">
+        <field name="name">account.payment.document.out.list</field>
+        <field name="model">account.payment</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'" decoration-muted="state in ['reconciled', 'cancelled']"
+                  edit="false">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="payment_method_id"/>
+                <field name="partner_id" string="Partner"/>
+                <field name="amount" sum="Amount"/>
+                <field name="state"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="partner_type" invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <!-- in -->
+    <record id="view_account_payment_document_in_tree" model="ir.ui.view">
+        <field name="name">account.payment.document_in.list</field>
+        <field name="model">account.payment</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'" decoration-muted="state in ['reconciled', 'cancelled']"
+                  edit="false">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="payment_method_id"/>
+                <field name="partner_id" string="Partner"/>
+                <field name="amount" sum="Amount"/>
+                <field name="state"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="partner_type" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- internal -->
+    <record id="view_account_payment_document_internal_tree" model="ir.ui.view">
+        <field name="name">account.payment.document_internal.list</field>
+        <field name="model">account.payment</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'draft'" decoration-muted="state in ['reconciled', 'cancelled']"
+                  edit="false">
+                <field name="name"/>
+                <field name="journal_id"/>
+                <field name="payment_method_id"/>
+                <field name="partner_id" string="Partner"/>
+                <field name="amount" sum="Amount"/>
+                <field name="state"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="partner_type" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="account_payment_document_out_inherited_view">
+        <field name="name">account.payment.document.out.inherited.view</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="mode">primary</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="destination_account_id" 
+                    options="{'no_create': True}"  
+                    modifiers="{
+                        'required': [('post_type', '=', 'single')], 
+                        'invisible': [('post_type', '!=', 'single')], 
+                        'readonly': ['|', ('state', '!=', 'draft'), ('payment_type', '=', 'transfer')]
+                    }"/>
+                <!-- <attribute name="attrs">{'required': [('post_type', '=', 'single')],'invisible': [('post_type','!=','single')]}</attribute> -->
+            </xpath>
+            <xpath expr="//field[@name='payment_type']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_type']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_bank_id']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='payment_type']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+
+            <!-- <xpath expr="//field[@name='move_id']" position="attributes">
+                <attribute name="attrs">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath> -->
+
+            <xpath expr="//field[@name='partner_id']" position="replace">
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="replace">
+            </xpath>
+            <xpath expr="//field[@name='destination_account_id']" position="attributes">
+                <attribute name="string">Account</attribute>
+            </xpath>
+           <xpath expr="//field[@name='destination_account_id']" position="after">
+                <field name="partne_required" modifiers="{'invisible': True}"/>
+                <field name="post_type" modifiers="{'invisible': [('payment_type', '=', 'inbound')], 'readonly': [('state', '!=', 'draft')]}"/>
+                <field name="partner_id" modifiers="{
+                    'invisible': [('post_type', '!=', 'single')], 
+                    'readonly': [('state', '!=', 'draft')], 
+                    'required': [('partne_required', '=', True), ('post_type', '=', 'single')]
+                }"/>
+                <field name="is_document" modifiers="{'invisible': True}"/>
+            </xpath>
+
+
+            <xpath expr="//group[@name='group2']" position="after">
+                <group colspan='12'>
+                    <field name="writeoff_multi_acc_ids" 
+                        modifiers="{
+                            'invisible': [('post_type', '=', 'single')], 
+                            'readonly': [('state', '!=', 'draft')]
+                        }">
+                        <list editable="bottom">
+                            <field name='writeoff_account_id'/>
+                            <field name="partne_required" invisible="1"/>
+                            <!-- <field name="required_analytical" invisible="1"/> -->
+                            <field name='writeoff_partner_id' required="1"/>
+                            <field name='name'/>
+                            <!-- attrs="{'required': [('required_analytical','=',True)]}" -->
+                            <field name='analytic_distribution' />
+                            <field name='analytic_tag_ids' widget='many2many_tags'/>
+                            <field name='amount'/>
+                            <field name='currency_id' invisible="1"/>
+                        </list>
+                    </field>
+                </group>
+
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="string">Partner</attribute>
+            </xpath>
+
+
+            <xpath expr="//field[@name='journal_id']" position="replace">
+                
+                <field name="journal" invisible='1'/>
+                <field name="journal_id"
+                    widget="selection"
+                    domain="[('type', 'in', ('cash', 'bank'))]"
+                    modifiers="{'readonly': [('state', '!=', 'draft')]}"/>
+            </xpath>
+            
+        </field>
+    </record>
+
+    <record id="view_account_account_form_inherited" model="ir.ui.view">
+        <field name="name">view.account.account.form.inherit</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='allowed_journal_ids']" position="after">
+              <field name="is_customer"/>
+              <field name="is_vendor"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="account_payment_document_in_inherited_view">
+        <field name="name">account.payment.document.in.inherited.view</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="mode">primary</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            
+
+            <xpath expr="//field[@name='partner_id']" position="after">
+            <field name="destination_account_id" 
+                options="{'no_create': True}" 
+                modifiers="{
+                    'required': [('post_type', '=', 'single')], 
+                    'invisible': [('post_type', '!=', 'single')], 
+                    'readonly': ['|', ('state', '!=', 'draft'), ('payment_type', '=', 'transfer')]
+                }"/>
+
+                <!-- <attribute name="attrs">{'required': [('post_type', '=', 'single')],'invisible': [('post_type','!=','single')]}</attribute> -->
+            </xpath>
+            <xpath expr="//field[@name='payment_type']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_type']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_bank_id']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='payment_type']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+
+            <!-- <xpath expr="//field[@name='move_id']" position="attributes">
+                <attribute name="attrs">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath> -->
+
+            <xpath expr="//field[@name='partner_id']" position="replace">
+            </xpath>
+            <xpath expr="//field[@name='destination_account_id']" position="attributes">
+                <attribute name="string">Account</attribute>
+            </xpath>
+           <xpath expr="//field[@name='destination_account_id']" position="after">
+                <field name="partne_required" modifiers="{'invisible': True}"/>
+                <field name="post_type" modifiers="{
+                    'invisible': [('payment_type', '=', 'inbound')], 
+                    'readonly': [('state', '!=', 'draft')]
+                }"/>
+                <field name="partner_id" modifiers="{
+                    'readonly': [('state', '!=', 'draft')], 
+                    'required': [('partne_required', '=', True), ('post_type', '=', 'single')]
+                }"/>
+                <field name="is_document" modifiers="{'invisible': True}"/>
+            </xpath>
+
+
+            <xpath expr="//group[@name='group2']" position="after">
+                <group colspan='12'>
+                    <field name="writeoff_multi_acc_ids" 
+                        modifiers="{
+                            'invisible': [('post_type', '=', 'single')], 
+                            'readonly': [('state', '!=', 'draft')]
+                        }">                        
+                        <list editable="bottom">
+                            <field name='writeoff_account_id'/>
+                            <field name="partne_required" invisible="1"/>
+                            <!-- <field name="required_analytical" invisible="1"/> -->
+                            <!-- <field name='writeoff_partner_id' domain="['|', ('parent_id', '=', False), ('is_company', '=', True)]" attrs="{'required': [('partne_required','=',True)]}"/> -->
+                            <field name='name'/>
+                            <!-- attrs="{'required': [('required_analytical','=',True)]}" -->
+                            <field name='analytic_distribution' />
+                            <field name='analytic_tag_ids' widget='many2many_tags'/>
+                            <field name='amount'/>
+                            <field name='currency_id' invisible="1"/>
+                        </list>
+                    </field>
+                </group>
+
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="string">Partner</attribute>
+            </xpath>
+
+
+            <xpath expr="//field[@name='journal_id']" position="replace">
+                <field name="journal" modifiers="{'invisible': True}"/>
+                <field name="journal_id"
+                    widget="selection"
+                    domain="[('type', 'in', ('cash', 'bank'))]"
+                    modifiers="{'readonly': [('state', '!=', 'draft')]}"/>
+            </xpath>
+
+            
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="account_payment_document_internal_inherited_view">
+        <field name="name">account.payment.document.internal.inherited.view</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="mode">primary</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            
+
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="destination_account_id" 
+                    options="{'no_create': True}" 
+                    required="1" 
+                    modifiers="{'readonly': ['|', ('state', '!=', 'draft'), ('payment_type', '=', 'transfer')]}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='payment_type']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_type']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_bank_id']" position="attributes">
+                <attribute name="modifiers">{'invisible': [('is_document', '=', True)]}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="replace">
+            </xpath>
+
+            <xpath expr="//field[@name='destination_account_id']" position="attributes">
+                <attribute name="string">Account</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='destination_account_id']" position="after">
+                <field name="partne_required" modifiers="{'invisible': True}"/>
+                <field name="partner_id" 
+                    modifiers="{
+                        'readonly': [('state', '!=', 'draft')], 
+                        'required': [('partne_required', '=', True)]
+                    }"/>
+                <field name="is_document" modifiers="{'invisible': True}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="string">Partner</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='journal_id']" position="replace">
+                <field name="journal_id"
+                    widget="selection"
+                    domain="[('type', 'in', ('cash', 'bank'))]"
+                    modifiers="{'readonly': [('state', '!=', 'draft')]}"/>
+            </xpath>
+
+            
+        </field>
+    </record>
+
+    
+    <record model="ir.actions.act_window.view" id="action_document_out_payment_tree">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_account_payment_document_out_tree"/>
+        <field name="act_window_id" ref="action_account_document_out_payment"/>
+    </record> 
+    <record model="ir.actions.act_window.view" id="action_document_in_payment_tree">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_account_payment_document_in_tree"/>
+        <field name="act_window_id" ref="action_account_document_in_payment"/>
+    </record>
+    <record model="ir.actions.act_window.view" id="action_document_internal_payment_tree">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_account_payment_document_internal_tree"/>
+        <field name="act_window_id" ref="action_account_document_internal_payment"/>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="action_document_out_payment_form">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_payment_document_out_inherited_view"/>
+        <field name="act_window_id" ref="action_account_document_out_payment"/>
+    </record>
+    <record model="ir.actions.act_window.view" id="action_document_in_payment_form">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_payment_document_in_inherited_view"/>
+        <field name="act_window_id" ref="action_account_document_in_payment"/>
+    </record>
+    <record model="ir.actions.act_window.view" id="action_document_internal_payment_form">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_payment_document_internal_inherited_view"/>
+        <field name="act_window_id" ref="action_account_document_internal_payment"/>
+    </record>
+
+
+    <menuitem
+            id="menu_action_account_document_out_payment"
+            action="action_account_document_out_payment"
+            sequence="25"
+            parent="account.menu_finance_payables"/>
+    <menuitem
+            id="menu_action_account_document_in_payment"
+            action="action_account_document_in_payment"
+            sequence="26"
+            parent="account.menu_finance_receivables"/>
+    <menuitem
+            id="menu_action_account_document_internal_payment"
+            action="action_account_document_internal_payment"
+            sequence="26"
+            parent="account.menu_finance_receivables"/>
+
+    
+
+    <menuitem
+            id="menu_in_out_payment"
+            name="Cash In/Out"
+            sequence="25"
+            web_icon="fa fa-database,#FFFFFF,#34495e"/>
+    <menuitem
+            id="main_action_account_document_in_payment"
+            name="Cash In"
+            action="action_account_document_in_payment"
+            sequence="1"
+            parent="send_receive_request.menu_in_out_payment"/>    
+    <menuitem
+            id="main_action_account_document_out_payment"
+            name="Cash Out"
+            action="action_account_document_out_payment"
+            sequence="2"
+            parent="send_receive_request.menu_in_out_payment"/>
+    <menuitem
+            id="main_action_account_document_internal_payment"
+            name="Internal Transfer"
+            action="action_account_document_internal_payment"
+            sequence="3"
+            parent="send_receive_request.menu_in_out_payment"/>   
+
+    
+    <report
+            id="payment_statment_report_pdf"
+            model="account.payment"
+            report_type="qweb-pdf"
+            string="Payment Statment"
+            name="send_receive_request.print_payment_statment_report"
+            file="send_receive_request.print_payment_statment_report"
+    />
+
+    <template id="custom_external_layout_header_statment_payment">
+       <t t-if="not o" t-set="o" t-value="doc"/>
+
+        <t t-if="not company">
+            <!-- Multicompany -->
+            <t t-if="company_ids">
+                <t t-set="company" t-value="company_ids"/>
+            </t>
+            <t t-elif="o and 'company_ids' in o">
+                <t t-set="company" t-value="o.company_ids.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+        <div class="header" style="margin-bottom:0px;margin-top:0px;padding:0px">
+            
+            <img t-if="company.logo" class=" text-center"
+                                    t-att-src="image_data_uri(company.logo)"
+                                    style="max-height: 100px;max-width: 100;float:left;padding:0px;margin:0px" alt="Logo"/>
+            <div style="float:right">
+                <h4 t-field="company.name"/>
+            </div>
+        </div>
+
+        <hr/>
+    </template>
+
+    <template id="custom_external_layout_footer_payment">
+
+        <t t-if="not company">
+            <t t-if="company_ids">
+                <t t-set="company" t-value="company_ids"/>
+            </t>
+            <t t-elif="doc and 'company_ids' in doc">
+                <t t-set="company" t-value="doc.company_ids.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+        <div class="footer" style="border-top: 1px solid black;">
+            <div> 
+                <h5 style="float:center">
+                <span t-field="company.name"/><t t-if="company.name">-</t>
+                <span t-field="company.partner_id.street"/><t t-if="company.partner_id.street">-</t>
+                <span t-field="company.partner_id.city"/><t t-if="company.partner_id.city">-</t>
+                <span t-field="company.partner_id.state_id.name"/>
+                <t t-if="company.partner_id.state_id.name">-</t>
+                <span t-field="company.partner_id.country_id.name"/><span class="fa fa-map-marker" style="padding-left:3px"/>
+                </h5>
+                <h5 style="float:center"><span t-field="company.partner_id.phone"/>
+                <t t-if="company.partner_id.mobile">-</t>
+                <span t-field="company.partner_id.mobile"/><span class="fa fa-phone"></span></h5>
+            </div>
+        </div>
+        
+        
+    </template>
+
+    <template id="custom_external_layout_payment_statment">
+        
+        <t t-call="send_receive_request.custom_external_layout_header_statment_payment">
+            <t t-raw="0"/>
+        </t>
+        <div class="article o_report_layout_standard" t-att-data-oe-model="o and o._name"
+                t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <t t-call="web.address_layout"/>
+            <t t-raw="0"/>
+        </div>
+        <t t-call="send_receive_request.custom_external_layout_footer_payment"/>
+    </template>
+
+
+    <template id="print_payment_statment_report">
+        <t t-call="web.html_container">
+            <t t-call="send_receive_request.custom_external_layout_payment_statment">
+                <div class="page" style="font_size:16pt !important;">
+                    <t t-foreach="docs" t-as="doc">
+                        <div class="col-md-6" style="border:0px solid black;">
+                            <br/>
+                            
+                            <table class="table table-condensed"
+                                    style="width:100%;border: 0px solid black;border-collapse: collapse;">
+                                <tr>
+                                    <td>
+                                        <br/>
+                                            <t t-if="doc.payment_type == 'outbound'">
+                                                <t t-if="not doc.journal_id.type == 'bank'">    
+                                                    <h3 class="text-center" style="font-size: 25px;">
+                                                        <strong><u>إيصال صرف نقدي</u> <br/> <u>Cash Payable Voucher</u></strong>
+                                                    </h3>
+                                                </t>
+                                                <t t-if="doc.journal_id.type == 'bank'">    
+                                                    <h3 class="text-center" style="font-size: 25px;">
+                                                        <strong><u>ايصال صرف شيك / تحويل بنكى</u> <br/> <u>Cash Payable Voucher</u></strong>
+                                                    </h3>
+                                                </t>
+                                            </t>
+                                            <t t-if="doc.payment_type == 'inbound'">
+                                                <t t-if="doc.payment_type == 'transfer'">
+                                                    <h3 class="text-center" style="font-size: 25px;">
+                                                        <strong><u>اذن صرف نقدية</u> <br/> <u>Cash Payable Voucher</u></strong>
+                                                    </h3>
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-if="not doc.journal_id.type == 'bank'">    
+                                                        <h3 class="text-center" style="font-size: 25px;">
+                                                            <strong><u>إيصال إستلام نقدي</u> <br/> <u>Cash Receivable Voucher</u></strong>
+                                                        </h3>
+                                                    </t>
+                                                    <t t-if="doc.journal_id.type == 'bank'">    
+                                                        <h3 class="text-center" style="font-size: 25px;">
+                                                            <strong><u>ايصال استلام شيك / تحويل بنكى</u> <br/> <u>Cash Receivable Voucher</u></strong>
+                                                        </h3>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        <br/>
+
+                                        <div style="border:1px solid black;float:right;pading:10px;font-size:1em;font-weight: bolder">
+                                            <strong><span t-field="doc.name"/></strong>
+                                        </div>
+
+                                        <div class="row">
+                                            <table width="100%" class="table-bordered" style='font-size:1em;font-weight: bolder'>
+                                                <tr>
+                                                    <td>
+                                                    <h5>Journal:
+                                                        <span t-field="doc.journal_id.name"/></h5>
+                                                    </td>
+                                                    <td>
+                                                        <h5>Date:
+                                                        <span t-field="doc.date"/></h5>
+                                                    </td>
+                                                </tr>
+                                                <!-- <t t-if="doc.post_type == 'multi'"> -->
+                                                    <tr>
+                                                        <!-- <t t-if="doc.post_type == 'single'"> -->
+                                                            <td>
+                                                                <h5>السيد:
+                                                                <span t-field="doc.partner_id.name"/></h5>
+                                                            </td>
+                                                        <!-- </t> -->
+
+                                                        <td>
+                                                            <h5>بيان:
+                                                            <span t-field="doc.ref"/></h5>
+                                                        </td>
+                                                    </tr>
+                                                <!-- </t> -->
+
+                                            </table>
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <t t-if="doc.post_type == 'single'">
+                                <table class="table table-border"
+                                        style="width:100%;border-collapse: collapse;border: 1px solid gray;font-size:1em;font-weight: bolder">
+                                    <tr>
+                                        <th>Account</th>
+                                        <!-- <th>partner</th> -->
+                                        <th>Label</th>
+                                        <!-- <th>Analytic Account</th> -->
+                                        <th>Amount</th>
+                                    </tr>
+                                    <tr>
+                                        <td><span t-field="doc.destination_account_id.name"/></td>
+                                        <!-- <td><span t-field="doc.partner_id.name"/></td> -->
+                                        <td><span t-field="doc.ref"/></td>
+                                        <td><span t-field="doc.amount"/></td>
+                                    </tr>
+                                </table>
+                                <br/>
+                                <center style='font-size:1em;font-weight: bolder'><span t-field="doc.numinwords"/></center>
+                                <br/>
+                            </t>
+
+                            <t t-if="doc.post_type == 'multi'">
+
+                                <table class="table table-border"
+                                        style="width:100%;border-collapse: collapse;border: 1px solid gray;font-size:1em;font-weight: bolder">
+
+                                        <tr>
+                                            <th>Account</th>
+                                            <!-- <th>partner</th> -->
+                                            <th>Label</th>
+                                            <th>Analytic Account</th>
+                                            <!-- <th>Analytic Tags</th> -->
+                                            <th>Amount</th>
+                                        </tr>
+
+                                        <t t-set="sum_amount" t-value="0"/>
+                                        <t t-foreach="doc.writeoff_multi_acc_ids" t-as="line">
+                                            <tr>
+                                                <td><span t-field="line.writeoff_account_id.name"/></td>
+                                                <!-- <td><span t-field="line.writeoff_partner_id.name"/></td> -->
+                                                <td><span t-field="line.name"/></td>
+                                                <td><span t-field="line.analytic_distribution"/></td>
+                                                <!-- <td>
+                                                    <t t-foreach="line.analytic_tag_ids" t-as="tag">
+                                                        <p style="border-style: none solid;"><span t-field="tag.name"/></p>
+                                                    </t>
+                                                </td> -->
+                                                <td><span t-field="line.amount"/></td>
+                                                <t t-set="sum_amount" t-value="sum_amount+line.amount"/>
+                                            </tr>
+                                        </t>
+
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td><strong style='font-size:1em;font-weight: bolder'><span t-esc="sum_amount"/></strong></td>
+                                        </tr>
+
+                                </table>
+
+                                   
+                                <center><span t-field="doc.numinwords"/></center>
+                            </t>
+                            <br/>
+
+                            <strong style="float:right;"><u>المستلم</u></strong>
+                            <br/>
+                            <strong style="float:right;">/اﻷسم</strong>
+                            <br/>
+                            <br/>
+                            <strong style="float:right;">/التوقيع</strong>
+                            <br/>
+                            <br/>
+
+                            <center>
+                                <div style="border:0px solid black;">
+                                    &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;
+                                    <div style="display:inline-block;float:left">
+                                        <strong>المدير المالي</strong>
+                                        <br/>
+                                        <hr/>
+                                    </div>
+                                    &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;
+                                    <div style="display:inline-block">
+                                        <strong>المراجعة</strong>
+                                        <br/>
+                                        <hr/>
+                                    </div>
+                                    &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;
+                                    <div style="display:inline-block;float:right">
+                                        <strong>أمين الخزينه</strong>
+                                        <br/>
+                                        <hr/>
+                                    </div>
+                                    &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160;
+                                </div>
+                            </center>
+                            <!-- <center>
+                                <div>
+                                    <strong>Received by &#160; &#160; &#160; &#160; المستلم</strong>
+                                    <br/>
+                                    <hr/>
+                                </div>
+                            </center> -->
+
+                            <!-- <br/>
+                            <br/>
+                            <br/> -->
+
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="custom_external_layout_journal_print">
+
+        <div class="header" style="margin-top:0px;border-bottom: 1px solid black;direction: rtl">
+            <div class="row">
+                <div class="col-12" style="border:0px">
+                    <img src="/it-shild_invoice/static/src/img/logo.png" style="float:right;width: 100px;"/>
+                </div>
+                <br/>
+            </div>
+                
+        </div>
+        
+        <div class="article o_report_layout_background" t-att-data-oe-model="o and o._name"
+                t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <t t-call="web.address_layout"/>
+            <t t-raw="0"/>
+        </div>
+    </template>
+
+    <template id="journal_entries_report_id">
+        <t t-call="web.html_container">
+            <t t-call="print_journal_entires.custom_external_layout_journal_print">
+                <!-- <link rel='stylesheet' href="/print_journal_entires/static/src/css/report_css.css"/> -->
+                <t t-foreach="docs" t-as="o">
+                    <div class="page" style="font-size:15px;">
+                        <br/>
+                        <div>
+                            <h3>
+                                <span t-field="o.name"/>
+                            </h3>
+                        </div>
+                        <br></br>
+                        <div class="row">
+                            <table width="100%" class="table-bordered">
+                                <tr>
+                                    <td>Journal:
+                                        <span t-field="o.journal_id.name" />
+                                    </td>
+                                    <td>
+                                        Date:
+                                        <span t-field="o.date"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Partner:
+                                        <span t-field="o.partner_id.name"/>
+                                    </td>
+                                    <td>
+                                        Reference:
+                                        <span t-field="o.ref"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="row">
+                            <style>
+                    .tblbordr {
+                        text-align: center;
+                        border: 2px solid black;
+                    }
+                    </style>
+                            <br></br>
+                            <!-- style="border-collapse:separate;" -->
+                            <table width="100%" class="table table-striped">
+                                <thead >
+                                    <tr >
+                                        <th scope="col">Account</th>
+                                        <th scope="col">code</th>
+                                        <th scope="col">Partner</th>
+                                        <th scope="col">Lable</th>
+                                        <!-- <th scope="col">Analytic Account</th> -->
+                                        <!-- <th scope="col">Analytic Tags</th> -->
+                                        <th scope="col">Debit</th>
+                                        <th scope="col">Credit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.line_ids" t-as="line">
+                                        <tr>
+                                            <td>
+                                                <span t-field="line.account_id.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.account_id.code"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.partner_id.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.name"/>
+                                            </td>
+                                            <!-- <td>
+                                                <span t-field="line.analytic_account_id.name"/>
+                                            </td> -->
+                                            <!-- <td>
+                                                <t t-foreach="line.analytic_tag_ids" t-as="analytic_tag">
+                                                    <span t-field="analytic_tag.name"/>
+                                                </t>
+                                            </td> -->
+                                            <td>
+                                                <span t-field="line.debit"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="line.credit"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfooter>
+                                    <tr>
+                                        <td colspan="6"></td>
+                                        <td>
+                                            <span t-esc="o.total_debit_credit().get('dr_total')"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="o.total_debit_credit().get('cr_total')"/>
+                                        </td>
+                                    </tr>
+                                </tfooter>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+                <table style="border:1px #000 solid;width:100%;text-align:center;margin-top: 16px !important;">
+                    <tbody>
+                        <tr>
+                            <td><span style="visibility: hidden;">Hi</span></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Prepared By</td>
+                            <td>Checked By</td>
+                            <td>Approved By</td>
+                        </tr>
+                        <tr>
+                            <td><span style="visibility: hidden;">Hi</span></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><span style="visibility: hidden;">Hi</span></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+        </t>
+    </template>
+    <record id="journal_entries_moce_print_id" model="ir.actions.report">
+        <field name="name">Journal Entries</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">print_journal_entires.journal_entries_report_id</field>
+        <field name="report_file">print_journal_entires.journal_entries_report_id</field>
+        <field name="print_report_name">('Journal - %s' % (object.name))</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+	<field name="groups_id" eval="[(4, ref('account.group_account_user'))]"/>
+    </record>
+</odoo>

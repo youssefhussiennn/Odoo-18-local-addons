@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="analytic_tag_filter_general_ledger.AccountReportFilterAnalyticTag"
+       t-inherit="account_reports.AccountReportFilterAnalytic"
+       t-inherit-mode="extension">
+
+        <xpath expr="//div[hasclass('dropdown-item')][last()]" position="after">
+
+            <t t-if="'analytic_tag_ids' in controller.options">
+                <div class="dropdown-item gap-2 align-items-center">
+                    <label>Analytic Tags</label>
+
+                    <MultiRecordSelector
+                        t-props="getAnalyticTagMultiRecordSelectorProps()"/>
+                </div>
+            </t>
+
+        </xpath>
+    </t>
+</templates>

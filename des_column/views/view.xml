@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_order_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list/field[@name='name']" position="after">
+                    <field name="extra_des"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <template id="add_extra_description_col" inherit_id="sale.report_saleorder_document">
+            <xpath expr="//th[@name='th_description']" position="after">
+                <th class="text-left">Extra Description</th>
+            </xpath>
+            <xpath expr="//td[@name='td_name']" position="after">
+                <td><span t-field="line.extra_des"/></td>
+            </xpath>
+        </template>
+    </data>
+</odoo>

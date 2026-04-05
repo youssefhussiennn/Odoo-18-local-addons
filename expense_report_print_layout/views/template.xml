@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_expense_sheet_multi_lines">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+              <t t-set="lines" t-value="docs.mapped('employee_id')"/>
+                <t t-foreach="lines" t-as="o">
+                  <t t-set="data" t-value="docs.filtered(lambda x: x.employee_id.name == o.name)"/>
+                    <div class="page">
+                        <h2>Expenses Report</h2>
+
+                        <div class="row mt32 mb32">
+                            <div class="col-2">
+                                <strong>Employee:</strong>
+                                <p t-field="data[0].employee_id.name"/>
+                            </div>
+                        </div>
+                        <table class="table table-sm">
+                          <thead>
+                              <tr>
+                                  <th>Date</th>
+                                  <th>Discription</th>
+                                  <th>Analytic Tags</th>
+                                  <th class="text-right">Amount</th>
+                              </tr>
+                          </thead>
+
+                          <!-- <t t-foreach="data" t-as="o"> -->
+                            <tbody>
+                                <t t-set="categories" t-value="data.expense_line_ids.mapped('product_id')"/>
+                                <t t-foreach="categories" t-as="category">
+                                  <t t-set="final_lines" t-value="data.expense_line_ids.filtered(lambda x: x.product_id.name == category.name)"/>
+                                    <tr style="background-color:#D3D3D3">
+                                      <td>Category:</td>
+                                      <td colspan="3"><span t-field="final_lines[0].product_id.name"/></td>
+                                    </tr>
+                                      <tr t-foreach="final_lines" t-as="line">
+                                          <td><span t-field="line.date"/></td>
+                                          <td>
+                                              <span t-field="line.name"/>
+                                              <span t-field="line.description"/><br/>
+                                              <span t-field="line.analytic_account_id.name"/>
+                                          </td>
+                                          <td>
+                                              <t t-foreach="line.analytic_tag_ids" t-as="tag">
+                                                <span t-field="tag.name"/><br/>
+                                              </t>
+                                          </td>
+                                          
+                                          <td class="text-right">
+                                            <!-- t-field="line.total_amount" -->
+                                              <span t-field="line.total_amount"
+                                                  t-options='{"widget": "monetary", "display_currency": line.currency_id}'/>
+                                          </td>
+                                          
+                                      </tr>
+                                </t>
+                            </tbody>
+                            
+                        <!-- </t>  -->
+                        <!-- data foreach end-->
+                      </table>
+
+                        <div class="row justify-content-end">
+                            <div class="col-4">
+                                <table class="table table-sm">
+                                    <tr class="border-black">
+                                        <td><strong>Total</strong></td>
+                                        <td class="text-right">
+                                            <span t-esc="sum(data.mapped('total_amount'))"
+                                                t-options='{"widget": "monetary", "display_currency": data.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <p>Certified honest and conform,<br/>(Date and signature).<br/><br/></p>
+                  </div>
+                </t>
+
+                
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_hr_expense_sheet_multi_lines" model="ir.actions.report">
+        <field name="name">Expenses Report Multi Lines</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">expense_report_print_layout.report_expense_sheet_multi_lines</field>
+        <field name="report_file">expense_report_print_layout.report_expense_sheet_multi_lines</field>
+        <field name="print_report_name">'Expenses - %s - %s' % (object.employee_id.name, (object.name).replace('/', ''))</field>
+        <field name="binding_model_id" ref="model_hr_expense_sheet"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+
+    <!--Hide Dashbord in expense report-->
+    <record id="expense_tree_view_inherit" model="ir.ui.view">
+        <field name="name">expense Tree View Inherit</field>
+        <field name="model">hr.expense</field>
+        <field name="type">tree</field>
+        <field name="inherit_id" ref="hr_expense.view_expenses_tree"/>
+        <field name="arch" type="xml">
+          <xpath expr="//tree" position="attributes">
+              <!-- Display the tree dashboard view with the header -->
+              <attribute name="js_class"></attribute>
+              <attribute name="class"></attribute>
+
+          </xpath>
+           
+        </field>
+    </record>
+
+
+    <record id="expense_my_tree_view_inherit" model="ir.ui.view">
+        <field name="name">expense my Tree View Inherit</field>
+        <field name="model">hr.expense</field>
+        <field name="type">tree</field>
+        <field name="inherit_id" ref="hr_expense.view_my_expenses_tree"/>
+        <field name="arch" type="xml">
+          <xpath expr="//tree" position="attributes">
+              <!-- Display the tree dashboard view with the header -->
+              <attribute name="js_class"></attribute>
+              <attribute name="class"></attribute>
+
+          </xpath>
+           
+        </field>
+    </record>
+
+    <record id="hr_expense_form_view_inherit" model="ir.ui.view">
+      <field name="name">Hr Expense Form View Inherit</field>
+      <field name="model">hr.expense</field>
+      <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='product_id']" position="after">
+          <!-- <group name="meter_reading" string="Meter Reading"> -->
+            <field name="required_meter_reading" invisible='1'/>
+            <field name="required_servicing" invisible='1'/>
+            <field name="meter_reading" attrs="{'invisible': [('required_meter_reading', '=', False)]}"/>
+            <field name="servicing_from" attrs="{'invisible': [('required_servicing', '=', False)]}"/>
+            <field name="servicing_to" attrs="{'invisible': [('required_servicing', '=', False)]}"/>
+            <field name="servicing_rate" groups="hr_expense.group_hr_expense_team_approver" attrs="{'invisible': [('required_servicing', '=', False)]}"/>
+            
+          <!-- </group> -->
+          
+        </xpath>
+      </field>
+    </record>
+
+
+    <record id="product_template_form_view_inherit" model="ir.ui.view">
+      <field name="name">Product Template Form View Inherit</field>
+      <field name="model">product.template</field>
+      <field name="inherit_id" ref="product.product_template_form_view"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='company_id']" position="after">
+          <field name="required_meter_reading"/>
+          <field name="required_servicing"/>
+          
+        </xpath>
+      </field>
+    </record>
+
+    
+
+</odoo>

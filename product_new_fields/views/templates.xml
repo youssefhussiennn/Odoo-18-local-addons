@@ -1,0 +1,31 @@
+<odoo>
+    <data>
+
+        <template id="sale_order_inherit" inherit_id="sale.report_saleorder_document">
+
+          <xpath expr="//table/thead/tr/th[@name='th_description']" position="after">
+            <t t-if="doc.state in ['draft','sent']">
+              <th name="country_of_origin" class="text-left">Country of Origin</th>
+              <th name="usage_rate" class="text-left">Usage rate</th>
+              <th name="composition" class="text-left">Composition</th>
+            </t>
+          </xpath>
+          <xpath expr="//table/thead/tr/th[@name='th_taxes']" position="replace">
+          </xpath>
+
+          <xpath expr="//table/tbody/t[2]/tr/t[1]/td[@name='td_name']" position="after">
+            <t t-if="doc.state in ['draft','sent']">
+              <td name="country_of_origin"><span t-field="line.country_of_origin"/></td>
+              <td name="usage_rate"><span t-field="line.usage_rate"/></td>
+              <td name="composition"><span t-field="line.composition"/></td>
+            </t>
+          </xpath>
+
+
+          <xpath expr="//table/tbody/t[2]/tr/t[1]/td[@name='td_taxes']" position="replace">
+          </xpath>
+        
+        </template>
+
+    </data>
+</odoo>

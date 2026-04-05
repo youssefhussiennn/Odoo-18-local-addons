@@ -1,0 +1,270 @@
+<odoo>
+    <data>
+      <record id="paperformat_portrait_general_ledger" model="report.paperformat">
+        <field name="name">Print Gneral Ledger</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">19</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">100</field>
+    </record>
+
+
+    <record id="action_report_general_ledger" model="ir.actions.report">
+        <field name="name">General Ledger</field>
+        <field name="model">account.move.line</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">general_ledger_print_layout.general_ledger_print</field>
+        <field name="report_file">general_ledger_print_layout.general_ledger_print</field>
+        <field name="paperformat_id" ref="general_ledger_print_layout.paperformat_portrait_general_ledger" />
+        <field name="binding_model_id" eval="False" />
+        <!-- <field name="binding_model_id" ref="model_account_move_line" /> -->
+        <field name="binding_type">report</field>
+    </record>
+
+
+    <template id="custom_external_layout_footer_general_ledger">
+
+      <div/>
+    </template>
+
+    <template id="custom_external_layout_general_ledger">
+
+        <t t-if="not company">
+            <!-- Multicompany -->
+            <t t-if="company_id">
+                <t t-set="company" t-value="company_id"/>
+            </t>
+            <t t-elif="o and 'company_id' in o">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+
+        <div t-attf-class="o_company_#{company.id}_layout article o_report_layout_background" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <t t-call="web.address_layout"/>
+            <t t-raw="0"/>
+            
+        </div>
+        <t t-call="general_ledger_print_layout.custom_external_layout_footer_general_ledger"/>
+    </template>
+
+    <template id="general_ledger_print">
+      <t t-call="web.html_container">
+          <t t-call="general_ledger_print_layout.custom_external_layout_general_ledger">
+            <!-- <t t-set="test" t-value="request.env['account.move.line'].sudo().fields_view_get('account.view_move_line_tree_grouped_general')"/> -->
+                <div class="page">
+                    <br/>
+                    <br/>
+                    <div class="row" style="direction:rtl">
+                        <div style="width:50%;" >
+                            <h4 style="float:right">التاريخ:
+                                <span t-esc="datetime.datetime.now().strftime('%Y-%m-%d')"/>
+                                
+                            </h4>
+                        </div>
+                        <div style="width:50%;">
+                            <img t-if="partner_ids[0].company_id.logo"
+                                t-att-src="image_data_uri(partner_ids[0].company_id.logo)"
+                                style="max-height: 320px;max-width: 170px;float:left" alt="Logo"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div style="width:100%">
+                            <center>
+                                <h3 style = "text-align:center" t-field="partner_ids[0].company_id.name"/>
+                            </center>
+                        </div>
+                    </div>
+                    <br/>
+
+                    <div class="row">
+                        <div style="width:100%">
+                            <center>
+                                <h3 style = "text-align:center">
+                                    دفتر الأستاذ العام
+                                </h3>                 
+                            </center>
+                        </div>
+                    </div>
+                    <t t-foreach="printed_fields" t-as="field">
+
+                    </t>
+                    <br/>
+                    <table class="table table-bordered " style='direction: rtl;'>
+                        <thead>
+                            <tr>
+                                <t t-foreach="printed_fields" t-as="field">
+                                    <th class="text-right"><span style="float:right" t-esc="field.field_description"/></th>
+                                </t>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="lines" t-value="partner_ids.sorted(key=lambda x: x.account_id.name)"/>
+                            <t t-set="account" t-value="False"/>
+                            <t t-set="balance" t-value="0"/>
+                            <t t-set="debit" t-value="0"/>
+                            <t t-set="credit" t-value="0"/>
+
+                            <t t-set="total_balance" t-value="0"/>
+                            <t t-set="total_debit" t-value="0"/>
+                            <t t-set="total_credit" t-value="0"/>
+                            <t t-foreach="lines" t-as="line">
+                                <t t-if="account and line.account_id.name != account">
+                                    <tr style="background-color:#eeeeee;">
+                                        <td t-att-colspan="len(printed_fields)" style="direction:ltr">
+                                            <div class="row">
+                                                <div style="width:10%">
+                                                    <center>
+                                                        <span>total:</span>
+                                                    </center>
+                                                </div>
+                                                <div style="width:30%">
+                                                    <center>
+                                                        <span>debit:</span>
+                                                        <span t-esc="debit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                                    </center>
+                                                </div>
+                                                <div style="width:30%">
+                                                    <center>
+                                                        <span>credit:</span>
+                                                        <span t-esc="credit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                                    </center>
+                                                </div>
+                                                <div style="width:30%">
+                                                    <center>
+                                                        <span>balance:</span>
+                                                        <span t-esc="balance" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                                    </center>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <t t-set="balance" t-value="0"/>
+                                    <t t-set="debit" t-value="0"/>
+                                    <t t-set="credit" t-value="0"/>
+                                </t>
+                                <tr>
+                                    <t t-set="balance" t-value="balance + line.balance"/>
+                                    <t t-set="debit" t-value="debit + line.debit"/>
+                                    <t t-set="credit" t-value="credit + line.credit"/>
+
+                                    <t t-set="total_balance" t-value="total_balance + line.balance"/>
+                                    <t t-set="total_debit" t-value="total_debit + line.debit"/>
+                                    <t t-set="total_credit" t-value="total_credit + line.credit"/>
+                                    <t t-foreach="printed_fields" t-as="field">
+                                        <t t-if="field.ttype == 'many2one'">
+                                        <td class="text-right"><span style="float:right" t-esc="line[field.name].name"/></td>
+                                        </t>
+
+                                        <t t-if="field.ttype == 'many2many'">
+                                            <t t-set="total_line" t-value="0"/>
+                                            <t t-if="line[field.name]">
+                                                <t t-foreach="line[field.name]" t-as="val">
+                                                    <t t-if="total_line==0">
+                                                        <t t-set="total_line" t-value="val.name"/>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <t t-set="total_line" t-value="total_line + ','+ val.name"/>
+                                                    </t>
+                                                </t>
+                                                <td class="text-right"><span style="float:right" t-esc="total_line"/></td>
+                                            </t>
+                                            <t t-else="">
+                                                <td class="text-right"/>
+                                            </t>
+                                        </t>
+
+                                        <t t-if="field.ttype == 'monetary'">
+                                            <td class="text-right"><span style="float:right" t-esc="line[field.name]" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/></td>
+                                        </t>
+
+                                        <t t-if="field.ttype not in ['monetary', 'many2many', 'many2one']">
+                                            <td class="text-right"><span style="float:right" t-esc="line[field.name]"/></td>
+                                        </t>
+                                    </t>
+                                </tr>
+                                
+                                <t t-set="account" t-value="line.account_id.name"/>
+                            </t>
+                            <tr style="background-color:#eeeeee;">
+                                <td t-att-colspan="len(printed_fields)" style="direction:ltr">
+                                    <div class="row">
+                                        <div style="width:10%">
+                                            <center>
+                                                <span>total:</span>
+                                            </center>
+                                        </div>
+                                        <div style="width:30%">
+                                            <center>
+                                                <span>debit:</span>
+                                                <span t-esc="debit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                            </center>
+                                        </div>
+                                        <div style="width:30%">
+                                            <center>
+                                                <span>credit:</span>
+                                                <span t-esc="credit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                            </center>
+                                        </div>
+                                        <div style="width:30%">
+                                            <center>
+                                                <span>balance:</span>
+                                                <span t-esc="balance" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                            </center>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr style="background-color:#eeeeee;">
+                                <td t-att-colspan="len(printed_fields)" style="direction:ltr">
+                                    <div class="row">
+                                        <div style="width:10%">
+                                            <center>
+                                                <span>total:</span>
+                                            </center>
+                                        </div>
+                                        <div style="width:30%">
+                                            <center>
+                                                <span>debit:</span>
+                                                <span t-esc="total_debit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                            </center>
+                                        </div>
+                                        <div style="width:30%">
+                                            <center>
+                                                <span>credit:</span>
+                                                <span t-esc="total_credit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                            </center>
+                                        </div>
+                                        <div style="width:30%">
+                                            <center>
+                                                <span>balance:</span>
+                                                <span t-esc="total_balance" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                            </center>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="page-break-before:always;"> </p>
+
+                </div>
+            <!-- <t t-set="test" t-value="request.env['account.move.line'].sudo().browse(partner_ids[0]).name"/>
+            <span t-esc="test"/> -->
+
+          </t>
+      </t>
+    </template>
+    </data>
+</odoo>

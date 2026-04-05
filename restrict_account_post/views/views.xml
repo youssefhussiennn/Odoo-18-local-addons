@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id="restrict_unpost" model="res.groups">
+            <field name="name">Allow To Unpost entry</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+        <record id="account_account_form_view_inherit_restrict_post" model="ir.ui.view">
+            <field name="model">account.account</field>
+            <field name="inherit_id" ref="account.view_account_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='deprecated']" position="after">
+                    <field name="res_group_id" />
+                </xpath>
+            </field>
+        </record>
+
+
+    
+    </data>
+    
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="general_ledger_cash_in_out_action" model="ir.actions.act_window">
+            <field name="name">General Ledger</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.move.line</field>
+            <field name="view_mode">list,pivot,graph</field>
+            <!-- ('account_id','ilike','عهد') -->
+            <field name="domain">[('display_type', 'not in', ('line_section', 'line_note')), '|', '|', ('account_id.user_type_id.name','=','Bank and Cash'), ('account_id.user_type_id.name','=','بنك ونقدية'), ('account_id.user_type_id.name','=','البنك والنقد ')]</field> 
+            <!-- <field name="search_view_id" ref="account.view_account_move_line_filter_with_root_selection"/> -->
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('account.view_move_line_tree_grouped_general')})]"/>
+            <field name="context">{'journal_type':'general', 'search_default_group_by_account': 1, 'search_default_posted':1}</field>
+        </record>
+        <menuitem id="menu_action_general_ledger_cash_in_out_action" name="General Ledger" action="general_ledger_cash_in_out_action" parent="send_receive_request.menu_in_out_payment" groups="account.group_account_user,sales_team.group_sale_salesman"/>
+<!--***********************************************************************************************************-->
+        <record id="action_account_report_general_ledger" model="ir.actions.client">
+            <field name="name">General Ledger Report</field>
+            <field name="tag">account_report</field>
+            <field name="context" eval="{'model': 'account.general.ledger.inherit'}" />
+        </record>
+        <menuitem id="menu_action_account_report_general_ledger" name="General Ledger Report" action="action_account_report_general_ledger" parent="send_receive_request.menu_in_out_payment"/>
+        
+    </data>
+</odoo>

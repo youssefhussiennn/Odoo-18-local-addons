@@ -1,0 +1,27 @@
+<odoo>
+
+    <record model="ir.ui.view" id="view_payslip_input">
+          <field name="name">hr.payslip.input.tree</field>
+          <field name="model">hr.payslip.input</field>
+          <field name="arch" type="xml">
+            <list string="Input Data" editable="bottom">
+                                  <field name="payslip_id"/>
+                                  <field name="employee_pin"/>
+                                  <field name="input_date"/>
+                                  <field name="input_type_id"/>
+                                  <field name="amount"/>
+                                  <!-- <field name="struct_id" invisible="True"/> -->
+                                  <field name="contract_id" invisible="True"/>
+                                  <field name="sequence" invisible="True"/>
+                              </list>
+          </field>
+      </record>
+      <record id= "act_payslip_input" model="ir.actions.act_window">
+        <field name="name">Payslip Inputs</field>
+        <field name="res_model">hr.payslip.input</field>
+        <field name="view_mode">list,form</field>
+      </record>
+
+      <menuitem name="Payslip Inputs" sequence="111" id="menu_payslip_input" parent="hr_payroll.menu_hr_payroll_payslips" action="act_payslip_input"/>
+
+</odoo>

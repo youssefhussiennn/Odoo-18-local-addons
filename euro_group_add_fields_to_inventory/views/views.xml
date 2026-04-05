@@ -1,0 +1,43 @@
+<odoo>
+  <data>
+   <record id="stock_picking_form_view_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.form.view.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group[1]/group[1]/field[@name='picking_type_id']" position="before">
+              <field name="complete_address"/>
+              <field name="phone"/>
+              <field name="mobile"/>
+            </xpath>
+            <xpath expr="//sheet/group[1]/group[2]/field[@name='origin']" position="after">
+              <field name="salesperson_id"/>
+              <field name="sales_team_id"/>
+              <field name="created_by_id" string="Created By Whom"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="stock_picking_tree_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.tree.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="after">
+              
+              <field name="created_by_id" string="Created By Whom"/>
+            </xpath>
+        </field>
+    </record>
+
+    <template id="picking_operation_inherit" inherit_id="stock.report_picking">
+      <xpath expr="//div[@name='div_sched_date']" position="after">
+        <div class="col-auto">
+            <strong>Created By Whom:</strong>
+            <p t-field="o.created_by_id"/>
+        </div>
+      </xpath>
+      
+    </template>
+  </data>
+</odoo>

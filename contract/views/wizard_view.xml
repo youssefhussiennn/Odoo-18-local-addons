@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Updated form view for the customer sales wizard -->
+        <record model="ir.ui.view" id="wizard_customer_sales_report_form">
+            <field name="name">wizard.customer.sales.report.form</field>
+            <field name="model">wizard.customer.sales.report</field>
+            <field name="arch" type="xml">
+                <form string="Customer Sales Report">
+                    <group string="Filter">
+                        <field name="salesperson_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}"/>
+                        <field name="customer_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}"/>
+                        <field name="category_ids" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True}"/>
+                    </group>
+                    <group string="Date Range">
+                        <group>
+                            <field name="date_start" required="1"/>
+                        </group>
+                        <group>
+                            <field name="date_end" required="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="export_xls" type="object" string="Print Excel"
+                                class="oe_highlight"
+                                icon="fa-download"/>
+                        <button name="action_show_report_lines" type="object" string="View On Screen" class="oe_highlight"/>
+
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Updated action to launch the wizard -->
+        <record model="ir.actions.act_window" id="wizard_customer_sales_report_action">
+            <field name="name">Target vs Achieved</field>
+            <field name="res_model">wizard.customer.sales.report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="wizard_customer_sales_report_form"/>
+            <field name="target">new</field>
+        </record>
+        
+        <record id="view_customer_sales_report_line_tree" model="ir.ui.view">
+            <field name="name">wizard.customer.sales.report.tree</field>
+            <field name="model">wizard.customer.sales.report</field>
+            <field name="arch" type="xml">
+                <list>
+                    
+                    <field name="customer_ids" widget="many2many_tags"/>
+                    <field name="product_id"/>
+                    <field name="sku"/>
+                    <field name="category_ids" widget="many2many_tags"/>
+                    <field name="qty_sale"/>
+                    <field name="qty_contract"/>
+                    
+                </list>
+            </field>
+        </record>
+
+
+        <!-- Menu item under Sales Reports -->
+        <menuitem name="Target vs Achieved"
+                  parent="account.menu_finance_receivables"
+                  id="menu_customer_sales_report"
+                  action="wizard_customer_sales_report_action"
+                  sequence="25"/>
+    </data>
+    
+</odoo>

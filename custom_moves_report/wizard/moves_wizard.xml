@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="moves_report_excel" model="ir.actions.report">
+        <field name="name">Product Moves Excel</field>
+        <field name="model">moves.details.report</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">custom_moves_report.report_moves_excel</field>
+        <field name="report_file">custom_moves_report.report_moves_excel</field>
+    </record>
+    <record id="moves_details_wizard" model="ir.ui.view">
+        <field name="name">moves.details.wizard.form</field>
+        <field name="model">moves.details.report</field>
+        <field name="arch" type="xml">
+            <form string="Moves">
+                <group>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </group>
+                <group>
+                    <group>
+                        <field name="product_ids"  widget="many2many_tags" options="{'create': false, 'create_edit': false}"/>
+                        <field name="location_id" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit' : True}"/>
+                    </group>
+                    <group>
+                        <field name="to_collapse"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="generate_report" string="Print" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button name="generate_report_excel" string="Print Excel" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

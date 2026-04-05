@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+    
+        <record model="ir.ui.view" id="account_statement_wizard_form">
+            <field name="name">account_statement_wizard.form</field>
+            <field name="model">account.statement.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+            <form string="Account Statement">
+                <group>
+                    <field name="report_type" invisible='1'/>
+                    <field name="partner_id"/>                
+                </group>
+                <group>
+                    <group>
+                        <field name="date_start" required="1"/>
+                    </group>
+                    <group>
+                        <field name="date_end"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="get_account_statement_total_report" string="Print" type="object" />
+                </footer>
+            </form>
+            </field>
+        </record>
+
+          <record id="account_statement_wizard_action_window" model="ir.actions.act_window">
+            <field name="name">Account Statement</field>
+            <field name="res_model">account.statement.wizard</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_report_type':'partner'}</field>
+            <field name="view_id" ref="account_statement_wizard_form"/>
+        </record>
+        
+        <menuitem action="account_statement_wizard_action_window" id="account_statement_wizard_menu" sequence="66" parent="account.menu_finance_reports"/>
+        <menuitem action="account_statement_wizard_action_window" id="account_statement_wizard_menu_so" sequence="66" parent="sale.sale_order_menu"/>
+        
+    
+    </data>
+    
+
+</odoo>

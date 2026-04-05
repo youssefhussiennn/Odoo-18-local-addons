@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<odoo>  
+        <template id="kb_account_reports.account_report">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                     <link href="https://fonts.googleapis.com/css2?family=Almarai" rel="stylesheet"/>
+                    <div class="page" style="font-family: 'Almarai', sans-serif;">
+                        <br/>
+                        <br/>
+                        <style>
+                            #table_css {
+                                border: 1px solid black;
+                                border-collapse: collapse;
+                                border-spacing: 0px;
+                                border-top-spacing: 0px;
+                            }
+                            #table_css td,
+                            #table_css th {
+                                border: 1px solid black;
+                            }
+                            #table_css tr {
+                                border: 1px solid black;
+                            }
+                            #table_css th {
+                                style="border: 1px solid black";
+                            }
+                        </style>
+                        <table class="table table-sm o_main_table" id="table_css">
+                            <thead>
+                                <tr>
+                                    <th style="background-color: lightgrey;">Account</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span t-esc="account_name"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-sm o_main_table" id="table_css">
+                            <thead>
+                                <tr>
+                                    <th style="background-color: lightgrey;">Date From</th>
+                                    <th style="background-color: lightgrey;">Date To</th>
+                                    <th style="background-color: lightgrey;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span t-esc="start_date" t-options="{'widget': 'date'}"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="end_date" t-options="{'widget': 'date'}"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="state"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br/>
+                        <t t-set="balance" t-value="0"/>
+                        <t t-set="balance_currency" t-value="0"/>
+                        
+                        <t t-foreach="move_balance" t-as="move_balances">
+                          
+                            <t t-set="debit_amount" t-value="0"/>
+                            <t t-set="credit_amount" t-value="0"/>
+                            
+                            <!-- Set Values Based on Condition -->
+                            <t t-set="debit_amount" t-value="(move_balances.debit / move_balances.currency_rate) + debit_amount"/>
+                            <t t-set="credit_amount" t-value="(move_balances.credit / move_balances.currency_rate) + credit_amount"/>
+                            
+                            <t t-set="balance" t-value="move_balances.debit - move_balances.credit + balance"/>
+                            <t t-set="balance_currency" t-value="((debit_amount- credit_amount) + balance_currency)"/>
+                        </t>
+
+                        <table class="table table-sm o_main_table" id="table_css">
+                            <thead>
+                                <tr>
+                                    <th style="background-color: lightgrey;">Initial Balance</th>
+                                    <th style="background-color: lightgrey;">Closing Balance</th>
+                                    <th style="background-color: lightgrey;">Total Debit</th>
+                                    <th style="background-color: lightgrey;">Total Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align:center;">
+                                        <t t-if="balance">
+                                            <span t-esc="balance" t-options="{'widget': 'monetary', 'display_currency': currency_id}"/> 
+                                        </t>
+                                        <t t-else="">
+                                            <span t-esc="balance" t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                        </t>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <!-- Get the last balance -->
+                                        <t t-set="last_balance" t-value="0"/>
+                                        <t t-foreach="lines" t-as="line">
+                                            <t t-set="last_balance" t-value="line.debit - line.credit + last_balance"/>
+                                            <t t-set="closing_balance" t-value="last_balance + balance"/>
+                                        </t>
+                                        <span t-esc="closing_balance" t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <!-- Get the total debit -->
+                                        <t t-set="total_debit" t-value="0"/>
+                                        <t t-foreach="lines" t-as="line">
+                                            <t t-set="total_debit" t-value="total_debit + line.debit"/>
+                                        </t>
+                                        <span t-esc="total_debit" t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <!-- Get the total credit -->
+                                        <t t-set="total_credit" t-value="0"/>
+                                        <t t-foreach="lines" t-as="line">
+                                            <t t-set="total_credit" t-value="total_credit + line.credit"/>
+                                        </t>
+                                        <span t-esc="total_credit" t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <thead>
+                              <tr>
+                                    <th style="background-color: lightblue;">Initial Balance Currency</th>
+                                    <th style="background-color: lightblue;">Closing Balance Currency</th>
+                                    <th style="background-color: lightblue;">Total Debit Currency</th>
+                                    <th style="background-color: lightblue;">Total Credit Currency</th>
+                                </tr>
+                            </thead>
+                             <tbody>
+                                <tr>
+                                    <td style="text-align:center;">
+                                        <t t-if="balance_currency &gt; 0.0">
+                                            <span t-esc="balance_currency" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-esc="balance_currency" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                        </t>
+
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <t t-set="last_balance_currency" t-value="0"/>
+                                        <t t-foreach="lines" t-as="line">
+                                            <t t-set="last_balance_currency" t-value="line.amount_currency + last_balance_currency"/>
+                                            <t t-set="closing_balance_currency" t-value="last_balance_currency + balance_currency"/>
+                                        </t>
+                                        <span t-esc="closing_balance_currency" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <!-- Get the total debit -->
+                                        <t t-set="total_debit" t-value="0"/>
+                                        <t t-foreach="lines" t-as="line">
+                                            <t t-set="total_debit" t-value="total_debit + (line.debit / line.currency_rate)"/>
+                                        </t>
+                                        <span t-esc="total_debit" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <!-- Get the total credit -->
+                                        <t t-set="total_credit" t-value="0"/>
+                                        <t t-foreach="lines" t-as="line">
+                                            <t t-set="total_credit" t-value="total_credit + (line.credit / line.currency_rate)"/>
+                                        </t>
+                                        <span t-esc="total_credit" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                    </td>
+                                  </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-sm o_main_table" id="table_css">
+                            <thead>
+                                <tr>
+                                    <th style="background-color: lightgrey;">Date</th>
+                                    <th style="background-color: lightgrey;">Label</th>
+                                    <th style="background-color: lightgrey;">Partner</th>
+                                    <th style="background-color: lightgrey;">Sales Person</th>
+                                    <th style="background-color: lightgrey;">Debit</th>
+                                    <th style="background-color: lightgrey;">Credit</th>
+                                    <th style="background-color: lightgrey;">Balance</th>
+                                    <th style="background-color: lightblue;">Debit Currency</th>
+                                    <th style="background-color: lightblue;">Credit Currency</th>
+                                    <th style="background-color: lightblue;">Balance Currency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="lines" t-as="line">
+                                <t t-set="debit_amount" t-value="0.0"/>
+                                <t t-set="credit_amount" t-value="0.0"/>
+                                
+                                <!-- Set Values Based on Condition -->
+                                <t t-if="line.amount_currency &gt;= 0">
+                                    <t t-set="debit_amount" t-value="line.amount_currency"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-set="credit_amount" t-value="abs(line.amount_currency)"/>
+                                </t>
+                                    <tr>
+                                        <td>
+                                            <span t-field="line.date"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.name" style="font-size: x-small;"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.partner_id.name" style="font-size: x-small;"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.partner_id.user_id" style="font-size: x-small;"/>
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <span t-esc="line.debit" t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <span t-esc="line.credit" t-options="{'widget': 'monetary', 'display_currency': currency_id}"/>
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <!-- The formula -->
+                                            <t t-set="balance" t-value="line.debit - line.credit + balance"/>
+                                            <span t-esc="balance" t-options="{'widget': 'monetary', 'display_currency': currency_id}"/><!-- closing balance-->
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <span t-esc="debit_amount" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <span t-esc="credit_amount" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <!-- The formula -->
+                                            <t t-set="balance_currency" t-value="(debit_amount - credit_amount) + balance_currency"/>
+                                            <span t-esc="balance_currency" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/><!-- closing balance-->
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </template>
+</odoo>

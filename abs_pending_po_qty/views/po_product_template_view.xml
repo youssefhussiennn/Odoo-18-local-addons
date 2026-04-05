@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="ir.ui.view" id="product_product_kanban_stock_view">
+        <field name="name">Product Product Kanban Stock</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_template_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="inside">
+                <field name="type"/>
+            </xpath>
+            <xpath expr="//field[@name='qty_available']" position="after">
+                <div>
+                    <strong>Pending Purchase Order Quantity:</strong>
+                    <a class="oe_kanban_stock_picking_type_list" name="display_pending_purchase_order_qty" type="object">
+                        <field name="purchase_order_qty"/>
+                    </a>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Define the list view for purchase order lines -->
+    <record id="purchase_order_line_list_custom_view" model="ir.ui.view">
+        <field name="name">purchase.order.line.list</field>
+        <field name="model">purchase.order.line</field>
+        <field name="arch" type="xml">
+            <list string="Purchase Order Lines">
+                <field name="order_id"/>
+                <field name="name"/>
+                <field name="partner_id" string="Vendor"/>
+                <field name="product_id"/>
+                <field name="price_unit"/>
+                <field name="product_qty"/>
+                <field name="qty_received"/>
+                <field name="price_subtotal" widget="monetary"/>
+                <field name="date_planned" widget="date"/>
+            </list>
+        </field>
+    </record>
+</odoo>

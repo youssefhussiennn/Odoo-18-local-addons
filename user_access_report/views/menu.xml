@@ -1,0 +1,12 @@
+<odoo>
+   
+    <record id="action_user_access_wizard" model="ir.actions.act_window">
+        <field name="name">Export User Access</field>
+        <field name="res_model">user.access.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_user_access_root" name="Security Tools" parent="base.menu_administration"/>
+    <menuitem id="menu_user_access_wizard" parent="menu_user_access_root" name="Export User Access" action="action_user_access_wizard"/>
+</odoo>

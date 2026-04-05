@@ -1,0 +1,188 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+  <record id="studio_customization.payments_action_post_03f4e3e5-b1ba-484f-baeb-f6aa4a5101fd" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="__export__.res_groups_161_e239fe13"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Payment First Approve) (26)</field>
+    <field name="message">wait for first approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_2880521e-85a6-4c76-a964-c90896f89cdd" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="account.group_account_manager"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Accounting / Advisor) (20)</field>
+    <field name="message">wait for second approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_41f0435c-92de-4ddd-a298-94ce6fc55d37" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="account.group_account_invoice"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Accounting / Billing) (23)</field>
+    <field name="message">wait for second approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_4d995974-6b0c-4cf0-962e-1ad78e949b0c" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="sales_team.group_sale_salesman"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Sales / User: Own Documents Only) (7)</field>
+    <field name="message" eval="False"/>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_8348f252-d590-4ca9-bacf-784310dcb519" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="own_group_sales.group_sale_id"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Sales / User: Own Sales Group Access) (22)</field>
+    <field name="message">wait for first approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_886e98e1-8100-4459-bfac-9ff682a35d85" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="__export__.res_groups_161_e239fe13"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Payment First Approve) (24)</field>
+    <field name="message">wait for first approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_8cc5bdcd-f734-4808-be42-8a93476d66f1" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="account.group_account_invoice"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Accounting / Billing) (15)</field>
+    <field name="message">wating for first approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_9f62c43b-b2bc-407d-ab20-2b0fc020bebb" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="account.group_account_invoice"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Accounting / Billing) (21)</field>
+    <field name="message">wait for approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_bd287bf9-42fd-409a-98a0-b5add60735bd" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="__export__.res_groups_162_d265df38"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Payment Second Approve) (25)</field>
+    <field name="message">wait for second approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_d52fbebd-17b4-4239-9344-47777ebf656f" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="__export__.res_groups_162_d265df38"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Payment Second Approve) (27)</field>
+    <field name="message">wait for second approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.payments_action_post_da17dae2-6d3d-4f6a-b07c-dbdae46fe86f" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="account.group_account_manager"/>
+    <field name="model_id" ref="account.model_account_payment"/>
+    <field name="method">action_post</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Payments/action_post (Accounting / Advisor) (16)</field>
+    <field name="message">wating for second approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.purchase_order_butto_4920a336-2777-4de1-a331-8988c36ce49e" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="__export__.res_groups_135_7ad3d837"/>
+    <field name="model_id" ref="purchase.model_purchase_order"/>
+    <field name="method">button_confirm</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Purchase Order/button_confirm (Purchase Approval 2) (18)</field>
+    <field name="message">Wating for second Approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.purchase_order_butto_fd2df0f1-6d72-4199-9dab-f321d340d14f" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="__export__.res_groups_134_17404cf0"/>
+    <field name="model_id" ref="purchase.model_purchase_order"/>
+    <field name="method">button_confirm</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Purchase Order/button_confirm (Purchase Approval 1) (17)</field>
+    <field name="message">Wating for first Approve</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.purchase_order_set_t_041ea191-116c-490d-b801-3c3323df3cf2" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="__export__.res_groups_134_17404cf0"/>
+    <field name="model_id" ref="purchase.model_purchase_order"/>
+    <field name="method" eval="False"/>
+    <field name="name">Purchase Order/Set To Draft (Purchase Approval 1) (28)</field>
+    <field name="message">First Approval</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.purchase_order_set_t_7d7f1eda-24b6-4d0a-b48e-16ff07fbbe91" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="__export__.res_groups_135_7ad3d837"/>
+    <field name="model_id" ref="purchase.model_purchase_order"/>
+    <field name="method" eval="False"/>
+    <field name="name">Purchase Order/Set To Draft (Purchase Approval 2) (29)</field>
+    <field name="message">Second Approval</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain" eval="False"/>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.sales_order_action_c_cee9f69b-a108-4360-b646-4440edcdbb6d" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="sales_team.group_sale_salesman_all_leads"/>
+    <field name="model_id" ref="sale.model_sale_order"/>
+    <field name="method">action_confirm</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Sales Order/action_confirm (Sales / User: All Documents) (1)</field>
+    <field name="message">Wating for First step of Approval</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain">[['id', '!=', False]]</field>
+    <field name="can_validate" eval="True"/>
+  </record>
+  <record id="studio_customization.transfer_button_vali_5a255350-0372-437f-b9d7-f0a1fe82fd99" model="studio.approval.rule" context="{'studio': True}">
+    <field name="group_id" ref="stock.group_stock_manager"/>
+    <field name="model_id" ref="stock.model_stock_picking"/>
+    <field name="method">button_validate</field>
+    <field name="action_id" eval="False"/>
+    <field name="name">Transfer/button_validate (Inventory / Administrator) (4)</field>
+    <field name="message">Wating for first approval</field>
+    <field name="exclusive_user" eval="False"/>
+    <field name="domain">[['id', '!=', False]]</field>
+    <field name="can_validate" eval="True"/>
+  </record>
+</odoo>

@@ -1,0 +1,46 @@
+<odoo>
+    <data>
+<template id="stock_picking_report_inherit" inherit_id="stock.report_picking">
+  <xpath expr="//div[@name='div_incoming_address']" position="replace">
+    <div class="col-5 offset-1" name="div_incoming_address">
+        <div t-if="o.picking_type_id.code=='incoming' and o.partner_id">
+            <span style="font-size:20px"><strong>Vendor Address:</strong></span>
+        </div>
+        <div t-if="o.picking_type_id.code=='internal' and o.partner_id">
+            <span style="font-size:20px"><strong>Warehouse Address:</strong></span>
+        </div>
+        <div t-if="o.picking_type_id.code=='outgoing' and o.partner_id">
+            <span style="font-size:20px"><strong>Customer Address:</strong></span>
+        </div>
+        <div t-if="o.partner_id" name="partner_header">
+            <div style="font-size:20px" t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+            <p style="font-size:20px" t-if="o.sudo().partner_id.vat"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="o.sudo().partner_id.vat"/></p>
+        </div>
+    </div>
+  </xpath>
+  <xpath expr="//h1[@t-field='o.name']" position="replace">
+    <div>
+        <div style="float:left;width:33%;">
+            <h3 t-field="o.name" class="mt0 float-left"/>
+        </div>
+        <div style="float:right;width:33%;">
+            <h3 class="mt0 float-right">
+              <span style="font-size:20px"><strong>Serial number:</strong></span>
+              <span style="font-size:20px" t-field="o.num_sequence"/>
+            </h3>
+            <h3 class="mt0 float-right">
+              <span style="font-size:15px"><strong>S.N created by whom:</strong></span>
+              <span style="font-size:15px" t-field="o.num_sequence_whom.name"/>
+            </h3>
+            <h3 class="mt0 float-right">
+              <span style="font-size:15px"><strong>S.N created when:</strong></span>
+              <span style="font-size:15px" t-field="o.num_sequence_when"/>
+            </h3>
+        </div>
+
+    </div>
+    
+  </xpath>
+</template>
+    </data>
+</odoo>

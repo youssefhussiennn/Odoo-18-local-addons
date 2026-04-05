@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="view_account_account_hidden_report" model="ir.ui.view">
+		<field name="name">account.account.hidden.report</field>
+		<field name="model">account.account</field>
+		<field name="inherit_id" ref="account.view_account_list" />
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='reconcile']" position="after">
+				<field name="hidden_report" widget="boolean_toggle"
+					groups="hide_account_in_report.group_config_ro_hide_account_report_filter_account" />
+			</xpath>
+		</field>
+	</record>
+
+	<record id="account.action_account_moves_ledger_general" model="ir.actions.act_window">
+		<field name="domain">[('display_type', 'not in', ('line_section', 'line_note')),('account_id.hidden_report', '=', False)]</field>
+	</record>
+
+
+	<record id="general_ledger_cash_all_account" model="ir.actions.act_window">
+		<field name="name">General Ledger All</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">account.move.line</field>
+		<field name="view_mode">list,pivot,graph</field>
+		<field name="domain">[('display_type', 'not in', ('line_section', 'line_note'))]</field>
+		<!-- <field name="search_view_id" ref="account.view_account_move_line_filter_with_root_selection"/> -->
+		<field name="view_ids" eval="[(5, 0, 0),
+			(0, 0, {'view_mode': 'list', 'view_id': ref('account.view_move_line_tree_grouped_general')})]" />
+		<field name="context">{'journal_type':'general', 'search_default_group_by_account': 1, 'search_default_posted':1}</field>
+	</record>
+	<menuitem id="menu_action_general_ledger_all_accounts" name="General Ledger All" action="general_ledger_cash_all_account" parent="account.menu_finance_entries_accounting_ledgers" groups="hide_account_in_report.group_config_ro_hide_account_report_filter_account" />
+</odoo>

@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+  <record id="purchase.action_report_purchase_order" model="ir.actions.report" context="{'studio': True}">
+    <field name="attachment" eval="False"/>
+    <field name="attachment_use" eval="False"/>
+    <field name="binding_model_id" eval="False"/>
+    <field name="binding_type">report</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="model">purchase.order</field>
+    <field name="multi" eval="False"/>
+    <field name="name">Purchase Order OLD</field>
+    <field name="paperformat_id" eval="False"/>
+    <field name="report_name">purchase.report_purchaseorder</field>
+    <field name="report_type">qweb-pdf</field>
+  </record>
+  <record id="purchase.report_purchase_quotation" model="ir.actions.report" context="{'studio': True}">
+    <field name="attachment" eval="False"/>
+    <field name="attachment_use" eval="False"/>
+    <field name="binding_model_id" eval="False"/>
+    <field name="binding_type">report</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="model">purchase.order</field>
+    <field name="multi" eval="False"/>
+    <field name="name">Request for Quotation old</field>
+    <field name="paperformat_id" eval="False"/>
+    <field name="report_name">purchase.report_purchasequotation</field>
+    <field name="report_type">qweb-pdf</field>
+  </record>
+  <record id="studio_customization.picking_operations_68f5341c-3971-4c73-aade-2958d5e5e5e6" model="ir.actions.report" context="{'studio': True}">
+    <field name="attachment" eval="False"/>
+    <field name="attachment_use" eval="False"/>
+    <field name="binding_model_id" eval="False"/>
+    <field name="binding_type">report</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="model">stock.picking</field>
+    <field name="multi" eval="False"/>
+    <field name="name">Picking Operations Test</field>
+    <field name="paperformat_id" eval="False"/>
+    <field name="report_name">stock.report_picking_copy_2</field>
+    <field name="report_type">qweb-pdf</field>
+  </record>
+  <record id="studio_customization.purchase_order_e4d46ad1-68bd-4417-9462-d50bc2165d2b" model="ir.actions.report" context="{'studio': True}">
+    <field name="attachment" eval="False"/>
+    <field name="attachment_use" eval="False"/>
+    <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+    <field name="binding_type">report</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="model">purchase.order</field>
+    <field name="multi" eval="False"/>
+    <field name="name">Purchase Order</field>
+    <field name="paperformat_id" eval="False"/>
+    <field name="report_name">purchase.report_purchaseorder_copy_1</field>
+    <field name="report_type">qweb-pdf</field>
+  </record>
+  <record id="studio_customization.purchase_order_eff43408-30c9-401a-9825-077797e14d66" model="ir.actions.report" context="{'studio': True}">
+    <field name="attachment" eval="False"/>
+    <field name="attachment_use" eval="False"/>
+    <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+    <field name="binding_type">report</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="model">purchase.order</field>
+    <field name="multi" eval="False"/>
+    <field name="name">RFQ new</field>
+    <field name="paperformat_id" eval="False"/>
+    <field name="report_name">purchase.report_purchaseorder_copy_1_copy_2</field>
+    <field name="report_type">qweb-pdf</field>
+  </record>
+  <record id="studio_customization.r_d_report_1b285a2b-8aad-4a23-9e79-e70f96f5c06f" model="ir.actions.report" context="{'studio': True}">
+    <field name="attachment" eval="False"/>
+    <field name="attachment_use" eval="False"/>
+    <field name="binding_model_id" ref="studio_customization.r_d_56434773-fbe7-4c8b-881f-e28194c6702a"/>
+    <field name="binding_type">report</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="model">x_r_d</field>
+    <field name="multi" eval="False"/>
+    <field name="name">R&amp;D Report</field>
+    <field name="paperformat_id" ref="studio_customization.a4_landscap_7e95f676-c96a-43d1-a97f-d57e25b17449"/>
+    <field name="report_name">studio_customization.studio_report_docume_2cdef8e8-347f-42d6-948e-9c86a8b6dcb1</field>
+    <field name="report_type">qweb-pdf</field>
+  </record>
+  <record id="studio_customization.request_for_quotatio_c903be7a-ed96-4b7e-a4ae-1eb5e10034ae" model="ir.actions.report" context="{'studio': True}">
+    <field name="attachment" eval="False"/>
+    <field name="attachment_use" eval="False"/>
+    <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+    <field name="binding_type">report</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="model">purchase.order</field>
+    <field name="multi" eval="False"/>
+    <field name="name">Request for Quotation</field>
+    <field name="paperformat_id" eval="False"/>
+    <field name="report_name">purchase.report_purchasequotation_copy_1</field>
+    <field name="report_type">qweb-pdf</field>
+  </record>
+</odoo>

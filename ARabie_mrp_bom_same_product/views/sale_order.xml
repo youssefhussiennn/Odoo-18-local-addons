@@ -1,0 +1,24 @@
+<odoo>
+  <data>
+    <record id="view_order_form" model="ir.ui.view">
+      <field name="name">sale.order.form</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//sheet" position="before">
+            <field name="is_lower_cost" invisible="1"/>
+          <div class="alert alert-danger mb-0" role="alert"
+            attrs="{'invisible': [('is_lower_cost', '=', False)]}">
+                Lines marked with red color prices is lower than cost.\nDouble check the price.
+            </div>
+        </xpath>
+        <xpath expr="//page[@name='order_lines']//tree[1]">
+          <field name="current_cost" invisible="1"/>
+        </xpath>
+        <xpath expr="//page[@name='order_lines']//tree[1]" position="attributes">
+          <attribute name="decoration-danger">(price_unit &lt; current_cost)</attribute>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>

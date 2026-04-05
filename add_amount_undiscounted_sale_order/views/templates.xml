@@ -1,0 +1,45 @@
+<odoo>
+    <template id="sale_report_inherit" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//div[@name='so_total_summary']" position="before">
+            <div class="clearfix" name="total_undiscounted">
+                <div id="total_undiscounted" class="row" name="total_undiscounted">
+                    <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
+                        <span><strong>Amount Before Discount </strong></span>
+                        <span t-field='doc.amount_undiscounted' style='margin-left:4px'/>
+                        <span t-field="doc.currency_id.symbol" />
+                    </div>
+                </div>
+                <div id="total_discount" class="row" name="total_discount">
+                    <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
+                        <span><strong>Discount Amount </strong></span>
+                        <span t-field='doc.amount_discount' style='margin-left:4px'/>
+                        <span t-field="doc.currency_id.symbol" />
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="invoice_discount_report_inherit" inherit_id="account.report_invoice_document">
+        <xpath expr="//t[@t-set='tax_totals']" position="before">
+
+
+            <tr class="border-black">
+                <td><strong>Amount Before Discount</strong></td>
+                <td class="text-right">
+                    <span t-field='o.amount_undiscounted' style='margin-left:4px'/>
+                    <span t-field="o.currency_id.symbol" />
+                </td>
+            </tr>
+            <tr class="border-black">
+                <td><strong>Discount Amount</strong></td>
+                <td class="text-right">
+                    <span t-field='o.amount_discount' style='margin-left:4px'/>
+                    <span t-field="o.currency_id.symbol" />
+                </td>
+            </tr>
+
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,19 @@
+<odoo>
+    <!-- This is where you define the parent menu 'menu_calculations' -->
+    <menuitem id="menu_calculations" name="Calculations" sequence="1"/>
+
+    <record id="action_move_line_form" model="ir.actions.act_window">
+        <field name="name">Payments</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">list</field>
+        <field name="context"></field>
+    </record>
+
+    <menuitem
+        id="menu_move_line_form"
+        parent="menu_calculations"
+        action="action_move_line_form"
+        sequence="10"
+    />
+</odoo>

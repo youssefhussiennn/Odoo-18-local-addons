@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="sale_commission_tree_view" model="ir.ui.view">
+        <field name="name">sale.commission.tree.view</field>
+        <field name="model">sale.commission</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <!-- <field name="percntage"/> -->
+            </list>
+        </field>
+    </record>
+
+    <record id="sale_commission_form_view" model="ir.ui.view">
+        <field name="name">sale.commission.form.view</field>
+        <field name="model">sale.commission</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <!-- <field name="percntage"/> -->
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sale_commission_action_window" model="ir.actions.act_window">
+        <field name="name">Sale Commission</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.commission</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Sale Commission
+            </p>
+        </field>
+    </record>
+
+    <menuitem name="Sale Commission"
+              id="menu_sale_commission"
+              action="sale_commission_action_window"
+              parent="sale.menu_sale_config"
+              groups="sale_commission_custom.access_sale_commission"
+              sequence="1"
+    />
+</odoo>

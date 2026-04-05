@@ -1,0 +1,23 @@
+<odoo>
+  <data>
+    <record id="add_analytic_account_in_employee" model="ir.ui.view">
+      <field name="model">hr.employee</field>
+      <field name="inherit_id" ref="hr.view_employee_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='company_id']" position="after">
+          <field name="analytic_account_id"/>
+        </xpath>
+      </field>
+    </record>
+
+    <record id="add_analytic_account_in_department" model="ir.ui.view">
+      <field name="model">hr.department</field>
+      <field name="inherit_id" ref="hr.view_department_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='company_id']" position="after">
+          <field name="analytic_account_id"/>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>

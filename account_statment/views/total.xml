@@ -1,0 +1,48 @@
+<tr>
+    <td>
+        <span style="float:right">الاجمالي</span>
+
+    </td>
+    <td>
+        <span t-esc="total_initial_balance_sales_person" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+    <td>
+        <span t-esc="total_sales_before_discount_sales_person" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+    <td>
+        <span t-esc="total_discount_sales_person" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+    <td>
+        <span t-esc="total_sales_after_discount_sales_person" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+    <td>
+        <span t-esc="total_refund_sales_person" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+    <td>
+        <span t-esc="abs(total_customer_allowed_discount_sales_person)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+    <td>
+        <span t-esc="total_payment_sales_person" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+    <td>
+        <span t-esc="total_purchase_sales_person" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+    <td>
+        <span t-esc="abs(total_safty_checks_sales_person)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+
+    <td>
+        <span t-esc="abs(total_collection_checks_sales_person)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+
+    </td>
+
+</tr>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sequence for Insurance Details -->
+    <record id="seq_details_serial" model="ir.sequence">
+        <field name="name">Insurance Details Sequence</field>
+        <field name="code">details.serial</field>
+        <field name="prefix">INS</field>
+        <field name="padding">5</field>
+        <field name="implementation">standard</field>
+        <field name="number_next">1</field>
+        <field name="number_increment">1</field>
+    </record>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+  <record id="studio_customization.tasks_user_7848493e-cbb8-41e8-b6e1-02084ce6f2ba" model="res.groups" context="{'studio': True}">
+    <field name="color" eval="False"/>
+    <field name="comment" eval="False"/>
+    <field name="implied_ids" eval="[(6, 0, [])]"/>
+    <field name="name">TASKS USER</field>
+    <field name="share" eval="False"/>
+  </record>
+  <record id="studio_customization.tasks_admin_897ca488-24f3-46b8-b28d-966dbf854aae" model="res.groups" context="{'studio': True}">
+    <field name="color" eval="False"/>
+    <field name="comment" eval="False"/>
+    <field name="implied_ids" eval="[(6, 0, [ref('studio_customization.tasks_user_7848493e-cbb8-41e8-b6e1-02084ce6f2ba')])]"/>
+    <field name="name">TASKS ADMIN</field>
+    <field name="share" eval="False"/>
+  </record>
+</odoo>

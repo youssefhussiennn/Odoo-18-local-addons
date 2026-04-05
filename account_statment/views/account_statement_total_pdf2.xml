@@ -1,0 +1,305 @@
+<odoo>
+    <data>
+        <record id="paperformat_portrait_account_statement_total" model="report.paperformat">
+            <field name="name">Account Statement Layout</field>
+            <field name="default" eval="True"/>
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">19</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">10</field>
+            <field name="dpi">100</field>
+        </record>
+
+
+        <record id="action_report_account_statment_total_layout2" model="ir.actions.report">
+            <field name="name">Account Statement Total</field>
+            <field name="model">account.move.line</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">account_statment.account_statment_total_document2</field>
+            <field name="report_file">account_statment.account_statment_total_document2</field>
+            <field name="paperformat_id" ref="account_statment.paperformat_portrait_account_statement_total" />
+            <field name="binding_model_id" eval="False" />
+            <field name="binding_type">report</field>
+        </record>
+
+
+        <template id="account_statment_total_document2">
+            <t t-call="web.html_container">
+                <t t-call="account_statment.custom_external_layout_account_statment">
+                    <t t-foreach="lines" t-as="sales_person">
+                        <t t-set="balance_sales_person" t-value="0"/>
+                        <t t-set="total_due_amount_sales_person" t-value="0"/>
+        
+                        <div class="page">
+                            <br/>
+                            <br/>
+                            <div class="row" style="direction:rtl">
+                                <div style="width:50%;">
+                                    <h4 style="float:right">التاريخ:
+                                        <span t-esc="datetime.datetime.now().strftime('%Y-%m-%d')"/>
+                                    </h4>
+                                </div>
+                                <div style="width:50%;">
+                                    <img t-if="env.company.logo" t-att-src="image_data_uri(env.company.logo)" style="max-height: 320px;max-width: 170px;float:left" alt="Logo"/>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="row">
+                                <div style="width:100%">
+                                    <center>
+                                        <h3 style="text-align:center">
+                                            مبيعات المهندس
+                                            <span t-esc="sales_person['sales_person']"/>
+                                        </h3>
+                                        <h3 style="text-align:center">
+                                            الفترة
+                                            <span t-esc="date_start"/> - 
+                                            <span t-esc="date_end"/>
+                                        </h3>
+                                    </center>
+                                </div>
+                            </div>
+                            <br/>
+                            <table class="table table-bordered " style="direction: rtl;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-right">
+                                            <span style="float:right">اسم العميل</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">الرصيد الافتتاحي</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">اجمالي مبيعات</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">اجمالي مرتجعات</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">صافي مبيعات</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">اجمالي سداد</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">اجمالي الخصم</span>
+                                        </th>                                        
+                                        <th class="text-right">
+                                            <span style="float:right">الرصيد</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">المتأخر</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">شيكات ضمان</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">شيكات تحت التحصيل</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">ملاحظات</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">Taxes refund</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">Taxes invoice</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="sales_person['lines']" t-as="line">
+                                        <tr>
+                                            <!-- 1 -->
+                                            <td class="text-right">
+                                                <!-- <span t-esc="final_lines[0].partner_id.name"/>  -->
+                                                <span t-esc="line['partner_name']"/> 
+                                            </td>
+                                            <!-- 2 -->
+                                            <td class="text-right">
+                                                <span t-esc="float(line['total_initial_balance'])" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                            </td>
+                                            <!-- 3 -->
+                                            <td class="text-right">
+                                                <span t-esc="line['total_sales_before_discount']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                            </td>
+                                            <!-- 4 -->
+                                            <td class="text-right">
+                                                <span t-esc="line['total_refund']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+
+                                            </td>
+                                            <!-- 5 -->
+                                            <td class="text-right">
+                                                <!-- <span t-esc="total_sales_after_discount" t-options="{'widget': 'monetary', 'display_currency': line['currency_id}"/> -->
+                                                <!-- <t t-set="Total_sales_updated" t-value="round((total_sales_after_discount - total_refund - total_discount))"/> -->
+                                                <span t-esc="line['Total_sales_updated']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                                
+                                            </td>
+
+                                            <!-- 6 -->
+                                            <td class="text-right">
+                                                <span t-esc="line['total_payment']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                            </td>
+                                            <!-- 7 -->
+                                            <td class="text-right">
+                                                <!-- <t t-if="total_customer_allowed_discount !=0"> -->
+                                                    <span t-esc="abs(line['total_customer_allowed_discount'])" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                                <!--</t>-->
+                                                <!-- <t t-else="">
+                                                    <t t-set="discount" t-value="0"/>
+                                                    <span t-esc="abs(line['discount'])" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                                </t> -->
+                                            </td>                                               
+                                            <!-- 8 -->
+                                             <td class="text-right">
+                                                <!-- Calculate the balance including the taxed amount -->
+                                                <t t-set="balance_with_tax" t-value="line['balance'] + line['x_studio_taxed_amount_invoice'] + line['x_studio_taxed_amount_refund'] + line['total_customer_allowed_discount']"/>
+                                               
+                                                <!-- Display the calculated balance with tax -->
+                                                <span t-esc="balance_with_tax" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                                
+                                                <!-- Update balance_sales_person -->
+                                                <t t-set="balance_sales_person" t-value="balance_sales_person + balance_with_tax "/>
+                                            </td>
+
+                                            <!-- 9 -->
+                                            <td class="text-right">
+                                                <span t-esc="line['total_due_amount']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                                <t t-set="total_due_amount_sales_person" t-value="total_due_amount_sales_person + line['total_due_amount']"/>
+                                            </td>
+                                            <!-- 10 -->
+                                            <td class="text-right">
+                                                <span t-esc="abs(line['total_safty_checks'])" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                            </td>
+                                            <!-- 11 -->
+                                            <td class="text-right">
+                                                <span t-esc="abs(line['total_collection_checks'])" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                            </td>                                    
+                                            <!-- 12 -->
+                                            <td class="text-right">
+                                                <!-- <span t-esc="final_lines[0].partner_id.comment"/> -->
+                                                <span t-esc="line['comment']"/>
+                                            <!-- 13   -->
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="abs(line['x_studio_taxed_amount_refund'])"/>
+                                            </td>
+                                            <!-- 14 -->
+                                            <td class="text-right">
+                                                <span t-esc="abs(line['x_studio_taxed_amount_invoice'] + line['x_studio_taxed_amount_refund']) "/>
+                                            </td>
+
+                                        </tr>
+                                    </t>
+                                    <tr style="background-color:#eeeeee;">
+                                        <td colspan="11">
+                                            <span style="float:right">اجمالي المبيعات</span>
+                                        </td>
+                                        <td colspan="2">
+                                            <span t-esc="line['total_sales_before_discount_sales_person']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr style="background-color:#eeeeee;">
+                                        <td colspan="11">
+                                            <span style="float:right">اجمالي مرتجعات</span>
+
+                                        </td>
+                                        <td colspan="2">
+                                            <span t-esc="line['total_refund_sales_person']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr style="background-color:#eeeeee;">
+                                        <td colspan="11">
+                                            <span style="float:right">صافي المبيعات</span>
+                                        </td>
+                                        <td colspan="2">
+                                            <span t-esc="line['Total_sales_new']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr style="background-color:#eeeeee;">
+                                        <td colspan="11">
+                                            <span style="float:right">اجمالي سداد</span>
+
+                                        </td>
+                                        <td colspan="2">
+                                            <span t-esc="line['total_payment_sales_person']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr style="background-color:#eeeeee;">
+                                        <td colspan="11">
+                                            <span style="float:right">اجمالي الرصيد</span>
+
+                                        </td>
+                                        <td colspan="2">
+                                            <span t-esc="balance_sales_person" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr style="background-color:#eeeeee;">
+                                        <td colspan="11">
+                                            <span style="float:right">اجمالي المتأخر</span>
+
+                                        </td>
+                                        <td colspan="2">
+                                            <span t-esc="total_due_amount_sales_person" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr style="background-color:#eeeeee;">
+                                        <td colspan="11">
+                                            <span style="float:right;width:150px">شيكات تحت التحصيل</span>
+
+                                        </td>
+                                        <td colspan="2">
+                                            <span t-esc="abs(line['total_collection_checks_sales_person'])" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr style="background-color:#eeeeee;">
+                                        <td colspan="11">
+                                            <span style="float:right; width:100px">شيكات ضمان</span>
+
+                                        </td>
+                                        <td colspan="2">
+                                            <span t-esc="abs(line['total_safty_checks_sales_person'])" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr style="background-color:#eeeeee;">
+                                        <td colspan="11">
+                                            <span style="float:right">اجمالي مشتريات</span>
+
+                                        </td>
+                                        <td colspan="2">
+                                            <span t-esc="line['total_purchase_sales_person']" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+
+                            <p style="page-break-before:always;"/>
+                        </div>
+                        </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

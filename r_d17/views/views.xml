@@ -1,0 +1,274 @@
+<odoo>
+  <!-- Form View -->
+  <record id="view_form_rd" model="ir.ui.view">
+    <field name="name">x_details.form</field>
+    <field name="model">x_details</field>
+    <field name="arch" type="xml">
+      <form string="RD">
+
+        <header>
+<!-- 
+          <button name="action_confirm" string="Approve" type="object" class="btn-success"
+            invisible="statue in ('Rejected or Approved')" />
+          <button name="action_reject" string="Reject" type="object" class="btn-primary"
+            invisible="statue in ('Rejected or Approved')" />
+          <button name="action_reset" string="Reset to Draft" type="object" class="btn-primary"
+            invisible="statue in ('draft')" /> -->
+
+
+          <field name="statue" widget="statusbar"
+            statusbar_visible="1,2,3,4,5" readonly='0' />
+        </header>
+        <sheet>
+          <group>
+            <group string="Main Information">
+              <field name="name" readonly="x_studio_locked"/>
+              <field name="com_name" readonly="x_studio_locked"/>
+              <field name="statue" readonly="x_studio_locked"/>
+              <field name="x_studio_regestraion" readonly="x_studio_locked"/>
+              <field name="x_registration_number" readonly="x_studio_locked"/>
+              <field name="x_studio_company_id" readonly="x_studio_locked"/>
+              <field name="x_studio_crop" readonly="x_studio_locked"/>
+              <field name="x_studio_product_category" readonly="x_studio_locked"/>
+              <field name="x_studio_material" readonly="x_studio_locked"/>
+              <field name="x_studio_pests" readonly="x_studio_locked"/>
+            </group>
+            <group string="Documents For Registration">
+              <field name="x_studio_locked" readonly="x_studio_locked"/>
+              <field name="loa" readonly="x_studio_locked"/>
+              <field name="coo" readonly="x_studio_locked"/>
+              <field name="coa" readonly="x_studio_locked"/>
+              <field name="tds" readonly="x_studio_locked"/>
+              
+            </group>
+            <group string="Compound Details">
+              <field name="type" readonly="x_studio_locked" widget="many2many_tags"/>
+              <field name="function" readonly="x_studio_locked"/>
+              <field name="pd" readonly="x_studio_locked"/>
+              <field name="x_studio_qtyyear" readonly="x_studio_locked"/>
+              <field name="x_studio_sample" readonly="x_studio_locked"/>
+              <field name="x_studio_sequence" readonly="x_studio_locked"/>
+              <field name="x_studio_target_comption" readonly="x_studio_locked"/>
+              <field name="x_studio_usage_rate" readonly="x_studio_locked"/>
+              <field name="x_studio_user_id" readonly="x_studio_locked"/>
+              <field name="x_studio_stuff" readonly="x_studio_locked"/>
+            </group>
+            <group string="Notes">
+                <field name="x_studio_memo" readonly="x_studio_locked"/>
+
+            </group>
+          </group>
+        </sheet>
+
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <!-- Tree View -->
+  <record id="view_tree_rd" model="ir.ui.view">
+    <field name="name">x_details.tree</field>
+    <field name="model">x_details</field>
+    <field name="arch" type="xml">
+      <list string="RD">
+        <field name="name" readonly="1"/>
+        <field name="x_registration_number" readonly="1"/>
+        <field name="x_studio_company_id" readonly="1"/>
+        <field name="x_studio_crop" readonly="1"/>
+        <field name="x_studio_product_category" readonly="1"/>
+        <field name="x_studio_qtyyear" readonly="1"/>
+        <field name="statue" readonly="1"/>
+        <field name="x_studio_user_id" readonly="1"/>
+        <field name="x_active" readonly="1"/>
+      </list>
+    </field>
+  </record>
+
+  <!-- x_stuff Tree View -->
+  <record id="view_tree_x_stuff" model="ir.ui.view">
+    <field name="name">x_stuff.tree</field>
+    <field name="model">x_stuff</field>
+    <field name="arch" type="xml">
+      <list string="Stuff">
+        <field name="x_name" />
+        <field name="x_studio_company_id" />
+        <field name="x_studio_material" />
+        <field name="x_studio_state" />
+        <field name="x_active" />
+      </list>
+    </field>
+  </record>
+
+  <!-- x_stuff Form View -->
+  <record id="view_form_x_stuff" model="ir.ui.view">
+    <field name="name">x_stuff.form</field>
+    <field name="model">x_stuff</field>
+    <field name="arch" type="xml">
+      <form string="Stuff">
+        <sheet>
+          <group>
+            <field name="x_name" />
+            <field name="x_studio_company_id" />
+            <field name="x_studio_material" />
+            <field name="x_studio_state" />
+            <field name="x_active" />
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- Tree View Deals -->
+  <record id="view_tree_x_deals" model="ir.ui.view">
+    <field name="name">x_deals.tree</field>
+    <field name="model">x_deals</field>
+    <field name="arch" type="xml">
+      <list string="Deals">
+        <field name="x_name" />
+        <field name="x_studio_company_id" />
+        <field name="x_studio_vendor" />
+        <field name="x_studio_confermed_qty" />
+        <field name="x_studio_confirm_date" />
+        <field name="x_studio_price" />
+        <field name="x_studio_state" />
+        <field name="x_active" />
+      </list>
+    </field>
+  </record>
+
+  <!-- Form View Deals -->
+  <record id="view_form_x_deals" model="ir.ui.view">
+    <field name="name">x_deals.form</field>
+    <field name="model">x_deals</field>
+    <field name="arch" type="xml">
+      <form string="Deals">
+        <sheet>
+
+          <!-- SECTION 1: Product & Qty -->
+          <group>
+            <!-- Left: Product Data -->
+            <group string="Product Data">
+              <field name="x_active" />
+              <field name="x_name" readonly="x_studio_state == 'close'" />
+              <field name="x_studio_many2one_field_EjZeD" readonly="x_studio_state == 'close'" />
+              <field name="x_studio_product_category" readonly="1" />
+              <field name="x_studio_regestraion" readonly="1" />
+              <field name="x_studio_uom" readonly="1" />
+              <field name="x_studio_composition" readonly="1" />
+              <field name="x_studio_usage_rat" readonly="1" />
+              <field name="x_studio_state" />
+              <field name="x_studio_priority" />
+              <field name="x_studio_priority_1" />
+            </group>
+
+
+            <!-- Right: Required Qty -->
+            <group string="Required Qty">
+              <field name="x_studio_confermed_qty" readonly="x_studio_state == 'close'" />
+              <field name="x_studio_confirm_date" readonly="x_studio_state == 'close'" />
+              <field name="x_studio_target_qty" readonly="x_studio_state == 'close'" />
+              <field name="x_studio_ship_date" readonly="x_studio_state == 'close'" />
+              <field name="x_studio_price" readonly="x_studio_state == 'close'" />
+              <field name="x_studio_value" />
+              <field name="x_studio_sample" />
+            </group>
+
+          </group>
+
+          <!-- SECTION 2: Financing & Logistic -->
+          <group>
+            <!-- Left: Financing Data -->
+            <group string="Financing Data">
+              <field name="x_studio_vendor" readonly="x_studio_state == 'close'" />
+              <field name="x_studio_currency_id" />
+              <field name="x_studio_custom_agrement" />
+            </group>
+
+            <!-- Right: Logestic Data -->
+            <group string="Logistic Data">
+              <field name="x_studio_same" />
+              <field name="x_studio_stock" readonly="1" store="false" />
+            </group>
+          </group>
+
+        </sheet>
+
+        <!-- Chatter -->
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <!-- Action for Stuff -->
+  <record id="action_x_stuff" model="ir.actions.act_window">
+    <field name="name">Stuff</field>
+    <field name="res_model">x_stuff</field>
+    <field name="view_mode">list,form</field>
+    <!-- <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Add your first Stuff record</p>
+    </field> -->
+  </record>
+
+  <!-- Action for type -->
+  <record id="action_type" model="ir.actions.act_window">
+    <field name="name">Type</field>
+    <field name="res_model">type</field>
+    <field name="view_mode">list,form</field>
+    <!-- <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Add your first Stuff record</p>
+    </field> -->
+  </record>
+
+  <!-- Action RD-->
+  <record id="action_rd" model="ir.actions.act_window">
+    <field name="name">RD</field>
+    <field name="res_model">x_details</field>
+    <field name="view_mode">list,form</field>
+    <!-- <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+        Create your first R&amp;D record
+      </p>
+    </field> -->
+  </record>
+
+
+  <!-- Action Deals -->
+  <record id="action_x_deals" model="ir.actions.act_window">
+    <field name="name">Deals</field>
+    <field name="res_model">x_deals</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <!-- Parent R&D Menu (under top level) -->
+  <menuitem id="menu_rd_root"
+    name="R&amp;D"
+    sequence="99"
+    web_icon="r_d,static/description/menu_icon_rd.png" />
+
+  <!-- Submenu: Stuff -->
+  <menuitem id="menu_x_stuff"
+    name="Stuff"
+    parent="menu_rd_root"
+    action="action_x_stuff"
+    sequence="20" />
+
+  <!-- Move existing x_details into R&D -->
+  <menuitem id="menu_x_details"
+    name="R&amp;D"
+    parent="menu_rd_root"
+    action="action_rd"
+    sequence="10" />
+
+  <!-- Menu Item: Deals under R&D -->
+  <menuitem id="menu_x_deals"
+    name="Deals"
+    parent="menu_rd_root"
+    action="action_x_deals"
+    sequence="30" />
+  <!-- Menu Item: type -->
+  <menuitem id="menu_x_deals"
+    name="Type"
+    parent="menu_rd_root"
+    action="action_type"
+    sequence="40" />
+</odoo>

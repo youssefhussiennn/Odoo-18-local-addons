@@ -1,0 +1,40 @@
+<odoo>
+    <data>
+        <!-- Restrict partner actions for all users -->
+        <record id="close_edit_create_in_partner_of_account_move" model="ir.ui.view">
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="options">{"always_reload": true, "no_open": true, "no_create": true}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/list[1]/field[@name='partner_id']" position="attributes">
+                    <attribute name="options">{"no_open": true, "no_create": true}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/form[1]/group[1]/field[@name='partner_id']" position="attributes">
+                    <attribute name="options">{"no_open": true, "no_create": true}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Allow partner actions for system administrators -->
+        <record id="open_edit_create_in_partner_of_account_move" model="ir.ui.view">
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="options">{"always_reload": true, "no_open": false}</attribute>
+                    <attribute name="groups">base.group_system</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/list[1]/field[@name='partner_id']" position="attributes">
+                    <attribute name="options">{"no_open": false}</attribute>
+                    <attribute name="groups">base.group_system</attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']/form[1]/group[1]/field[@name='partner_id']" position="attributes">
+                    <attribute name="options">{"no_open": false}</attribute>
+                    <attribute name="groups">base.group_system</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

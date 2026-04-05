@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+        <record id="advance_payment_smart_button" model="ir.ui.view">
+            <field name="name">sale.order.view.buttons</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <!-- <button class="oe_stat_button" type="object" name="get_advanced_payment"
+                        icon="fa-briefcase">
+                        <field string="Advance Payment" name="advanced_payment_count" widget="statinfo"/>
+                    </button> -->
+                    <button class="oe_stat_button" type="object" name="get_expenses"
+                        icon="fa-euro">
+                        <field string="Expenses" name="expenses_count" widget="statinfo"/>
+                    </button>
+                    <!-- <button class="oe_stat_button" type="object" name="get_payment"
+                        icon="fa-credit-card">
+                        <field string="Payment" name="payment_count" widget="statinfo"/>
+                    </button> -->
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

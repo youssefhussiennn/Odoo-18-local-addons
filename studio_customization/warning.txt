@@ -1,0 +1,56 @@
+The following relational data haven't been exported because they either refer
+to a model that Studio doesn't export, or have no XML id:
+
+Record: studio_customization.tasks_user_7848493e-cbb8-41e8-b6e1-02084ce6f2ba
+Model: res.groups
+Field: users
+Type: many2many
+Value: res.users(1322, 1323, 1321, 1340, 1346) ('Aya Elkhateeb', 'Mona Basuoniey', 'Mustafa EL.Faramawy', 'Rodaina Zidan', 'Sara Ghanem')
+
+Record: studio_customization.a4_landscap_7e95f676-c96a-43d1-a97f-d57e25b17449
+Model: report.paperformat
+Field: report_ids
+Type: one2many
+Value: ir.actions.report(1477,) ('R&D Report')
+
+Record: studio_customization.purchase_r_d_eedb56d8-1abd-45bc-964e-8eb4f82af2c1
+Model: ir.ui.menu
+Field: groups_id
+Type: many2many
+Value: res.groups(2, 296, 301) ('Administration / Access Rights', 'Purchase / R&D Admin', 'R&D Users')
+
+Record: studio_customization.purchase_r_d_afc717f2-623c-446f-a10e-7fd367b256fd
+Model: ir.ui.menu
+Field: groups_id
+Type: many2many
+Value: res.groups(58, 296, 301, 57) ('Purchase / Administrator', 'Purchase / R&D Admin', 'R&D Users', 'Purchase / User')
+
+Record: studio_customization.purchase_r_d_categor_9b70099c-8844-45f0-88f9-38270127fbe0
+Model: ir.ui.menu
+Field: groups_id
+Type: many2many
+Value: res.groups(2, 296) ('Administration / Access Rights', 'Purchase / R&D Admin')
+
+Record: studio_customization.rfq_to_po_26340c5c-414b-45c7-a219-6f7f9abb9ff5
+Model: base.automation
+Field: action_server_id
+Type: many2one
+Value: ir.actions.server(1424,) ('RFQ to PO')
+
+Record: studio_customization.id_r_d_7986b8f7-ea61-42a1-8c23-cac2b66f578d
+Model: ir.default
+Field: field_id
+Type: many2one
+Value: ir.model.fields(35223,) ('ID (x_r_d)')
+
+Record: studio_customization.purchase_order_set_t_041ea191-116c-490d-b801-3c3323df3cf2
+Model: studio.approval.rule
+Field: action_id
+Type: many2one
+Value: ir.actions.actions(1486,) ('Set To Draft')
+
+Record: studio_customization.purchase_order_set_t_7d7f1eda-24b6-4d0a-b48e-16ff07fbbe91
+Model: studio.approval.rule
+Field: action_id
+Type: many2one
+Value: ir.actions.actions(1486,) ('Set To Draft')

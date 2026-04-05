@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+      <!-- options="{'no_open': True, 'no_create': True}" -->
+      <record id="close_edit_create_in_partner_of_payment" model="ir.ui.view">
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='partner_id'][1]" position="attributes">
+            <attribute name="options">{"no_open": True, "no_create": True}</attribute>
+          </xpath>
+          <xpath expr="//field[@name='partner_id'][2]" position="attributes">
+            <attribute name="options">{"no_open": True, "no_create": True}</attribute>
+          </xpath>
+        </field>
+      </record>
+    </data>
+  </odoo>

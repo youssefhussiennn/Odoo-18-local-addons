@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="print_pricelist_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>PriceList <span t-field="o.name"/></h2>
+
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                  <th>Products</th>
+                                  <th>Variants</th>
+                                  <th>Min.Quantity</th>
+                                  <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="categories" t-value="o.item_ids.mapped('product_tmpl_id.categ_id')"/>
+                                <t t-foreach="categories" t-as="category">
+                                  <t t-set="final_lines" t-value="o.item_ids.filtered(lambda x: x.product_tmpl_id.categ_id.name == category.name).sorted(key=lambda x: x.product_tmpl_id.name)"/>
+                                    <tr style="background-color:#D3D3D3">
+                                      <td colspan="4" style="background-color:#D3D3D3" class='text-center'><span t-esc="category.name"/></td>
+                                    </tr>
+                                    <tr t-foreach="final_lines" t-as="line">
+                                        <td><span t-field="line.product_tmpl_id"/></td>
+                                        <td>
+                                            <span t-field="line.product_id.display_name"/>
+                                        </td>
+                                        <td style="text-center">
+                                            <span t-field="line.min_quantity"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="line.fixed_price" t-options='{"widget": "monetary", "display_currency": line.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="print_pricelist" model="ir.actions.report">
+        <field name="name">Pricelist Print</field>
+        <field name="model">product.pricelist</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">print_pricelist.print_pricelist_report</field>
+        <field name="report_file">print_pricelist.print_pricelist_report</field>
+        <field name="print_report_name">'PriceList -  %s' % ((object.name).replace('/', ''))</field>
+        <field name="binding_model_id" ref="model_product_pricelist"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

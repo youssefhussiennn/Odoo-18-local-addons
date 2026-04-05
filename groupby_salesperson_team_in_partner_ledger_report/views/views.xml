@@ -1,0 +1,15 @@
+<odoo>
+  <data>
+    <record id="inherit_account_move_line_search_view" model="ir.ui.view">
+      <field name="model">account.move.line</field>
+      <field name="inherit_id" ref="account.view_account_move_line_filter"/>
+      <field name="arch" type="xml">
+        <xpath expr="//group" position="inside">
+          <filter string="Sales Person" name="ro_sales_person" domain="[]" context="{'group_by': 'ro_sales_person'}"/>
+          <filter string="Sales Team" name="ro_sales_team" domain="[]" context="{'group_by': 'ro_sales_team'}"/>
+        </xpath>
+        
+      </field>
+    </record>
+  </data>
+</odoo>

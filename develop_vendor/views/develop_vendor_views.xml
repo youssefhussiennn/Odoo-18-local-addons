@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_create_vendor" model="ir.actions.server">
+        <field name="name">Create Vendor</field>
+        <field name="type">ir.actions.server</field>
+        <field name="state">code</field>
+        <field name="model_id" ref="model_develop_vendor_develop_vendor" />
+        <field name="binding_model_id" ref="model_develop_vendor_develop_vendor" />
+        <field name="code"><![CDATA[
+if record.accounting_vendor:
+    raise UserError("A contact is already assigned to this record.")
+
+new_contact = env['res.partner'].create({
+    'name': record.name,
+    'email': record.email,
+    'country_id': record.country.id,
+    'street': record.street,
+    'city': record.City,
+    'phone': record.telephone,
+    'company_type': 'company',
+    'website': record.website,
+    'supplier_rank': record.is_supplier,
+    'customer_rank': record.is_customer,
+    'property_purchase_currency_id': 1,
+})
+record.write({'accounting_vendor': new_contact.id})
+        ]]></field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_develop_vendor_tree" model="ir.ui.view">
+        <field name="name">develop.vendor.list</field>
+        <field name="model">develop_vendor.develop_vendor</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" readonly="locked"/>
+                <field name="responsible_user" readonly="locked"/>
+                <field name="accounting_vendor" readonly='1'/>
+                <field name="email" readonly="locked"/>
+                <field name="country" readonly="locked"/>
+                <field name="website" readonly="locked"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_develop_vendor_form" model="ir.ui.view">
+        <field name="name">develop.vendor.form</field>
+        <field name="model">develop_vendor.develop_vendor</field>
+        <field name="arch" type="xml">
+            <form string="Vendor">
+                
+                <header>
+                    <button name="%(action_create_vendor)d"
+                        type="action"
+                        string="Create Vendor"
+                        class="oe_highlight"
+                        invisible="accounting_vendor or states in ('Rejected', 'draft')"/>
+
+                    <button name="action_confirm" string="Approve" type="object" class="btn-success"
+                        invisible="states in ('Rejected or Approved')" />
+                    <button name="action_reject" string="Reject" type="object" class="btn-primary"
+                        invisible="states in ('Rejected or Approved')" />
+                    <button name="action_reset" string="Reset to Draft" type="object"
+                        class="btn-primary" invisible="states in ('draft')" />
+
+
+                    <field name="states" widget="statusbar"
+                        statusbar_visible="Draft,Approved,Rejected" readonly='0' />
+                        
+                    
+                </header>
+                <sheet>
+                    
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_rd"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shopping-cart"
+                            context="{'create': False}">
+                            <field name="rd_count" widget="statinfo" string="RD" />
+                        </button>
+                    </div>
+
+                    <group>
+                        <widget name="web_ribbon" title="Contact Created" invisible="not accounting_vendor"/>
+                        <group header="True">
+                            <field name="name" style="font-size: 30px; font-weight: bold;" />
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Contact Information">
+                            
+
+                            <field name="responsible_user" readonly="locked"/>
+                            <field name="accounting_vendor" readonly="locked"/>
+                            <field name="contact_person" readonly="locked"/>
+                            <field name="contact_position" readonly="locked"/>
+                            <field name="email" readonly="locked"/>
+                            <field name="telephone" readonly="locked"/>
+                            <field name="Fax" readonly="locked"/>
+
+                        </group>
+                        <group string="Address">
+                            <field name="street" readonly="locked"/>
+                            <field name="City" readonly="locked"/>
+                            <field name="country" readonly="locked"/>
+                            <field name="other_country" readonly="locked"/>
+                            <field name="factory_country" readonly="locked"/>
+                            <field name="website" readonly="locked"/>
+                            <field name="whatsapp" readonly="locked"/>
+
+                        </group>
+                    </group>
+                    <group>
+                        <group string="More Information">
+                            <field name="Catalogue" readonly="locked"/>
+                            <field name="notes" readonly="locked"/>
+                            <field name="vendor_tags" widget="many2many_tags" readonly="locked"/>
+                            <field name="production_field" widget="many2many_tags" readonly="locked"/>
+                            <field name="description" />
+                        </group>
+                        <group string="Prive Information">
+                            <!-- <field name="is_customer" readonly="locked"/> -->
+                            <field name="is_supplier" readonly="locked"/>
+                            <field name="locked" readonly="1"/>
+
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Contact Details">
+                            <field name="contact_details" readonly="locked">
+                                <list editable="bottom">
+                                    <field name="name" />
+                                    <field name="position" />
+                                    <field name="phone" />
+                                    <field name="email" />
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="name" />
+                                        <field name="position" />
+                                        <field name="phone" />
+                                        <field name="email" />
+                                        <field name="notes" />
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+
+                        <page string="Meeting Points" readonly="locked">
+                            <field name="meeting_points">
+                                <list editable="bottom">
+                                    <field name="description" />
+                                    <field name="points" />
+                                    <field name="date" />
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="description" />
+                                        <field name="points" />
+                                        <field name="date" />
+                                        <field name="Attachment" />
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+
+            </form>
+        </field>
+    </record>
+
+    <!-- Action Window -->
+    <record id="action_develop_vendor" model="ir.actions.act_window">
+        <field name="name">Vendors</field>
+        <field name="res_model">develop_vendor.develop_vendor</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Main Menu -->
+    <menuitem id="menu_develop_vendor_root"
+        name="Develop Vendor"
+        sequence="10" 
+        web_icon="develop_vendor,static/description/dev_vendor.png" />
+
+    <!-- Sub Menu -->
+    <menuitem id="menu_develop_vendor_main"
+        name="Vendors"
+        parent="menu_develop_vendor_root"
+        action="action_develop_vendor"
+        sequence="20" />
+</odoo>

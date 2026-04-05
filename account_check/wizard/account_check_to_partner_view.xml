@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="ir.ui.view" id="to_partner_check_action_wizard_view">
+        <field name="name">account.to.partner.wizard.form</field>
+        <field name="model">account.to.partner.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sell Check">
+                <group colspan="4" col="4">
+                    <field name="partner_id" />
+                    <field name="account_id" />
+                    <!-- domain="[('internal_type', 'in', ['payable','receivable'])]"/> -->
+                    <field name="date"/>
+                    <!-- <field name="amount"/> -->
+                    <!-- <field name="less_amount" invisible="1"/> -->
+                    <field name="check_id" invisible="1"/>
+                </group>
+                <footer>
+                    <button string="Confirm" name="action_confirm" type="object" class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wizard_check_to_partner" model="ir.actions.act_window">
+        <field name="name">To Partner</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.to.partner.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

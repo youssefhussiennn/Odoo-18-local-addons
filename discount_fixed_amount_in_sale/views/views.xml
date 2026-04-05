@@ -1,0 +1,18 @@
+<odoo>
+  <data>
+   <record id="discount_fixed_amount_so" model="ir.ui.view">
+     <field name="name">sale.order.view.form.inherit</field>
+     <field name="model">sale.order</field>
+     <field name="inherit_id" ref="sale.view_order_form"/>
+     <field name="arch" type="xml">
+       <xpath expr="//list/field[@name='discount']" position="attributes">
+         <attribute name="readonly">1</attribute>
+         <attribute name="force_save">1</attribute>
+       </xpath>
+       <xpath expr="//list/field[@name='discount']" position="before">
+          <field name="discount_fixed_amount" />
+       </xpath>
+     </field>
+   </record>
+  </data>
+</odoo>

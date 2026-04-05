@@ -1,0 +1,13 @@
+<odoo>
+  <data>
+   <record id="sale_commission_sale_order" model="ir.ui.view">
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//group[@name='partner_details']" position="inside">
+        <field name="commission_id" options='{"always_reload": True, "no_open": True, "no_create": True}' required="1"/>
+      </xpath>
+    </field>
+   </record>
+  </data>
+</odoo>

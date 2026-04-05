@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+  <record id="studio_customization.active_r_d_6be1c4f7-39ad-4c03-ab9f-d8df72c84676" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.active_r_d_bfd9b6ed-b98b-4b32-b225-257a107595eb"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">true</field>
+  </record>
+  <record id="studio_customization.active_r_d_categorie_b8ab46a4-0804-4dda-bffc-a9ea6085091f" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.active_r_d_categorie_32007928-1070-4e76-a949-6440032d4c2a"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">true</field>
+  </record>
+  <record id="studio_customization.collection_type_paym_8d7f1607-5587-4c95-bc49-28814c476825" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_selection_paymen_18c0c547-da4e-426a-8069-d2b6fed39281"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"Cash"</field>
+  </record>
+  <record id="studio_customization.draft_purchase_order_df3e5d87-76b7-4ce8-80a2-11cc8cbe8bc6" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_checkbox_purchas_c03d052e-c698-496a-a1e7-5df932890a36"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">""</field>
+  </record>
+  <record id="studio_customization.id_r_d_7986b8f7-ea61-42a1-8c23-cac2b66f578d" model="ir.default" context="{'studio': True}">
+    <field name="condition" eval="False"/>
+    <field name="json_value">""</field>
+  </record>
+  <record id="studio_customization.new_integer_purchase_4dd8d1d6-0ca9-4e30-951b-53dcb09887ed" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_integer_purchase_c79a9966-ea71-4741-ac91-9c38ade868dd"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"0"</field>
+  </record>
+  <record id="studio_customization.new_integer_purchase_e692e0b3-5518-4ba2-bdae-89872e227b3c" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_integer_purchase_24778156-6a49-40c4-bd1e-d41711207392"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"0"</field>
+  </record>
+  <record id="studio_customization.new_integer_purchase_f10730f0-a310-478c-8f65-d13e04355cdd" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_integer_purchase_c4ea2de9-a89b-4ccc-92ed-e4425e474e30"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">""</field>
+  </record>
+  <record id="studio_customization.new_integer_r_d_01573721-6ca8-4520-b5f2-872c610f6f42" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_integer_r_d_4ba1de5e-bcb8-4d8b-84be-4683d5eb898d"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"0"</field>
+  </record>
+  <record id="studio_customization.new_integer_r_d_bcb79d5c-cc90-4141-ba5e-4e183a354206" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_integer_r_d_eb6c6dfb-751f-48bc-a4e7-10c4b2b0f7ae"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">""</field>
+  </record>
+  <record id="studio_customization.pack_carton_product_88321d09-97f9-4339-95e6-06e9b9243e9a" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_decimal_product_00502b80-692a-40b8-b422-9510dbe7078e"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"1"</field>
+  </record>
+  <record id="studio_customization.paid_by_expense_5913235a-36da-4add-be4c-6ba6b743da89" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="hr_expense.field_hr_expense__payment_mode"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"company_account"</field>
+  </record>
+  <record id="studio_customization.payment_type_payment_c626c749-3a85-4374-b3f0-e35c235100ab" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="account.field_account_payment__payment_type"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"inbound"</field>
+  </record>
+  <record id="studio_customization.rate_purchase_order_e00500dc-eb7c-46bf-8e51-672a3a5e1f9e" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_decimal_purchase_a504b19f-30dc-42e4-8381-5a5eec79dccb"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"1.0000"</field>
+  </record>
+  <record id="studio_customization.sequence_r_d_c722d349-ace8-4ef9-bba4-4aaff45b3152" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.sequence_r_d_9918a344-d4bc-40a7-a66e-9586445112e2"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">10</field>
+  </record>
+  <record id="studio_customization.sequence_r_d_categor_3906904b-00a9-461c-a995-e6b22a6d9504" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.sequence_r_d_categor_432a806a-5dc2-438f-aa25-b27912ca2c2c"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">10</field>
+  </record>
+  <record id="studio_customization.ship_via_purchase_or_56be6c81-2cee-40c5-a77a-2776a460ebc1" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_text_purchase_or_e8e4365b-f16e-46df-be89-bcd9bb1119f2"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"Mearsk, MSC, Yang Ming"</field>
+  </record>
+  <record id="studio_customization.shipping_terms_purch_49a49afa-307b-4445-98b3-470ed439fab6" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_text_purchase_or_7d44d368-0ca7-4409-b7b0-1345e026b952"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"CIF , Direct Shipping"</field>
+  </record>
+  <record id="studio_customization.type_purchase_order_9027fa97-af79-469c-9bd7-2794e8e7240c" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_selection_purcha_d8c5711f-ce81-4c75-af65-06f6add245c7"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">"Global"</field>
+  </record>
+  <record id="studio_customization.type_purchase_order_fa313cea-c6a7-48e0-983f-047174998837" model="ir.default" context="{'studio': True}">
+    <field name="field_id" ref="studio_customization.new_selection_purcha_d8c5711f-ce81-4c75-af65-06f6add245c7"/>
+    <field name="condition" eval="False"/>
+    <field name="json_value">""</field>
+  </record>
+</odoo>

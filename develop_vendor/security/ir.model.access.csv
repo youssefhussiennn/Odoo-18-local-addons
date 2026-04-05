@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_develop_vendor,access_develop_vendor,model_develop_vendor_develop_vendor,,1,1,1,1
+access_develop_vendor_contact,access_develop_vendor_contact,model_develop_vendor_contact,,1,1,1,1
+access_develop_vendor_meeting_point,access_develop_vendor_meeting_point,model_develop_vendor_meeting_point,,1,1,1,1
+access_develop_vendor_tag,access_develop_vendor_tag,model_develop_vendor_vendor_tag,,1,1,1,1
+access_develop_vendor_production_field,access_develop_vendor_production_field,model_develop_vendor_production_field,,1,1,1,1
+

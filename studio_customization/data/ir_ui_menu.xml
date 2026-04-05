@@ -1,0 +1,315 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<odoo>
+  <record id="account.menu_finance_receivables" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Customers</field>
+    <field name="parent_id" ref="account_accountant.menu_accounting"/>
+    <field name="sequence">2</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="crm.crm_menu_config" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="crm.action_your_pipeline"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('sales_team.group_sale_manager')])]"/>
+    <field name="name">Configuration</field>
+    <field name="parent_id" ref="crm.crm_menu_root"/>
+    <field name="sequence">4</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="crm.crm_menu_leads" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="crm.crm_lead_all_leads"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('crm.group_use_lead')])]"/>
+    <field name="name">Leads</field>
+    <field name="parent_id" ref="crm.crm_menu_root"/>
+    <field name="sequence">2</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="crm.crm_menu_report" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('sales_team.group_sale_salesman')])]"/>
+    <field name="name">Reporting</field>
+    <field name="parent_id" ref="crm.crm_menu_root"/>
+    <field name="sequence">3</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="crm.crm_menu_sales" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Sales</field>
+    <field name="parent_id" ref="crm.crm_menu_root"/>
+    <field name="sequence">1</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="data_cleaning.menu_data_cleaning_config" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('purchase.group_purchase_manager'), ref('base.group_system')])]"/>
+    <field name="name">Configuration</field>
+    <field name="parent_id" ref="data_cleaning.menu_data_cleaning_root"/>
+    <field name="sequence">100</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="purchase.menu_procurement_management" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('purchase.group_purchase_user')])]"/>
+    <field name="name">Orders</field>
+    <field name="parent_id" ref="purchase.menu_purchase_root"/>
+    <field name="sequence" eval="False"/>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="purchase.menu_procurement_management_supplier_name" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="account.res_partner_action_supplier"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Vendors</field>
+    <field name="parent_id" ref="purchase.menu_procurement_management"/>
+    <field name="sequence">3</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="purchase.menu_purchase_config" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
+    <field name="name">Configuration</field>
+    <field name="parent_id" ref="purchase.menu_purchase_root"/>
+    <field name="sequence">3</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="purchase.menu_purchase_form_action" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="purchase.purchase_form_action"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('purchase.group_purchase_manager'), ref('purchase.group_purchase_user')])]"/>
+    <field name="name">Purchase Orders</field>
+    <field name="parent_id" ref="purchase.menu_procurement_management"/>
+    <field name="sequence" eval="False"/>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="purchase.menu_purchase_products" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Products</field>
+    <field name="parent_id" ref="purchase.menu_purchase_root"/>
+    <field name="sequence">1</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="purchase.menu_purchase_rfq" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="purchase.purchase_rfq"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Requests for Quotation</field>
+    <field name="parent_id" ref="purchase.menu_procurement_management"/>
+    <field name="sequence">1</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="purchase.purchase_report_main" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('purchase.group_purchase_manager')])]"/>
+    <field name="name">Reporting</field>
+    <field name="parent_id" ref="purchase.menu_purchase_root"/>
+    <field name="sequence">2</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="purchase_requisition.menu_purchase_requisition_pro_mgt" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="purchase_requisition.action_purchase_requisition"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('base.group_erp_manager'), ref('purchase.group_purchase_manager'), ref('purchase.group_purchase_user')])]"/>
+    <field name="name">Purchase Agreements</field>
+    <field name="parent_id" ref="purchase.menu_procurement_management"/>
+    <field name="sequence">2</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="sale.menu_sale_quotations" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="sale.action_quotations_with_onboarding"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('__export__.res_groups_127_de7b4d9f')])]"/>
+    <field name="name">Quotations</field>
+    <field name="parent_id" ref="sale.sale_order_menu"/>
+    <field name="sequence">1</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.cash_in_out_88bfd18f-4650-424f-a0bc-349568b2f345" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('__export__.res_groups_131_929860a1')])]"/>
+    <field name="name">Cash In &amp; Out</field>
+    <field name="parent_id" eval="False"/>
+    <field name="sequence">10</field>
+    <field name="web_icon">fa fa-database,#FFFFFF,#34495e</field>
+  </record>
+  <record id="studio_customization.cash_in_out_cash_in_27f0e6f5-6486-4b37-9c21-a9c43ac5c70e" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.cash_in_3891d25e-8fd8-45a7-b51d-7852536ce39b"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Cash In</field>
+    <field name="parent_id" ref="studio_customization.cash_in_out_88bfd18f-4650-424f-a0bc-349568b2f345"/>
+    <field name="sequence">11</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.cash_in_out_cash_in__2fb0c4e9-93d1-4344-a394-3aeb023ad00e" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.cash_in_out_ae3462a0-96b4-431c-943f-d00670e29126"/>
+    <field name="active" eval="False"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Cash In&amp;Out</field>
+    <field name="parent_id" ref="studio_customization.cash_in_out_88bfd18f-4650-424f-a0bc-349568b2f345"/>
+    <field name="sequence">10</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.cash_in_out_cash_out_e2c7b4f3-8c5f-47b7-bbcc-2b7f8a8fe25f" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.cash_out_4c908d1e-1da0-4bce-a579-f24d296a9cd8"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Cash Out</field>
+    <field name="parent_id" ref="studio_customization.cash_in_out_88bfd18f-4650-424f-a0bc-349568b2f345"/>
+    <field name="sequence">12</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.cash_in_out_currenci_0761ad46-9f10-4bc5-91bb-f7cf8c044f66" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.currencies_eb6ce968-2c20-43ff-80c8-8e199801c15b"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">currencies</field>
+    <field name="parent_id" ref="send_receive_request.menu_in_out_payment"/>
+    <field name="sequence">51</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.local_purchase_d0740090-b970-4258-8ed2-410ff8674c96" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('__export__.res_groups_141_c9769949')])]"/>
+    <field name="name">Local Purchase</field>
+    <field name="parent_id" eval="False"/>
+    <field name="sequence">10</field>
+    <field name="web_icon">fa fa-shopping-basket,#9b59b6,#838383</field>
+  </record>
+  <record id="studio_customization.local_purchase_local_d47487cd-6912-4bdc-95e7-0b615e62cdce" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.local_purchase_3f5e9d78-97e4-44a6-b140-6371eba4829c"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Local Purchase</field>
+    <field name="parent_id" ref="studio_customization.local_purchase_d0740090-b970-4258-8ed2-410ff8674c96"/>
+    <field name="sequence">10</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.local_purchase_vendo_351a5ab0-1f0b-4fbe-ae02-951565ad97a6" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.vendors_f30291fb-4605-44f3-afa6-2db8515f25ee"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Vendors</field>
+    <field name="parent_id" ref="studio_customization.local_purchase_d0740090-b970-4258-8ed2-410ff8674c96"/>
+    <field name="sequence">11</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.payments_4c4d685b-9ee2-41d4-91cd-a890487d6173" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('sales_team.group_sale_salesman'), ref('__export__.res_groups_139_4c8e14ed')])]"/>
+    <field name="name">Payments</field>
+    <field name="parent_id" eval="False"/>
+    <field name="sequence">10</field>
+    <field name="web_icon">fa fa-credit-card,#FFFFFF,#34495e</field>
+  </record>
+  <record id="studio_customization.payments_paymnets_739fb821-a67b-47f9-afcd-fd352bea52be" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.paymnets_30b7581b-cebb-4402-86aa-134f569737bf"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">payments</field>
+    <field name="parent_id" ref="studio_customization.payments_4c4d685b-9ee2-41d4-91cd-a890487d6173"/>
+    <field name="sequence">10</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_currencies_1ce8e866-ddb1-4458-9c10-03dc52ebf495" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.currencies_f0ebd4c2-3959-4db9-ac41-8139a18dab5a"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('purchase.group_purchase_manager')])]"/>
+    <field name="name">Currencies</field>
+    <field name="parent_id" ref="purchase.menu_purchase_root"/>
+    <field name="sequence">4</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_custom_conf_8cd47682-6556-41a2-9fa7-7d973cfdc787" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" eval="False"/>
+    <field name="active" eval="False"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Custom Configuration</field>
+    <field name="parent_id" ref="purchase.menu_purchase_root"/>
+    <field name="sequence">1000</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_custom_conf_8a87b247-3599-48dc-adb3-65ac8f32ec78" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.r_d_tags_4ef60b8a-5024-4759-b010-daed86a1f030"/>
+    <field name="active" eval="False"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">R&amp;D Tags</field>
+    <field name="parent_id" ref="studio_customization.purchase_custom_conf_8cd47682-6556-41a2-9fa7-7d973cfdc787"/>
+    <field name="sequence">10</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_delete_purc_5e296ab7-72d8-48ad-b438-5bcc5ce60eec" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.delete_purchase_line_5234cca7-2239-4ac4-ac16-5c3010dad555"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('purchase.group_purchase_manager')])]"/>
+    <field name="name">Delete Purchase lines</field>
+    <field name="parent_id" ref="purchase.menu_procurement_management"/>
+    <field name="sequence">4</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_r_d_eedb56d8-1abd-45bc-964e-8eb4f82af2c1" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="base.action_open_website"/>
+    <field name="active" eval="True"/>
+    <field name="name">R&amp;D</field>
+    <field name="parent_id" ref="purchase.menu_purchase_root"/>
+    <field name="sequence">5</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_r_d_afc717f2-623c-446f-a10e-7fd367b256fd" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.r_d_b276fcf3-6922-4730-bbd6-d9f6a85442f0"/>
+    <field name="active" eval="True"/>
+    <field name="name">R&amp;D</field>
+    <field name="parent_id" ref="studio_customization.purchase_r_d_eedb56d8-1abd-45bc-964e-8eb4f82af2c1"/>
+    <field name="sequence" eval="False"/>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.purchase_r_d_categor_9b70099c-8844-45f0-88f9-38270127fbe0" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.r_d_categories_6dbef745-dfa8-4390-a784-c98051a30ddf"/>
+    <field name="active" eval="True"/>
+    <field name="name">R&amp;D Categories</field>
+    <field name="parent_id" ref="studio_customization.purchase_r_d_eedb56d8-1abd-45bc-964e-8eb4f82af2c1"/>
+    <field name="sequence">1</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.sales_quotation_ow_13cdf188-803b-4e16-9861-dc47ccc58a0b" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.quotation_ow_d3b8fb58-4ed0-432e-a8be-88dfa4bcec78"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [ref('sales_team.group_sale_manager'), ref('__export__.res_groups_126_7d23d985')])]"/>
+    <field name="name">Quotation QW</field>
+    <field name="parent_id" ref="sale.sale_order_menu"/>
+    <field name="sequence" eval="False"/>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="studio_customization.settings_writeoff_ac_5021be50-80d0-402d-81a9-2c7e29ff332a" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="studio_customization.writeoff_accounts_9add0753-de7a-4988-b967-341d9817491f"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">writeoff.accounts</field>
+    <field name="parent_id" ref="base.menu_administration"/>
+    <field name="sequence">111</field>
+    <field name="web_icon" eval="False"/>
+  </record>
+  <record id="visit_module.menu_visit_crm" model="ir.ui.menu" context="{'studio': True}">
+    <field name="action" ref="visit_module.action_visit"/>
+    <field name="active" eval="True"/>
+    <field name="groups_id" eval="[(6, 0, [])]"/>
+    <field name="name">Visits</field>
+    <field name="parent_id" ref="crm.crm_menu_root"/>
+    <field name="sequence" eval="False"/>
+    <field name="web_icon" eval="False"/>
+  </record>
+</odoo>

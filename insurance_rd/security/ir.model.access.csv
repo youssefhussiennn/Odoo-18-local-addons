@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_x_details_user,x_details,model_details,base.group_user,1,1,1,1
+access_x_deals_user,x_deals,model_deals,base.group_user,1,1,1,1
+access_x_deals_user,x_contact,model_contact,base.group_user,1,1,1,1

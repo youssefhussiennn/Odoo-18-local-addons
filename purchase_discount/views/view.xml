@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_purchase_order_line_tree_inherit" model="ir.ui.view">
+            <field name="name">Purchase Order Line Tree Inherit</field>
+            <field name="model">purchase.order.line</field>
+            <field name="inherit_id" ref="purchase.purchase_order_line_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='price_unit']" position="before">
+                    <field name="cost" string="Current Cost" optional="show"/>
+                    <field name="price" optional="show"/>
+                    <field name="percentage_discount_1" optional="show" force_save="1"/>
+                </xpath>
+                <xpath expr="//field[@name='price_unit']" position="replace">
+                    <field name="price_unit" string="Unit Cost" force_save="1"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,103 @@
+<odoo>
+  <data>
+    <!-- <record id="add_account_type" model="ir.ui.view">
+      <field name="name">account.move.line.view.form.inherit</field>
+      <field name="model">account.move.line</field>
+      <field name="inherit_id" ref="account.view_move_line_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='account_id']" position="after">
+          <field name="account_type" />
+        </xpath>
+      </field>
+    </record>
+
+    <record id="action_account_Statement" model="ir.actions.act_window">
+        <field name="name">Account Statement</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">tree</field>
+        <field name="search_view_id" ref="view_account_search"/>
+        <field name="view_id" ref="account.view_move_line_tree"/>
+        <field name="domain">[('account_type.name', 'in', ('line_section', 'line_note'))]</field> 
+    </record> -->
+
+    <record id="view_account_move_line_tree" model="ir.ui.view">
+        <field name="name">account.move.line.tree</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="mode">primary</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+              <attribute name="create">false</attribute>
+            </xpath>
+            <xpath expr="//tree" position="attributes">
+              <attribute name="edit">false</attribute>
+            </xpath>
+            <!-- <xpath expr="//field[@name='credit']" position="after">
+              <field name="balance" />
+              <field name="move_type" />
+            </xpath> -->
+            <xpath expr="//field[@name='name']" position="after">
+              <field name="quantity" />
+              <field name="price_unit" />
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="action_menu_prevent_create_journal_item" model="ir.actions.act_window">
+        <!-- <field name="type">ir.actions.act_window</field> -->
+        <field name="name">Account Statement</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('account_id.account_type','in',('liability_payable', 'asset_receivable'))]</field> 
+        <!-- <field name="domain">['|', '|', ('account_id.user_type_id.name','=','Bank and Cash'), ('account_id.user_type_id.name','=','بنك ونقدية'), ('account_id.user_type_id.name','=','البنك والنقد ')]</field>  -->
+    </record>
+    <record model="ir.ui.view" id="account_move_lines_inherited_view">
+        <field name="name">account.move.line.inherited.view</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_form"/>
+        <field name="mode">primary</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+
+          <xpath expr="//form" position="attributes">
+            <attribute name="create">false</attribute>
+          </xpath>
+          <xpath expr="//form" position="attributes">
+            <attribute name="edit">false</attribute>
+          </xpath>          
+            
+        </field>
+    </record>
+
+   
+    <record model="ir.actions.act_window.view" id="action_view_account_move_line_tree">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_account_move_line_tree"/>
+        <field name="act_window_id" ref="action_menu_prevent_create_journal_item"/>
+    </record>
+
+
+    
+    <record model="ir.actions.act_window.view" id="action_account_move_lines_inherited_view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account_move_lines_inherited_view"/>
+        <field name="act_window_id" ref="action_menu_prevent_create_journal_item"/>
+    </record>
+
+
+    <menuitem
+            id="menu_action_menu_prevent_create_journal_item"
+            action="action_menu_prevent_create_journal_item"
+            sequence="66"
+            parent="account.menu_finance_reports" 
+            />
+
+            <!-- groups="invoice_new_menu.posted_invoice_and_bills" -->
+
+
+  </data>
+</odoo>

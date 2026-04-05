@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_inherit_subcontract_cost" model="ir.ui.view">
+        <field name="name">sale.order.form.subcontract.cost</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="after">
+                <field name="purchase_cost"/>
+                <field name="subcontract_margin" readonly="1"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="after">
+                <field name="purchase_cost"/>
+                <field name="subcontract_margin"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

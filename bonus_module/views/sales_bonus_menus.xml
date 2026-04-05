@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--    Menu for configuring sales bonus types-->
+    <menuitem id="sale_order_menu_sales_bonus" name="Sales Bonus"
+              parent="sale.menu_sale_config"
+              action="sales_bonus_action">
+    </menuitem>
+    <!--    Menu for sales bonus report wizard-->
+    <menuitem id="sale_order_menu_sales_bonus_report"
+              name="Sales Bonus Report" parent="sale.menu_sale_report"
+              action="sales_bonus_report_action_wizard">
+    </menuitem>
+</odoo>

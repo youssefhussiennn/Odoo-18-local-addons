@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+      <!-- options="{'no_open': True, 'no_create': True}" -->
+      <record id="close_edit_create_in_partner_of_stock_picking" model="ir.ui.view">
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='partner_id']" position="attributes">
+            <attribute name="options">{"no_open": True, "no_create": True}</attribute>
+          </xpath>
+        </field>
+      </record>
+    </data>
+  </odoo>

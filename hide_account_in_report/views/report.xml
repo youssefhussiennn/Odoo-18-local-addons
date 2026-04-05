@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- <template id="search_template_extra_options_ro" inherit_id="account_reports.search_template_extra_options">
+        <xpath expr="//div" position="inside">
+            <a role="menuitem" class="dropdown-item js_account_report_bool_filter" t-if="options.get('ro_hide_account') != None"
+               title="Hide Account Method" data-filter="ro_hide_account" id="ro_hide_account"
+               groups="hide_account_in_report.group_config_ro_hide_account_report_filter_account">Hide Account</a>
+        </xpath>
+    </template> -->
+
+</odoo>
