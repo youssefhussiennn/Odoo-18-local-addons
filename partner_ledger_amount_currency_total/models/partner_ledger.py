@@ -29,7 +29,7 @@ class PartnerLedgerAmountCurrencyHandler(models.AbstractModel):
 
         for column_group_key, column_group_options in report._split_options_per_column_group(options).items():
             # 🔥 FIX: use strict_range instead of from_beginning
-            query = report._get_report_query(column_group_options, 'strict_range')
+            query = report._get_report_query(column_group_options, 'from_beginning')
 
             queries.append(SQL(
                 """
