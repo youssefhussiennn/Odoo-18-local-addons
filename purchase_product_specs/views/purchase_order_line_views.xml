@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+   
+
+    <!-- Inherit the standard Purchase Order / RFQ form view -->
+    <record id="view_purchase_order_form_product_specs" model="ir.ui.view">
+        <field name="name">purchase.order.form.product.specs</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <!-- priority 20: applied after the base view (priority 16) -->
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='order_line']//field[@name='product_id']"
+                   position="after">
+
+                <field name="po_sub_category_id"
+                       optional="show"
+                       readonly="1"
+                       string="Sub-category"/>
+
+                <field name="po_composition"
+                       optional="show"
+                       readonly="1"
+                       string="Composition"/>
+
+                <field name="po_formulation"
+                       optional="show"
+                       readonly="1"
+                       string="Formulation"/>
+
+                <field name="po_color"
+                       optional="show"
+                       readonly="1"
+                       string="Color"/>
+
+                <field name="po_p_uom"
+                       optional="show"
+                       readonly="1"
+                       string="P_UOM"/>
+
+                <field name="po_suggested_additions"
+                       optional="show"
+                       readonly="1"
+                       string="Suggested Additions"/>
+
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']//field[@name='price_unit']"
+                   position="after">
+                <field name="order_quantity"
+                       optional="show"
+                       readonly="1"
+                       string="Total Quantity (Tons)"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

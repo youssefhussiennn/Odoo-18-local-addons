@@ -20,4 +20,4 @@
 #
 #############################################################################
 from . import register_vendor
-from . import rfq_done
+# from . import rfq_done

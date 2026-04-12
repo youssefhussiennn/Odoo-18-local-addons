@@ -1,347 +1,310 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--    Templates for vendor portal-->
+
+    <!-- ========================= -->
+    <!-- BREADCRUMB -->
+    <!-- ========================= -->
     <template id="portal_my_home_menu_vendor_rfq"
-              name="Portal layout My RFQs"
-              inherit_id="portal.portal_breadcrumbs" priority="25">
+        inherit_id="portal.portal_breadcrumbs"
+        priority="25">
+
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-            <li t-if="page_name == 'vendor_rfq'"
-                t-attf-class="breadcrumb-item #{'active ' if not vendor_rfq else ''}">
-                <a t-if="vendor_my_rfq"
-                   t-attf-href="/my/vendor_rfqs?{{ keep_query() }}">RFQs
-                </a>
-                <t t-else="">
+
+                <li t-if="page_name == 'vendor_rfq'" class="breadcrumb-item">
                     <a href="/my/vendor_rfqs">RFQs</a>
-                </t>
-            </li>
-            <li t-if="vendor_rfq" class="breadcrumb-item active">
-                <t t-esc="vendor_rfq.name"/>
-            </li>
+                </li>
+
+                <li t-if="order and order.name" class="breadcrumb-item active">
+                    <t t-esc="order.name"/>
+                </li>
+
         </xpath>
+
     </template>
-    <template id="portal_my_home_vendor_rfq" name="Show Vendor RFQs"
-              customize_show="True" inherit_id="portal.portal_my_home"
+
+
+    <!-- ========================= -->
+    <!-- HOME TILE -->
+    <!-- ========================= -->
+    <template id="portal_my_home_vendor_rfq"
+              inherit_id="portal.portal_my_home"
+              customize_show="True"
               priority="25">
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+
+        <xpath expr="//t[@t-call='portal.portal_docs_entry']" position="replace">
+
             <t t-call="portal.portal_docs_entry">
-                <t t-set="title">RFQ's</t>
+                <t t-set="title">💵 Vendor's Asking Price Entry</t>
                 <t t-set="url" t-value="'/my/vendor_rfqs'"/>
                 <t t-set="placeholder_count" t-value="'my_rfq_count'"/>
+                <!-- <t t-set="icon" t-value="'/vendor_portal_odoo/static/src/img/icon.png'"/> -->
+
             </t>
+
         </xpath>
+
     </template>
-<!--    Portal table views-->
-    <template id="portal_my_rfq" name="Portal my RFQ">
+
+    <!-- ========================= -->
+    <!-- LIST VIEW -->
+    <!-- ========================= -->
+    <template id="portal_my_rfq" name="Portal My RFQ">
+
         <t t-call="portal.portal_layout">
-            <t t-set="breadcrumbs_searchbar" t-value="True"/>
-            <t t-call="portal.portal_searchbar"/>
-            <t t-if="rfqs" t-call="portal.portal_table">
+
+            <t t-set="breadcrumbs_searchbar" t-value="True" />
+            <t t-call="portal.portal_searchbar" />
+
+            <t t-if="orders" t-call="portal.portal_table">
+
                 <thead>
-                    <tr class="active">
-                        <th>Reference#</th>
-                        <th></th>
+                    <tr>
+                        <th>Reference</th>
                         <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Status</th>                       
-                        <th>Quotation Date</th>
-                        <th>Closing Date</th>
+                        <th>Status</th>
+                        <th>Date</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    <t t-foreach="rfqs" t-as="rfq">
+
+                    <t t-foreach="orders" t-as="order">
+
                         <tr>
+
                             <td>
-                                <a t-attf-href="/my/vendor_rfq/#{rfq.id}">
-                                    <span t-field="rfq.name"/>
+                                <a t-attf-href="/my/vendor_rfq/#{order.id}">
+                                    <t t-esc="order.name" />
                                 </a>
                             </td>
-                            <td/>
-                            <td>
-                                <span t-field="rfq.sudo().product_id.name"/>
+
+                           <td>
+
+                                <t t-if="order.order_line">
+
+                                    <t t-esc="len(order.order_line)" /> Products <br />
+
+                                    <small
+                                        class="text-muted">
+                                        <t
+                                            t-esc="', '.join(order.order_line.mapped('product_id.name')[:2])" />
+                                        <t t-if="len(order.order_line) > 2">...</t>
+                                    </small>
+
+                                </t>
+
                             </td>
+
                             <td>
-                                <span t-field="rfq.quantity"/>
+                                <t t-esc="order.state" />
                             </td>
+
                             <td>
-                                <span t-field="rfq.state"/>
+                                <t t-esc="order.date_order" />
                             </td>
-                            <td>
-                                <span t-field="rfq.quote_date"/>
-                            </td>
-                            <td>
-                                <span t-field="rfq.closing_date"/>
-                            </td>
+
                         </tr>
+
                     </t>
+
                 </tbody>
+
             </t>
+
         </t>
+
     </template>
-<!--    Alert View In Portal-->
+
+
+    <!-- ========================= -->
+    <!-- DETAIL VIEW -->
+    <!-- ========================= -->
     <template id="portal_my_vendor_rfq" name="Vendor RFQ">
+
         <t t-call="portal.portal_layout">
-            <t t-set="o_portal_fullwidth_alert"
-               groups="purchase.group_purchase_manager">
-                <t t-call="portal.portal_back_in_edit_mode">
-                    <t t-set="backend_url"
-                       t-value="'/web#return_label=Website&amp;model=%s&amp;id=%s&amp;' % (vendor_rfq._name, vendor_rfq.id)"/>
-                </t>
-            </t>
-            <br/>
-            <div class="col-12 alert alert-info"
-                 t-if="vendor_rfq.state == 'in_progress' and quoted_price != 0.0">
-                <span>
-                    <t t-esc="request.env['ir.config_parameter'].sudo().get_param('vendor_portal_odoo.quote_submission_msg')"/>
-                </span>
-            </div>
-            <div class="col-12 alert alert-success"
-                 t-if="vendor_rfq.state == 'done' and vendor_rfq.approved_vendor_id.id == request.env.user.partner_id.id">
-                <span>
-                    <t t-esc="request.env['ir.config_parameter'].sudo().get_param('vendor_portal_odoo.quote_accept_msg')"/>
-                </span>
-            </div>
-            <div class="col-12 alert alert-danger"
-                 t-if="vendor_rfq.state in ['done', 'order'] and vendor_rfq.approved_vendor_id.id != request.env.user.partner_id.id">
-                <span>
-                    <t t-esc="request.env['ir.config_parameter'].sudo().get_param('vendor_portal_odoo.quote_not_accept_msg')"/>
-                </span>
-            </div>
-            <div class="col-12 alert alert-success"
-                 t-if="vendor_rfq.state == 'order' and vendor_rfq.approved_vendor_id.id == request.env.user.partner_id.id">
-                <span>
-                    <t t-esc="request.env['ir.config_parameter'].sudo().get_param('vendor_portal_odoo.quote_to_po_msg')"/>
-                </span>
-            </div>
-            <div class="col-12 alert alert-danger"
-                 t-if="vendor_rfq.state == 'cancel'">
-                <span>
-                    <t t-esc="request.env['ir.config_parameter'].sudo().get_param('vendor_portal_odoo.quote_cancel_msg')"/>
-                </span>
-            </div>
-            <br/>
-            <div class="d-flex justify-content-between flex-wrap mb-3">
-                <h4 class="mb-2 mb-md-0">
-                    <span t-field="vendor_rfq.name"/>
+
+            <br />
+
+            <!-- HEADER -->
+            <div class="d-flex justify-content-between mb-3">
+
+                <h4>
+                    <t t-esc="order.name" />
                 </h4>
-                <div class="col-4">
-                         <button t-if="vendor_rfq.state == 'in_progress' and quoted_price == 0.0"
-                                            type="button"
-                                            class="btn btn-primary float-right"
-                                            data-toggle="modal"
-                                            data-target="#addQuoteModal">Quote
-                                        Your Details
-                                    </button>
-                </div>
-                <div class="col-2 text-right">
-                                    <span t-if="vendor_rfq.state == 'in_progress'"
-                                          t-field="vendor_rfq.state"
-                                          class=" badge badge-pill badge-info"
-                                          title="Current stage of this task"/>
-                                    <span t-if="vendor_rfq.state == 'done'"
-                                          t-field="vendor_rfq.state"
-                                          class=" badge badge-pill badge-info"
-                                          title="Current stage of this task"/>
-                                    <span t-if="vendor_rfq.state == 'order'"
-                                          t-field="vendor_rfq.state"
-                                          class=" badge badge-pill badge-info"
-                                          title="Current stage of this task"/>
-                                    <span t-if="vendor_rfq.state == 'cancel'"
-                                          t-field="vendor_rfq.state"
-                                          class=" badge badge-pill badge-info"
-                                          title="Current stage of this task"/>
-                                </div>
+
+                <span class="badge badge-info">
+                    <t t-esc="order.state" />
+                </span>
+
             </div>
-                    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-                            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-                            crossorigin="anonymous"/>
-                    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"
-                            integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
-                            crossorigin="anonymous"/>
-                    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"
-                            integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
-                            crossorigin="anonymous"/>
-                    <div class="modal se-modal" id="addQuoteModal"
-                         tabindex="-1" role="dialog"
-                         aria-labelledby="addTagLabel" aria-hidden="true">
-                        <div class="modal-dialog se-modal__dialog"
-                             role="document">
-                            <div class="modal-content se-modal__content">
-                                <div class="modal-header d-flex justify-content-between align-items-center">
-                                    <h5 class="modal-title se-modal__title"
-                                        id="addTagModalLabel">Quote Your Details
-                                    </h5>
-                                    <button type="button" class="close"
-                                            data-dismiss="modal"
-                                            aria-label="Close">
-                                        <span aria-hidden="false">X</span>
-                                    </button>
-                                </div>
-                                <form action="/quote/details" method="post"
-                                      enctype="multipart/form-data">
-                                    <input type="hidden" name="csrf_token"
-                                           t-att-value="request.csrf_token()"/>
-                                    <input type="hidden" name="rfq_id"
-                                           t-att-value="vendor_rfq.id"/>
-                                    <div class="modal-body">
-                                        <div class="row px-4">
-                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 py-3">
-                                                <label class="se-form-label"
-                                                       for="price">Price
-                                                </label>
-                                                <input type="text"
-                                                       class="form-control se-form-control"
-                                                       id="price"
-                                                       name="price"
-                                                       required="true"/>
-                                            </div>
-                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 py-3">
-                                                <label class="se-form-label"
-                                                       for="delivery_date">
-                                                    Delivery Date
-                                                </label>
-                                                <input type="date"
-                                                       class="form-control se-form-control"
-                                                       id="delivery_date"
-                                                       name="delivery_date"
-                                                       required="true"/>
-                                            </div>
-                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 py-3">
-                                                <label class="se-form-label"
-                                                       for="tag_name">Additional
-                                                    Note
-                                                </label>
-                                                <textarea
-                                                        class="form-control se-form-control"
-                                                        id="additional_note"
-                                                        name="additional_note"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer d-flex justify-content-between align-items-center">
-                                        <input type="submit"
-                                               class="btn btn-primary px-5"
-                                               value="Quote"
-                                               style="border-radius: 5px !important; margin-right: 0 !important;
-                                                                                                    margin-left: auto;"
-                                        />
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
 
-                    <t t-if="product_sub_category or product_suggested_additions or product_p_uom or product_composition or product_formulation or product_color or order_quantity">
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Product Specifications</h5>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div>
-                                            <b>Product Sub-category:</b>
-                                            <span t-esc="product_sub_category"/>
-                                        </div>
-                                        <br/>
-                                        <div>
-                                            <b>Suggested Additions:</b>
-                                            <span t-esc="product_suggested_additions"/>
-                                        </div>
-                                        <br/>
-                                        <div>
-                                            <b>P_UOM:</b>
-                                            <span t-esc="product_p_uom"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div>
-                                            <b>Composition:</b>
-                                            <span t-esc="product_composition"/>
-                                        </div>
-                                        <br/>
-                                        <div>
-                                            <b>Formulation:</b>
-                                            <span t-esc="product_formulation"/>
-                                        </div>
-                                        <br/>
-                                        <div>
-                                            <b>Color:</b>
-                                            <span t-esc="product_color"/>
-                                        </div>
-                                        <br/>
-                                        <div>
-                                            <b>Order Quantity:</b>
-                                            <span t-esc="order_quantity"/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </t>
 
-                    <div class="row">
-                        <div class="col-lg-6">
+            <!-- ORDER LINES -->
+            <div class="card mb-4">
+
+                <div class="card-body">
+
+                    <h5>Order Lines</h5>
+
+                    <t t-foreach="order_lines" t-as="line">
+
+                        <div class="border-bottom py-3">
+
                             <div>
-                                <b>Quote Date:</b>
-                                <span t-field="vendor_rfq.quote_date"
-                                      t-options="{'widget': 'date'}"/>
+                                <b>Product:</b>
+                                <span t-esc="line.product_id.name" />
                             </div>
-                            <br/>
                             <div>
-                                <b>Estimated Quote:</b>
-                                <span t-field="vendor_rfq.estimated_quote"/>
-                                <strong>/</strong>
-                                <span t-field="vendor_rfq.product_id.sudo().uom_id.name"/>
+                                <b>Composition:</b>
+                                <span t-esc="line.po_composition" />
                             </div>
-                            <br/>
                             <div>
-                                <b>Estimated Delivery Date:</b>
-                                <span t-field="vendor_rfq.estimated_delivery_date"/>
+                                <b>Color:</b>
+                                <span t-esc="line.po_color" />
                             </div>
-                            <br/>
-                            <div t-if="vendor_rfq.notes">
-                                <strong>Note :</strong>
-                                <br/>
-                                <span t-field="vendor_rfq.notes"/>
+                            <div>
+                                <b>Formulation:</b>
+                                <span t-esc="line.po_formulation" />
                             </div>
-                        </div>
-                        <div class="col-lg-6">
+                            <div>
+                                <b>Weight:</b>
+                                <span t-esc="line.product_weight" />
+                            </div>
+                            <div>
+                                <b>Suggested Additions:</b>
+                                <span t-esc="line.po_suggested_additions" />
+                            </div>
+                           
                             <div>
                                 <b>Quantity:</b>
-                                <span t-field="vendor_rfq.quantity"/>
+                                <span t-esc="line.product_qty" />
                             </div>
 
-                            <br/>
-                            <div>
-                                <strong>Closing Date:</strong>
-                                <span t-esc="vendor_rfq.closing_date"/>
-                            </div>
-                            <t t-if="quoted_price">
-                                <br/>
-                                <div>
-                                    <b>My Quoted Price :</b>
-                                    <t t-esc="quoted_price"
-                                       t-options="{&quot;widget&quot;: &quot;monetary&quot;,
-                                                            &quot;display_currency&quot;: vendor_rfq.currency_id}"/>
-                                    <strong>/</strong>
-                                    <span t-field="vendor_rfq.product_id.sudo().uom_id.name"/>
-                                </div>
+                            <!-- ========================= -->
+                            <!-- EDITABLE Discount -->
+                            <!-- ========================= -->
+                            <t t-if="order.state == 'sent'">
+
+                                <form action="/quote/update_price" method="post" class="d-flex flex-column mt-1">
+
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                    <input type="hidden" name="line_id" t-att-value="line.id" />
+                                    <input type="hidden" name="order_id" t-att-value="order.id" />
+
+                                    <!-- UNIT PRICE -->
+                                    <div>
+                                        <b>Unit Price:</b>
+                                        <input type="number"
+                                            step="0.01"
+                                            name="price"
+                                            class="form-control form-control-sm"
+                                            t-att-value="line.price_unit"
+                                            style="max-width:160px;" />
+                                    </div>
+
+                                    <!-- DISCOUNT -->
+                                    <div class="mt-2">
+                                        <b>Discount:</b>
+                                        <input type="number"
+                                            step="0.01"
+                                            name="discount"
+                                            class="form-control form-control-sm"
+                                            t-att-value="line.discount"
+                                            style="max-width:160px;" />
+                                    </div>
+
+                                    <!-- SINGLE BUTTON -->
+                                    <button type="submit" class="btn btn-sm btn-primary mt-2 align-self-start">
+                                        Save
+                                    </button>
+
+                                </form>
+
                             </t>
-                            <t t-if="vendor_quote.estimate_date">
-                                <br/>
-                                <div>
-                                    <b>My Estimate Delivery Date :</b>
-                                    <t t-esc="vendor_quote.estimate_date"/>
-                                </div>
-                            </t>
-                            <t t-if="vendor_quote.note">
-                                <br/>
-                                <div>
-                                    <strong>My Note:</strong>
-                                    <br/>
-                                    <span t-field="vendor_quote.note"/>
-                                </div>
-                            </t>
+
                         </div>
+
+                    </t>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUOTE BUTTON -->
+            <!-- <t t-if="order.state == 'sent'">
+
+                <button type="button"
+                    class="btn btn-primary"
+                    data-toggle="modal"
+                    data-target="#quoteModal">
+
+                    Submit Quote
+
+                </button>
+
+            </t> -->
+
+
+            <!-- QUOTED PRICE -->
+            <t t-if="quoted_price">
+
+                <div class="alert alert-info mt-3">
+
+                    <b>Your Quote:</b>
+                    <t t-esc="quoted_price" />
+
+                </div>
+
+            </t>
+
+
+            <!-- MODAL -->
+            <div class="modal fade" id="quoteModal">
+
+                <div class="modal-dialog">
+
+                    <div class="modal-content">
+
+                        <form action="/quote/details" method="post">
+
+                            <input type="hidden" name="csrf_token"
+                                t-att-value="request.csrf_token()" />
+                            <input type="hidden" name="rfq_id" t-att-value="order.id" />
+
+                            <div class="modal-body">
+
+                                <label>Price</label>
+                                <input type="number" step="0.01" name="price" class="form-control"
+                                    required="1" />
+
+                                <label class="mt-2">Delivery Date</label>
+                                <input type="date" name="delivery_date" class="form-control"
+                                    required="1" />
+
+                                <label class="mt-2">Note</label>
+                                <textarea name="additional_note" class="form-control" />
+
+                            </div>
+
+                            <div class="modal-footer">
+
+                                <button type="submit" class="btn btn-success">
+                                    Submit Quote
+                                </button>
+
+                            </div>
+
+                        </form>
+
                     </div>
-        </t> 
+
+                </div>
+
+            </div>
+
+        </t>
+
     </template>
+
 </odoo>

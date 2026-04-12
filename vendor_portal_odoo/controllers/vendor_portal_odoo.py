@@ -1,109 +1,114 @@
 # -*- coding: utf-8 -*-
-#############################################################################
-#
-#    Cybrosys Technologies Pvt. Ltd.
-#
-#    Copyright (C) 2025-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
-#    Author: Cybrosys Techno Solutions(<https://www.cybrosys.com>)
-#
-#    You can modify it under the terms of the GNU LESSER
-#    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU LESSER GENERAL PUBLIC LICENSE (LGPL v3) for more details.
-#
-#    You should have received a copy of the GNU LESSER GENERAL PUBLIC LICENSE
-#    (LGPL v3) along with this program.
-#    If not, see <http://www.gnu.org/licenses/>.
-#
-#############################################################################
+
 from collections import OrderedDict
 from odoo import http, _
 from odoo.http import request
-from odoo.addons.portal.controllers.portal import pager as portal_pager, \
-    CustomerPortal
+from odoo.addons.portal.controllers.portal import pager as portal_pager, CustomerPortal
 
 
 class RFQCustomerPortal(CustomerPortal):
 
-    def _prepare_home_portal_values(self, counter):
-        """Retrieves and prepares the values to be displayed on the home portal
-        for the user."""
-        values = super()._prepare_home_portal_values(counter)
-        partner_id = request.env.user.partner_id
-        values['my_rfq_count'] = request.env['vendor.rfq'].sudo().search_count(
-            [('vendor_ids', 'in', partner_id.ids),
-             ('state', 'not in', ['draft'])])
-        return values
+    # -----------------------------
+    # HOME COUNTER
+    # -----------------------------
+    def _prepare_home_portal_values(self, counters):
+            values = super()._prepare_home_portal_values(counters)
 
-    def _rfq_get_page_view_values(self, vendor_rfq, access_token, **kwargs):
-        """RFQ Page values"""
-        values = {
-            'page_name': 'vendor_rfq',
-            'vendor_rfq': vendor_rfq,
-        }
-        return self._get_page_view_values(vendor_rfq, access_token, values,
-                                          'my_rfq_history', False, **kwargs)
+            partner = request.env.user.partner_id
 
-    @http.route(['/my/vendor_rfqs', '/my/vendor_rfqs/page/<int:page>'],
-                type='http', auth="public", website=True)
+            if 'my_rfq_count' in counters:
+                values['my_rfq_count'] = request.env['purchase.order'].sudo().search_count([
+                    ('partner_id', '=', partner.id),
+                    ('state', 'in', ['sent', 'to approve', 'purchase'])
+                ])
+
+            return values
+
+    # -----------------------------
+    # RFQ LIST PAGE
+    # -----------------------------
+    @http.route([
+        '/my/vendor_rfqs',
+        '/my/vendor_rfqs/page/<int:page>'
+    ], type='http', auth="user", website=True)
     def portal_my_vendor_rfqs(self, page=1, date_begin=None,
                               date_end=None, sortby=None, filterby=None, **kw):
-        """ Displays the portal page for vendor RFQs (Request for Quotations)
-        for the logged-in user.This method is responsible for rendering the
-        vendor RFQs in the portal with various filtering, sorting, and
-        pagination options."""
-        values = self._prepare_portal_layout_values()
-        user_partner = request.env.user.partner_id
-        vendor_rfq = request.env['vendor.rfq'].sudo().search([])
-        domain = [
-            ('vendor_ids', 'in', user_partner.ids),
-            ('state', 'not in', ['draft'])]
-        if date_begin and date_end:
-            domain += [('create_date', '>', date_begin),
-                       ('create_date', '<=', date_end)]
 
+        values = self._prepare_portal_layout_values()
+        partner = request.env.user.partner_id
+
+        PurchaseOrder = request.env['purchase.order'].sudo()
+
+        domain = [
+            ('partner_id', '=', partner.id),
+            ('state', 'in', ['sent', 'to approve'])
+        ]
+
+        # -----------------------------
+        # Date filter
+        # -----------------------------
+        if date_begin and date_end:
+            domain += [
+                ('create_date', '>', date_begin),
+                ('create_date', '<=', date_end)
+            ]
+
+        # -----------------------------
+        # Sorting
+        # -----------------------------
         searchbar_sortings = {
-            'date': {'label': _('Newest'),
-                     'order': 'create_date desc, id desc'},
-            'name': {'label': _('Name'), 'order': 'name asc, id asc'},
+            'date': {'label': _('Newest'), 'order': 'create_date desc'},
+            'name': {'label': _('Reference'), 'order': 'name asc'},
         }
-        if not sortby:
-            sortby = 'name'
+
+        sortby = sortby or 'date'
         order = searchbar_sortings[sortby]['order']
+
+        # -----------------------------
+        # Filters
+        # -----------------------------
         searchbar_filters = {
-            'all': {'label': _('All'), 'domain': [
-                ('state', 'in', ['draft', 'in_progress', 'pending',
-                                 'done', 'cancel'])]},
-            'Done': {'label': _('Done'), 'domain': [('state', '=', 'done')]},
-            'In Progress': {'label': _('In Progress'),
-                            'domain': [('state', '=', 'in_progress')]},
+            'all': {'label': _('All'), 'domain': []},
+            'rfq': {'label': _('RFQs'), 'domain': [('state', '=', 'sent')]},
+            # 'purchase': {'label': _('Purchase Orders'), 'domain': [('state', '=', 'purchase')]},
         }
-        # default filter by value
-        if not filterby:
-            filterby = 'all'
+
+        filterby = filterby or 'all'
         domain += searchbar_filters[filterby]['domain']
-        rfq_unit_count = vendor_rfq.search_count(domain)
+
+        # -----------------------------
+        # Count
+        # -----------------------------
+        total = PurchaseOrder.search_count(domain)
+
+        # -----------------------------
+        # Pager
+        # -----------------------------
         pager = portal_pager(
             url="/my/vendor_rfqs",
-            url_args={'date_begin': date_begin, 'date_end': date_end,
-                      'sortby': sortby, 'filterby': filterby},
-            total=rfq_unit_count,
+            url_args={
+                'date_begin': date_begin,
+                'date_end': date_end,
+                'sortby': sortby,
+                'filterby': filterby
+            },
+            total=total,
             page=page,
             step=self._items_per_page
         )
 
-        orders = vendor_rfq.search(
+        # -----------------------------
+        # Records
+        # -----------------------------
+        orders = PurchaseOrder.search(
             domain,
             order=order,
             limit=self._items_per_page,
             offset=pager['offset']
         )
+
         values.update({
-            'date': date_begin,
-            'rfqs': orders,
+            'orders': orders,
             'page_name': 'vendor_rfq',
             'pager': pager,
             'searchbar_sortings': searchbar_sortings,
@@ -112,41 +117,108 @@ class RFQCustomerPortal(CustomerPortal):
             'filterby': filterby,
             'default_url': '/my/vendor_rfqs',
         })
-        return request.render(
-            "vendor_portal_odoo.portal_my_rfq",
-            values)
 
-    @http.route(['/my/vendor_rfq/<int:rfq_id>'], type='http', auth="public",
-                website=True)
-    def portal_my_vendor_rfq(self, rfq_id, access_token=None, **kw):
-        """ Displays the details of a specific vendor RFQ (Request for Quotation)
-         for the logged-in user."""
-        rfq_details = request.env['vendor.rfq'].sudo().browse(int(rfq_id))
-        vendor_quote = rfq_details.vendor_quote_history_ids.filtered(
-            lambda x: x.vendor_id.id == request.env.user.partner_id.id)
-        quoted_price = vendor_quote.quoted_price
-        values = self._rfq_get_page_view_values(rfq_details, access_token, **kw)
-        values['quoted_price'] = quoted_price
-        values['vendor_quote'] = vendor_quote
-        # Explicitly pass product specification fields
-        values['product_sub_category'] = rfq_details.product_sub_category_id.name if rfq_details.product_sub_category_id else ''
-        values['product_suggested_additions'] = rfq_details.product_suggested_additions or ''
-        values['product_composition'] = rfq_details.product_composition or ''
-        values['product_formulation'] = rfq_details.product_formulation or ''
-        values['product_color'] = rfq_details.product_color or ''
-        values['product_p_uom'] = rfq_details.product_p_uom or ''
-        values['order_quantity'] = rfq_details.order_quantity or 0.0
-        return request.render(
-            "vendor_portal_odoo.portal_my_vendor_rfq", values)
+        return request.render("vendor_portal_odoo.portal_my_rfq", values)
 
-    @http.route(['/quote/details'], type='http', auth="public", website=True)
+    # -----------------------------
+    # RFQ DETAIL PAGE (CRASH-PROOF)
+    # -----------------------------
+    @http.route([
+        '/my/vendor_rfq/<int:order_id>'
+    ], type='http', auth="user", website=True)
+    def portal_my_vendor_rfq(self, order_id, access_token=None, **kw):
+
+        # SAFE FETCH (NO BROKEN MIXINS)
+        order = request.env['purchase.order'].sudo().browse(order_id)
+
+        if not order.exists():
+            return request.not_found()
+
+        # SECURITY CHECK (portal-safe)
+        if order.partner_id != request.env.user.partner_id:
+            return request.not_found()
+
+        # SAFE QUOTE FETCH
+        vendor_quote = request.env['vendor.quote.history'].sudo().search([
+            ('order_id', '=', order.id),
+            ('vendor_id', '=', request.env.user.partner_id.id)
+        ], limit=1)
+
+
+        # SAFE VALUES ONLY (NO INTERNAL ODOO MIXINS)
+        values = {
+            'page_name': 'vendor_rfq',
+            'order': order,
+            'order_lines': order.order_line,
+            'vendor_quote': vendor_quote,
+            'quoted_price': vendor_quote.quoted_price if vendor_quote else 0.0,
+            'discount': vendor_quote.discount if vendor_quote else 0.0,
+        }
+
+        return request.render(
+            "vendor_portal_odoo.portal_my_vendor_rfq",
+            values
+        )
+
+    # -----------------------------
+    # SUBMIT QUOTE (SAFE)
+    # -----------------------------
+    @http.route([
+        '/quote/details'
+    ], type='http', auth="user", website=True, csrf=False)
     def quote_details(self, **post):
-        """Handle the submission of a vendor's quote details."""
+
+        order_id = int(post.get('rfq_id') or 0)
+        price = float(post.get('price') or 0.0)
+        discount = float(post.get('discount') or 0.0)
+        delivery_date = post.get('delivery_date')
+        note = post.get('additional_note')
+
+        order = request.env['purchase.order'].sudo().browse(order_id)
+
+        if not order.exists():
+            return request.not_found()
+
+        if order.partner_id != request.env.user.partner_id:
+            return request.not_found()
+        
+        for line in order.order_line:
+            line.sudo().write({
+                'price_unit': price,
+                'discount': discount,
+            })
+            
         request.env['vendor.quote.history'].sudo().create({
+            'order_id': order.id,
             'vendor_id': request.env.user.partner_id.id,
-            'quoted_price': float(post.get('price')),
-            'estimate_date': post.get('delivery_date'),
-            'note': post.get('additional_note'),
-            'quote_id': post.get('rfq_id'),
+            'quoted_price': price,
+            'discount': discount,
+            'estimate_date': delivery_date,
+            'note': note,
         })
-        return request.redirect('/my/vendor_rfq/%s' % (post.get('rfq_id')))
+
+        return request.redirect(f'/my/vendor_rfq/{order.id}')
+    
+    @http.route(['/quote/update_price'], type='http', auth="user", website=True, csrf=True)
+    def update_price(self, **post):
+
+        line_id = int(post.get('line_id'))
+        price = float(post.get('price') or 0.0)
+        discount = float(post.get('discount') or 0.0)
+        order_id = int(post.get('order_id'))
+
+        line = request.env['purchase.order.line'].sudo().browse(line_id)
+
+        if not line.exists():
+            return request.not_found()
+
+        # security check (VERY IMPORTANT)
+        if line.order_id.partner_id != request.env.user.partner_id:
+            return request.not_found()
+
+        line.write({
+            'price_unit': price,
+            'discount' : discount,
+        })
+
+        return request.redirect(f'/my/vendor_rfq/{order_id}')
