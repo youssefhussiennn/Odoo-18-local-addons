@@ -5,9 +5,9 @@ from odoo import models, fields, api
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
-    country_of_origin_new = fields.Char(string="Country of Origin")
-    usage_rate = fields.Char(string="Usage rate")
-    composition = fields.Char(string="Composition")
+    country_of_origin_new = fields.Char(string="Country of Origin",tracking=True)
+    usage_rate = fields.Char(string="Usage rate",tracking=True)
+    composition = fields.Char(string="Composition",tracking=True)
 
 
 class SaleOrderLine(models.Model):
