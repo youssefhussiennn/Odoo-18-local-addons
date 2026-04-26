@@ -28,8 +28,8 @@ record.write({'accounting_vendor': new_contact.id})
         ]]></field>
     </record>
 
-    <!-- Tree View -->
-    <record id="view_develop_vendor_tree" model="ir.ui.view">
+    <!-- list View -->
+    <record id="view_develop_vendor_list" model="ir.ui.view">
         <field name="name">develop.vendor.list</field>
         <field name="model">develop_vendor.develop_vendor</field>
         <field name="arch" type="xml">
@@ -40,6 +40,7 @@ record.write({'accounting_vendor': new_contact.id})
                 <field name="email" readonly="locked"/>
                 <field name="country" readonly="locked"/>
                 <field name="website" readonly="locked"/>
+                <field name="locked"/>
             </list>
         </field>
     </record>
@@ -68,11 +69,9 @@ record.write({'accounting_vendor': new_contact.id})
 
                     <field name="states" widget="statusbar"
                         statusbar_visible="Draft,Approved,Rejected" readonly='0' />
-                        
-                    
                 </header>
                 <sheet>
-                    
+
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_rd"
                             type="object"
@@ -82,7 +81,7 @@ record.write({'accounting_vendor': new_contact.id})
                             <field name="rd_count" widget="statinfo" string="RD" />
                         </button>
                     </div>
-
+                    
                     <group>
                         <widget name="web_ribbon" title="Contact Created" invisible="not accounting_vendor"/>
                         <group header="True">
@@ -110,6 +109,7 @@ record.write({'accounting_vendor': new_contact.id})
                             <field name="factory_country" readonly="locked"/>
                             <field name="website" readonly="locked"/>
                             <field name="whatsapp" readonly="locked"/>
+                            <field name="we_chat" readonly="locked"/>
 
                         </group>
                     </group>
@@ -122,13 +122,17 @@ record.write({'accounting_vendor': new_contact.id})
                             <field name="description" />
                         </group>
                         <group string="Prive Information">
-                            <!-- <field name="is_customer" readonly="locked"/> -->
+                            <field name="is_customer" readonly="locked"/>
                             <field name="is_supplier" readonly="locked"/>
-                            <field name="locked" readonly="1"/>
-
+                            <field name="locked"/>
+                            
                         </group>
                     </group>
                     <notebook>
+                        <page string="Notes" name="notes_tab">
+                            <field name="notes" readonly="locked" placeholder="Add internal notes here..."/>
+                        </page>
+
                         <page string="Contact Details">
                             <field name="contact_details" readonly="locked">
                                 <list editable="bottom">
@@ -166,9 +170,69 @@ record.write({'accounting_vendor': new_contact.id})
                                 </form>
                             </field>
                         </page>
+
+                        <page string="Waiting iCama" name="waiting_icama_tab">
+                            <field name="waiting_icama" readonly="locked">
+                                <list editable="bottom">
+                                    <field name="product" string="Product Name"/>
+                                    <field name="date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Exhibition information" readonly="locked">
+
+                            <group>
+
+                                <!-- Always visible -->
+                                <field name="attended"/>
+
+                                <!-- Predicted ICAMA -->
+                                <field name="predicted_icama"
+                                       invisible="not attended"/>
+                                <field name="predicted_icama_text"
+                                       invisible="not attended or not predicted_icama"
+                                       required="predicted_icama"/>
+
+                                <!-- Price Offer -->
+                                <field name="price_offer"
+                                       invisible="not attended"/>
+                                <field name="price_offer_text"
+                                       invisible="not attended or not price_offer"
+                                       required="price_offer"/>
+
+                                <!-- Send Documents -->
+                                <field name="send_documents"
+                                       invisible="not attended"/>
+                                <field name="send_documents_text"
+                                       invisible="not attended or not send_documents"
+                                       required="send_documents"/>
+
+                                <!-- Waiting Samples -->
+                                <field name="waiting_samples"
+                                       invisible="not attended"/>
+                                <field name="waiting_samples_text"
+                                       invisible="not attended or not waiting_samples"
+                                       required="waiting_samples"/>
+
+                                <!-- Fertilizers Sample -->
+                                <field name="fertilizers_sample_test"
+                                       invisible="not attended"/>
+                                <field name="fertilizers_sample_text"
+                                       invisible="not attended or not fertilizers_sample_test"
+                                       required="fertilizers_sample_test"/>
+
+                                <!-- Products -->
+                                <field name="selected_products"
+                                       widget="many2many_tags"
+                                       invisible="not attended"/>
+
+                            </group>
+
+                        </page>
+
                     </notebook>
                 </sheet>
-                <chatter />
+                <chatter/>
 
             </form>
         </field>

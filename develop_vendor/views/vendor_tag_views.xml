@@ -1,7 +1,7 @@
 <odoo>
 
     <!-- Vendor Tags Views -->
-    <record id="view_vendor_tag_tree" model="ir.ui.view">
+    <record id="view_vendor_tag_list" model="ir.ui.view">
         <field name="name">vendor.tag.list</field>
         <field name="model">develop_vendor.vendor_tag</field>
         <field name="arch" type="xml">
@@ -26,7 +26,7 @@
     </record>
 
     <!-- Production Field Views -->
-    <record id="view_production_field_tree" model="ir.ui.view">
+    <record id="view_production_field_list" model="ir.ui.view">
         <field name="name">production.field.list</field>
         <field name="model">develop_vendor.production_field</field>
         <field name="arch" type="xml">

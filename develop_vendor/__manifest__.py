@@ -9,23 +9,24 @@
         - Store vendor company info
         - Track multiple contact persons
         - Plan and organize meeting points
-        """,
+""",
 
     'author': "Youssef Hussien",
+    'website': "",
 
     'category': 'Operations/Vendor Management',
-    'version': '18.0',
-    'images': ['static/description/dev_vendor.png'],
+    'version': '18.3',
+
     'application': True,
     'installable': True,
     'auto_install': False,
 
-    'depends': ['base','mail'],
+    'depends': ['base','mail','r_d'],
 
     'data': [
         'security/ir.model.access.csv',  
         'views/develop_vendor_views.xml',
         'views/vendor_tag_views.xml'
     ],
-    
+
 }
