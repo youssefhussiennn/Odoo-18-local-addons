@@ -37,12 +37,12 @@
                         type="object"
                         groups="purchase_request.group_purchase_request_manager"
                     />
-                    <button
+                    <!-- <button
                         name="%(action_purchase_request_line_make_purchase_order)d"
                         invisible="state not in ('approved', 'in_progress')"
                         string="Create RFQ"
                         type="action"
-                    />
+                    /> -->
                     <button
                         name="button_done"
                         invisible="state not in ('approved', 'in_progress')"
@@ -121,6 +121,18 @@
                     <group>
                         <group>
                             <field
+                                name="vendor_id"
+                                readonly="is_editable == False"
+                            />
+                            <field name="email"/>
+                            <field name="whatsapp"/>
+                            <field name="street"/>
+                            <field name="city"/>
+                            <field name="country"/>
+
+                        </group>
+                        <group>
+                            <field
                                 name="requested_by"
                                 readonly="is_editable == False"
                             />
@@ -133,11 +145,11 @@
                                 readonly="is_editable == False"
                             />
                             <field name="description" readonly="is_editable == False" />
-                            <field
+                            <!-- <field
                                 name="group_id"
                                 readonly="is_editable == False"
                                 groups="base.group_no_one"
-                            />
+                            /> -->
                         </group>
                         <group>
                             <field name="date_start" readonly="is_editable == False" />
@@ -153,16 +165,35 @@
                                 readonly="is_editable == False"
                             />
                         </group>
+                        <group>
+                            <field name="consignee" readonly="is_editable == False" />
+                            <field name="shipped_via" readonly="state == 'done'" />
+                            <field name="shipped_via_text"
+                                    readonly="not is_editable"
+                                    invisible="shipped_via != 'other'"
+                                    required="shipped_via == 'other'"/>
+                            <field name="tracking_no" readonly="state == 'done'" />
+                            <field name="arrival_date" readonly="state == 'done'" />
+                            <field name="shipping_date" readonly="state == 'done'" />
+                        </group>
+                        <group>
+                            <field name="b_l" readonly="state == 'done'" />
+                            <field name="acid" readonly="state == 'done'" />
+                        </group>
                     </group>
                     <notebook>
                         <page string="Products">
                             <field name="line_ids" readonly="state != 'draft'">
                                 <list
                                     decoration-muted="cancelled == True"
-                                    editable="bottom"
-                                >
+                                    editable="bottom">
                                     <field name="product_id" />
+                                    <field name="rd_product_id" />
                                     <field name="name" />
+                                    <field name="msds" />
+                                    <field name="packing_list" />
+                                    <field name="coa" />
+                                    <field name="c_i" />
                                     <field name="product_qty" />
                                     <field
                                         name="product_uom_category_id"
@@ -189,7 +220,7 @@
                                     <field name="currency_id" column_invisible="1" />
                                     <field name="cancelled" column_invisible="1" />
                                     <field name="is_editable" column_invisible="1" />
-                                    <field name="purchased_qty" />
+                                    <!-- <field name="purchased_qty" /> -->
                                     <field
                                         name="purchase_state"
                                         widget="badge"
@@ -199,14 +230,14 @@
                                         decoration-warning="purchase_state == ('to_approve')"
                                         decoration-danger="purchase_state == 'cancelled'"
                                     />
-                                    <button
+                                    <!-- <button
                                         name="action_show_details"
                                         type="object"
                                         icon="fa-list"
                                         title="Show Details"
                                         width="0.1"
                                         options='{"warn": true}'
-                                    />
+                                    /> -->
                                 </list>
                             </field>
                             <group class="oe_subtotal_footer oe_right">
@@ -271,6 +302,7 @@
                 <field name="name" string="Purchase Request" />
                 <separator />
                 <field name="product_id" />
+                
                 <field name="state" />
                 <filter
                     name="unassigned"

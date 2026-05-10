@@ -34,7 +34,7 @@ class r_d(models.Model):
     # x_studio_statue = fields.Selection([
     #     ('1', 'Under Research'),
     #     ('5', 'Rejected'),
-    #     ('2', '	Waiting Sample'),
+    #     ('2', 'Waiting Sample'),
     #     ('3', 'Under Registration'),
     #     ('4','Registered')
     # ], string="Status", store=False)
@@ -45,13 +45,34 @@ class r_d(models.Model):
     pd = fields.Char(string="PD")
     x_studio_user_id = fields.Many2one('res.users', string="Responsible")
     
-    loa = fields.Boolean(string="LOA", default=False)
-    coo = fields.Boolean(string="COO (iCama)", default=False)
-    coa = fields.Boolean(string="COA", default=False)
-    tds = fields.Boolean(string="TDS", default=False)
+    # === LOA ===
+    loa = fields.Boolean(string="LOA", tracking=True)
+    loa_pdf = fields.Binary(string="LOA PDF")
+    loa_pdf_filename = fields.Char(string="LOA Filename")
+    loa_date = fields.Datetime(string="LOA Updated On")
+
+    # === COO ===
+    coo = fields.Boolean(string="COO (iCama)", tracking=True)
+    coo_pdf = fields.Binary(string="COO PDF")
+    coo_pdf_filename = fields.Char(string="COO Filename")
+    coo_date = fields.Datetime(string="COO Updated On")
+
+    # === COA ===
+    coa = fields.Boolean(string="COA", tracking=True)
+    coa_pdf = fields.Binary(string="COA PDF")
+    coa_pdf_filename = fields.Char(string="COA Filename")
+    coa_date = fields.Datetime(string="COA Updated On")
+
+    # === TDS ===
+    tds = fields.Boolean(string="TDS", tracking=True)
+    tds_pdf = fields.Binary(string="TDS PDF")
+    tds_pdf_filename = fields.Char(string="TDS Filename")
+    tds_date = fields.Datetime(string="TDS Updated On")
+    
     
     statue = fields.Selection([
         ('1', 'Under Research'),
+	('6', 'Completing Documents'),
         ('2', 'Waiting Sample'),
         ('3', 'Under Registration'),
         ('4','Registered'),
@@ -70,6 +91,21 @@ class r_d(models.Model):
     #     self.write({'statue': 'Rejected'})
     #     self.write({'x_studio_locked': True})
 
+
+    def write(self, vals):
+        now = fields.Datetime.now()
+
+        if 'loa' in vals:
+            vals['loa_date'] = now
+        if 'coo' in vals:
+            vals['coo_date'] = now
+        if 'coa' in vals:
+            vals['coa_date'] = now
+        if 'tds' in vals:
+            vals['tds_date'] = now
+
+        return super().write(vals)
+    
 class XStuff(models.Model):
     _name = 'x_stuff'
     _description = 'Stuff'

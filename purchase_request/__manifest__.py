@@ -10,7 +10,7 @@
     "requirements.",
     "website": "https://github.com/OCA/purchase-workflow",
     "category": "Purchase Management",
-    "depends": ["purchase_stock"],
+    "depends": ["purchase_stock","develop_vendor","r_d"],
     "data": [
         "security/purchase_request.xml",
         "security/ir.model.access.csv",
@@ -21,7 +21,7 @@
         "views/purchase_request_view.xml",
         "views/purchase_request_line_view.xml",
         "views/purchase_request_report.xml",
-        "views/product_template.xml",
+        # "views/product_template.xml",
         "views/purchase_order_view.xml",
         "views/stock_move_views.xml",
     ],

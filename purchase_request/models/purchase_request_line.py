@@ -90,11 +90,11 @@ class PurchaseRequestLine(models.Model):
     )
     cancelled = fields.Boolean(readonly=True, default=False, copy=False)
 
-    purchased_qty = fields.Float(
-        string="RFQ/PO Qty",
-        digits="Product Unit of Measure",
-        compute="_compute_purchased_qty",
-    )
+    # purchased_qty = fields.Float(
+    #     string="RFQ/PO Qty",
+    #     digits="Product Unit of Measure",
+    #     compute="_compute_purchased_qty",
+    # )
     purchase_lines = fields.Many2many(
         comodel_name="purchase.order.line",
         relation="purchase_request_purchase_order_line_rel",
@@ -148,18 +148,18 @@ class PurchaseRequestLine(models.Model):
         store=True,
         help="Quantity cancelled",
     )
-    qty_to_buy = fields.Boolean(
-        compute="_compute_qty_to_buy",
-        string="There is some pending qty to buy",
-        store=True,
-    )
-    pending_qty_to_receive = fields.Float(
-        compute="_compute_qty_to_buy",
-        digits="Product Unit of Measure",
-        copy=False,
-        string="Pending Qty to Receive",
-        store=True,
-    )
+    # qty_to_buy = fields.Boolean(
+    #     compute="_compute_qty_to_buy",
+    #     string="There is some pending qty to buy",
+    #     store=True,
+    # )
+    # pending_qty_to_receive = fields.Float(
+    #     compute="_compute_qty_to_buy",
+    #     digits="Product Unit of Measure",
+    #     copy=False,
+    #     string="Pending Qty to Receive",
+    #     store=True,
+    # )
     estimated_cost = fields.Monetary(
         currency_field="currency_id",
         default=0.0,
@@ -169,9 +169,19 @@ class PurchaseRequestLine(models.Model):
     product_id = fields.Many2one(
         comodel_name="product.product",
         string="Product",
-        domain=[("purchase_ok", "=", True)],
+        domain=[("purchase_request", "=", True)],
         tracking=True,
     )
+    rd_product_id = fields.Many2one(
+        comodel_name="x_details",
+        string="R&D Product",
+        tracking=True,
+        required=True,
+    )
+    msds = fields.Boolean(string="MSDS", tracking=True)
+    packing_list = fields.Boolean(string="Packing List", tracking=True)
+    coa = fields.Boolean(string="COA", tracking=True)
+    c_i = fields.Boolean(string="CI", tracking=True)
 
     @api.depends(
         "purchase_request_allocation_ids",
@@ -298,16 +308,16 @@ class PurchaseRequestLine(models.Model):
             requests.check_auto_reject()
         return res
 
-    def _compute_purchased_qty(self):
-        for rec in self:
-            rec.purchased_qty = 0.0
-            for line in rec.purchase_lines.filtered(lambda x: x.state != "cancel"):
-                if rec.product_uom_id and line.product_uom != rec.product_uom_id:
-                    rec.purchased_qty += line.product_uom._compute_quantity(
-                        line.product_qty, rec.product_uom_id
-                    )
-                else:
-                    rec.purchased_qty += line.product_qty
+    # def _compute_purchased_qty(self):
+    #     for rec in self:
+    #         rec.purchased_qty = 0.0
+    #         for line in rec.purchase_lines.filtered(lambda x: x.state != "cancel"):
+    #             if rec.product_uom_id and line.product_uom != rec.product_uom_id:
+    #                 rec.purchased_qty += line.product_uom._compute_quantity(
+    #                     line.product_qty, rec.product_uom_id
+    #                 )
+    #             else:
+    #                 rec.purchased_qty += line.product_qty
 
     @api.depends("purchase_lines.state", "purchase_lines.order_id.state")
     def _compute_purchase_state(self):
@@ -384,19 +394,19 @@ class PurchaseRequestLine(models.Model):
                 )
         return super().unlink()
 
-    def action_show_details(self):
-        self.ensure_one()
-        view = self.env.ref("purchase_request.view_purchase_request_line_details")
-        return {
-            "name": _("Detailed Line"),
-            "type": "ir.actions.act_window",
-            "view_mode": "form",
-            "res_model": "purchase.request.line",
-            "views": [(view.id, "form")],
-            "view_id": view.id,
-            "target": "new",
-            "res_id": self.id,
-            "context": dict(
-                self.env.context,
-            ),
-        }
+    # def action_show_details(self):
+    #     self.ensure_one()
+    #     view = self.env.ref("purchase_request.view_purchase_request_line_details")
+    #     return {
+    #         "name": _("Detailed Line"),
+    #         "type": "ir.actions.act_window",
+    #         "view_mode": "form",
+    #         "res_model": "purchase.request.line",
+    #         "views": [(view.id, "form")],
+    #         "view_id": view.id,
+    #         "target": "new",
+    #         "res_id": self.id,
+    #         "context": dict(
+    #             self.env.context,
+    #         ),
+    #     }

@@ -76,6 +76,45 @@ class PurchaseRequest(models.Model):
         default=fields.Date.context_today,
         tracking=True,
     )
+    vendor_id = fields.Many2one(
+        comodel_name="develop_vendor.develop_vendor",
+        string="Vendor",
+        domain=[
+            ("states", "=", "Approved"),
+        ],
+        tracking=True,
+        required=True,
+    )
+    email = fields.Char(
+        comodel_name="develop_vendor.develop_vendor",
+        related="vendor_id.email",
+        string="Email",
+        readonly=True,
+    )
+    street = fields.Char(
+        comodel_name="develop_vendor.develop_vendor",
+        related="vendor_id.street",
+        string="Street",
+        readonly=True,
+    )
+    city = fields.Char(
+        comodel_name="develop_vendor.develop_vendor",
+        related="vendor_id.City",
+        string="City",
+        readonly=True,
+    )
+    country = fields.Many2one(
+        comodel_name="res.country",
+        related="vendor_id.country",
+        string="Country",
+        readonly=True,
+    )
+    whatsapp = fields.Char(
+        comodel_name="develop_vendor.develop_vendor",
+        related="vendor_id.whatsapp",
+        string="Whatsapp",
+        readonly=True,
+    )
     requested_by = fields.Many2one(
         comodel_name="res.users",
         required=True,
@@ -135,12 +174,12 @@ class PurchaseRequest(models.Model):
         required=True,
         default=_default_picking_type,
     )
-    group_id = fields.Many2one(
-        comodel_name="procurement.group",
-        string="Procurement Group",
-        copy=False,
-        index=True,
-    )
+    # group_id = fields.Many2one(
+    #     comodel_name="procurement.group",
+    #     string="Procurement Group",
+    #     copy=False,
+    #     index=True,
+    # )
     line_count = fields.Integer(
         string="Purchase Request Line count",
         compute="_compute_line_count",
@@ -158,7 +197,24 @@ class PurchaseRequest(models.Model):
         string="Total Estimated Cost",
         store=True,
     )
-
+    shipped_via = fields.Selection(
+        selection=[("dhl", "DHL"), ("fedex", "FedeX"), ("ups", "UPS"), ("aramex", "Aramex"), ("other", "Other")],
+        string="Shipped Via",
+        tracking=True,
+    )
+    shipped_via_text = fields.Char(string="Shipped Via (Text)", tracking=True, required=shipped_via == "other")
+    tracking_no = fields.Char(string="Tracking Number", tracking=True)
+    arrival_date = fields.Date(string="Expected Arrival Date", tracking=True)
+    shipping_date = fields.Date(string="Shipping Date", tracking=True)
+    b_l= fields.Char(string="BL", tracking=True)
+    acid = fields.Char(string="ACID", tracking=True)
+    
+    consignee = fields.Selection(
+        selection=[("sparl", "Spark"), ("cargil", "Cargil"), ("euro", "European Group"), ("legacy", "Legacy")],
+        string="Consignee",
+        tracking=True,
+    )
+    
     @api.depends("line_ids", "line_ids.estimated_cost")
     def _compute_estimated_cost(self):
         for rec in self:

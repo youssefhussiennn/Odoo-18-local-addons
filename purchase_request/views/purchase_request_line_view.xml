@@ -25,7 +25,7 @@
                 <field name="date_required" />
                 <field name="estimated_cost" widget="monetary" />
                 <field name="currency_id" column_invisible="1" />
-                <field name="purchased_qty" />
+                <!-- <field name="purchased_qty" /> -->
                 <field
                     name="purchase_state"
                     widget="badge"
@@ -36,7 +36,12 @@
                     decoration-danger="purchase_state == 'cancelled'"
                 />
                 <field name="product_id" />
+                <field name="rd_product_id" />                
                 <field name="name" />
+                <field name="msds" />
+                <field name="packing_list" />
+                <field name="coa" />
+                <field name="c_i" />
                 <field name="product_qty" />
                 <field name="product_uom_category_id" column_invisible="1" />
                 <field name="product_uom_id" groups="uom.group_uom" />
@@ -143,7 +148,7 @@
                     </group>
                     <group name="quantities" string="Tracking">
                         <group>
-                            <field name="pending_qty_to_receive" />
+                            <!-- <field name="pending_qty_to_receive" /> -->
                             <field name="qty_in_progress" />
                             <field name="qty_done" />
                             <field name="qty_cancelled" />
@@ -152,7 +157,7 @@
                     <notebook>
                         <page name="purchase_lines" string="Purchase Order Lines">
                             <group>
-                                <field name="purchased_qty" />
+                                <!-- <field name="purchased_qty" /> -->
                                 <field name="purchase_state" />
                             </group>
                             <field
@@ -192,6 +197,11 @@
             <search string="Search Purchase Request">
                 <field name="request_id" />
                 <field name="product_id" />
+                <field name="rd_product_id" /> 
+                <field name="msds" />
+                <field name="packing_list" />
+                <field name="coa" />
+                <field name="c_i" />  
                 <field name="requested_by" />
                 <field name="assigned_to" />
                 <field name="date_start" />
@@ -270,16 +280,16 @@
                     domain="[('cancelled','=', False)]"
                     string="Uncancelled"
                 />
-                <filter
+                <!-- <filter
                     name="qty_to_buy"
                     string="Pending Qty to Receive"
                     domain="[('qty_to_buy','=',True)]"
-                />
-                <filter
+                /> -->
+                <!-- <filter
                     name="all_bought"
                     string="All Bought"
                     domain="[('qty_to_buy','=',False)]"
-                />
+                /> -->
                 <filter
                     name="open"
                     domain="[('qty_in_progress','!=', 0.0)]"
@@ -462,6 +472,7 @@
                 <field name="name" />
                 <field name="partner_id" string="Vendor" />
                 <field name="product_id" />
+                
                 <field name="price_unit" />
                 <field name="product_qty" />
                 <field name="product_uom" groups="uom.group_uom" />
@@ -563,7 +574,7 @@
                     </group>
                     <group name="quantities" string="Tracking">
                         <group>
-                            <field name="pending_qty_to_receive" />
+                            <!-- <field name="pending_qty_to_receive" /> -->
                             <field name="qty_in_progress" />
                             <field name="qty_done" />
                             <field name="qty_cancelled" />
@@ -572,7 +583,7 @@
                     <notebook>
                         <page name="purchase_lines" string="Purchase Order Lines">
                             <group name="purchase_state">
-                                <field name="purchased_qty" />
+                                <!-- <field name="purchased_qty" /> -->
                                 <field name="purchase_state" />
                                 <field name="qty_in_progress" />
                                 <field name="qty_done" />

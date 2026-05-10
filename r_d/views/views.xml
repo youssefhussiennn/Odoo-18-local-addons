@@ -17,7 +17,7 @@
 
 
           <field name="statue" widget="statusbar"
-            statusbar_visible="1,2,3,4,5" readonly='0' />
+            statusbar_visible="1,6,2,3,4,5" readonly='0' />
         </header>
         <sheet>
           <group>
@@ -34,13 +34,51 @@
               <field name="x_studio_pests" readonly="x_studio_locked"/>
             </group>
             <group string="Documents For Registration">
-              <field name="x_studio_locked" readonly="x_studio_locked"/>
-              <field name="loa" readonly="x_studio_locked"/>
-              <field name="coo" readonly="x_studio_locked"/>
-              <field name="coa" readonly="x_studio_locked"/>
-              <field name="tds" readonly="x_studio_locked"/>
-              
+
+                <field name="x_studio_locked" readonly="x_studio_locked"/>
+
+                <!-- LOA -->
+                <field name="loa" readonly="x_studio_locked"/>
+                <field name="loa_pdf"
+                      filename="loa_pdf_filename"
+                      invisible="not loa"
+                      required="loa"/>
+                <field name="loa_date"
+                      readonly="1"
+                      invisible="not loa"/>
+
+                <!-- COO -->
+                <field name="coo" readonly="x_studio_locked"/>
+                <field name="coo_pdf"
+                      filename="coo_pdf_filename"
+                      invisible="not coo"
+                      required="coo"/>
+                <field name="coo_date"
+                      readonly="1"
+                      invisible="not coo"/>
+
+                <!-- COA -->
+                <field name="coa" readonly="x_studio_locked"/>
+                <field name="coa_pdf"
+                      filename="coa_pdf_filename"
+                      invisible="not coa"
+                      required="coa"/>
+                <field name="coa_date"
+                      readonly="1"
+                      invisible="not coa"/>
+
+                <!-- TDS -->
+                <field name="tds" readonly="x_studio_locked"/>
+                <field name="tds_pdf"
+                      filename="tds_pdf_filename"
+                      invisible="not tds"
+                      required="tds"/>
+                <field name="tds_date"
+                      readonly="1"
+                      invisible="not tds"/>
+
             </group>
+
             <group string="Compound Details">
               <field name="type" readonly="x_studio_locked" widget="many2many_tags"/>
               <field name="function" readonly="x_studio_locked"/>
