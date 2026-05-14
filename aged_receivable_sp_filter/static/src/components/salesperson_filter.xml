@@ -3,14 +3,30 @@
     <t t-name="aged_receivable_sp_filter.AccountReportFilterPartner"
        t-inherit="account_reports.AccountReportFilterPartner"
        t-inherit-mode="extension">
+
         <xpath expr="//div[hasclass('dropdown-item')][last()]" position="after">
+
+            <!-- Salesperson Filter -->
             <t t-if="'salesperson_ids' in controller.options">
                 <div class="dropdown-item gap-2 align-items-center">
                     <label>Salesperson</label>
+
                     <MultiRecordSelector
                         t-props="getSalespersonMultiRecordSelectorProps()"/>
                 </div>
             </t>
+
+            <!-- Account Filter -->
+            <t t-if="'account_ids' in controller.options">
+                <div class="dropdown-item gap-2 align-items-center">
+                    <label>Accounts</label>
+
+                    <MultiRecordSelector
+                        t-props="getAccountMultiRecordSelectorProps()"/>
+                </div>
+            </t>
+
         </xpath>
+
     </t>
 </templates>

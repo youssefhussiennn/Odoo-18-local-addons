@@ -4,7 +4,13 @@ import { AccountReportFilters } from "@account_reports/components/account_report
 import { patch } from "@web/core/utils/patch";
 
 patch(AccountReportFilters.prototype, {
+
     getSalespersonMultiRecordSelectorProps() {
         return this.getMultiRecordSelectorProps('res.users', 'salesperson_ids');
     },
+
+    getAccountMultiRecordSelectorProps() {
+        return this.getMultiRecordSelectorProps('account.account', 'account_ids');
+    },
+
 });
