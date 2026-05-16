@@ -35,7 +35,6 @@ class AccountReport(models.Model):
         # =====================================================
 
         previous_account_ids = previous_options.get('account_ids') or []
-
         selected_account_ids = [int(acc) for acc in previous_account_ids]
 
         selected_accounts = (

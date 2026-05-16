@@ -1,0 +1,155 @@
+<odoo>
+    <data>
+
+        <!-- Tree View -->
+        <record id="view_seeds_trials_tree" model="ir.ui.view">
+            <field name="name">seeds.seeds.list</field>
+            <field name="model">seeds.seeds</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="copmany_name"/>
+                    <field name="name"/>
+                    <field name="trade_name"/>
+                    <field name="code"/>
+                    <field name="external_code"/>
+                    <field name="description"/>
+                    <field name="plantation_type"/>
+                    <field name="competitive_class"/>
+                    <field name="plan"/>
+                    <field name="pack"/>
+                    <field name="price_kg"/>
+                    <field name="price"/>
+                    <field name="currency_id"/>
+                    <field name="user_id"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_seeds_trials_form" model="ir.ui.view">
+            <field name="name">seeds.seeds.form</field>
+            <field name="model">seeds.seeds</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+
+                        <button name="action_under_evaluate"
+                                string="Under Evaluate"
+                                type="object"
+                                class="btn-warning"
+                                invisible="state == 'under_evaluate'"/>
+
+                        <button name="action_success"
+                                string="Success"
+                                type="object"
+                                class="btn-success"
+                                invisible="state == 'success'"/>
+
+                        <button name="action_fail"
+                                string="Fail"
+                                type="object"
+                                class="btn-danger"
+                                invisible="state == 'fail'"/>
+
+                        <field name="state"
+                              widget="statusbar"
+                              statusbar_visible="under_evaluate,success,fail"/>
+
+                    </header>
+                    <sheet>
+
+                      
+                        <group>
+                            <group string="General Information">
+                                <field name="user_id"/>
+                                <field name="copmany_name"/>
+                                <field name="name"/>
+                                <field name="trade_name"/>
+                                <field name="external_code"/>
+                                <field name="code"/>
+                                <field name="pic_item" widget="image"/>
+                                <field name="plan"/>
+                                <field name="description"/>
+                            </group>
+
+                            <group string="Plantation Information">
+                                <field name="plantation_type" widget="radio"/>
+                                <field name="cultivation_place"/>
+                                <field name="planting_timing"/>
+                                <field name="competitive_class" widget="radio"/>
+                                <field name="vegetative_total"/>
+                                <field name="productivity_rate"/>
+                            </group>
+                        </group>
+
+                        <group>
+                            <group string="Fruit Characteristics">
+                                <field name="fruit_shape"/>
+                                <field name="disease_tolerance"/>
+                                <field name="craft"/>
+                                <field name="shell_thickness"/>
+                                <field name="room_num"/>
+                                <field name="weight"/>
+                                <field name="color"/>
+                                <field name="height"/>
+                                <field name="width"/>
+                                <field name="pack"/>
+                                <field name="comparision"/>
+                                <field name="number_of_packets"/>
+                            </group>
+
+                            <group string="Environmental Requirements">
+                                <field name="temp"/>
+                                <field name="sugar_percent"/>
+                                <field name="fertiliz_need"/>
+                                <field name="period_of_mature"/>
+                            </group>
+
+                            <group string="Price Information">
+                                <field name="position_of_class"/>
+                                <field name="price_kg"/>
+                                <field name="price"/>
+                                <field name="currency_id"/>
+                            </group>
+                        </group>
+
+                        <group string="Additional Notes">
+                            <field name="notes"/>
+                        </group>
+
+                    </sheet>
+
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_seeds_trials" model="ir.actions.act_window">
+            <field name="name">Seeds Trials</field>
+            <field name="res_model">seeds.seeds</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first Trial record
+                </p>
+            </field>
+        </record>
+
+      <!-- Top menu -->
+      <menuitem
+          name="Seeds"
+          id="menu_seeds_root"
+          sequence="10"
+          web_icon="seeds,static/img/seeds.png"/>
+
+      <!-- Main submenu -->
+      <menuitem
+          name="Seeds Trials"
+          id="menu_seeds_trials"
+          parent="menu_seeds_root"
+          action="action_seeds_trials"
+          sequence="1"/>
+
+  </data>
+</odoo>
