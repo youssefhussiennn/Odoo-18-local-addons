@@ -12,7 +12,7 @@ class SmsMisrConfig(models.Model):
     password = fields.Char(string="Password")
     sender = fields.Char(string="Sender ID")
     api_url = fields.Char(string="API URL", default="https://smsmisr.com/api/SMS/")
-    connection_success = fields.Boolean(string="Connection OK", readonly=True)
+    connection_success = fields.Boolean(string="Connection States", readonly=True)
 
     @api.model
     def get_solo(self):
