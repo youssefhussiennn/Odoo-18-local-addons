@@ -80,3 +80,16 @@ class SMSMisrService(models.AbstractModel):
         except Exception as e:
             _logger.exception("Failed to send SMS")
             return {'success': False, 'error': str(e)}
+
+    def send_queued(self):
+        msgs = self.env['smsmisr.message'].search([('status', '=', 'queued')])
+        for msg in msgs:
+            res = self.send_sms(msg.mobile, msg.message)
+            if res.get('success'):
+                msg.status = 'sent'
+                msg.external_id = res.get('message_id') or res.get('external_id') or False
+                msg.response = str(res.get('response_text'))
+            else:
+                msg.status = 'failed'
+                msg.response = str(res.get('error') or res.get('response_text'))
+        _logger.info("SMSMisr send_queued: processed %d messages", len(msgs))

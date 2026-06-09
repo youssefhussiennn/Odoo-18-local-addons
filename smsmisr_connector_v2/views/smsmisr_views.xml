@@ -10,7 +10,7 @@
                 <sheet>
                     <group>
                         <field name="username"/>
-                        <field name="password"/>
+                        <field name="password" widget="password"/>
                         <field name="sender"/>
                         <field name="api_url"/>
                     </group>
