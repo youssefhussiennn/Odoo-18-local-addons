@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_law_case" model="ir.sequence">
+        <field name="name">قضية قانونية</field>
+        <field name="code">law.case</field>
+        <field name="prefix">CASE/%(year)s/</field>
+        <field name="padding">4</field>
+    </record>
+    <record id="seq_law_hearing" model="ir.sequence">
+        <field name="name">جلسة المحكمة</field>
+        <field name="code">law.hearing</field>
+        <field name="prefix">HRG/%(year)s/</field>
+        <field name="padding">4</field>
+    </record>
+    <record id="seq_law_consultation" model="ir.sequence">
+        <field name="name">استشارة قانونية</field>
+        <field name="code">law.consultation</field>
+        <field name="prefix">CONS/%(year)s/</field>
+        <field name="padding">4</field>
+    </record>
+</odoo>

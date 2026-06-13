@@ -26,6 +26,12 @@ class r_d(models.Model):
         ('مسجل', 'مسجل'), 
         ('غير مسجل', 'غير مسجل'),
     ], string="Registration")
+    priority = fields.Selection([
+        ('1', 'Low'), 
+        ('2', 'Normal'),
+        ('3', 'High'),
+        ('4', 'Very High'),
+    ], string="Priority")
     x_studio_sample = fields.Selection([
         ('متاح', 'متاح'),
         ('غير متاح', 'غير متاح')

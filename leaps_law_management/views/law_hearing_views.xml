@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_law_hearing_form" model="ir.ui.view">
+        <field name="name">law.hearing.form</field>
+        <field name="model">law.hearing</field>
+        <field name="arch" type="xml">
+            <form string="جلسة المحكمة">
+                <header>
+                    <button name="action_held" string="منعقدة" type="object"
+                        class="btn-primary" invisible="state == 'held'"/>
+                    <button name="action_postpone" string="تأجيل" type="object"
+                        invisible="state not in ('scheduled',)"/>
+                    <button name="action_cancel" string="إلغاء" type="object"
+                        invisible="state == 'cancelled'"/>
+                    <button name="action_reschedule" string="إعادة جدولة" type="object"
+                        invisible="state == 'scheduled'"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="scheduled,held,postponed,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="معلومات الجلسة">
+                            <field name="case_id"/>
+                            <field name="client_id" readonly="1"/>
+                            <field name="attorney_id" readonly="1"/>
+                            <field name="hearing_type"/>
+                        </group>
+                        <group string="تفاصيل المحكمة">
+                            <field name="date"/>
+                            <field name="court"/>
+                            <field name="judge"/>
+                            <field name="next_hearing_date"/>
+                        </group>
+                    </group>
+                    <group string="نتيجة الجلسة">
+                        <field name="result" nolabel="1" colspan="2" placeholder="أدخل نتيجة الجلسة هنا..."/>
+                    </group>
+                    <group string="ملاحظات">
+                        <field name="notes" nolabel="1" colspan="2" placeholder="ملاحظات إضافية..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_law_hearing_list" model="ir.ui.view">
+        <field name="name">law.hearing.list</field>
+        <field name="model">law.hearing</field>
+        <field name="arch" type="xml">
+            <list string="الجلسات"
+                decoration-success="state == 'held'"
+                decoration-warning="state == 'postponed'"
+                decoration-danger="state == 'cancelled'"
+                decoration-info="state == 'scheduled'">
+                <field name="name"/>
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="date"/>
+                <field name="hearing_type"/>
+                <field name="court"/>
+                <field name="judge"/>
+                <field name="next_hearing_date" optional="show"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'held'"
+                    decoration-warning="state == 'postponed'"
+                    decoration-danger="state == 'cancelled'"
+                    decoration-info="state == 'scheduled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="view_law_hearing_calendar" model="ir.ui.view">
+        <field name="name">law.hearing.calendar</field>
+        <field name="model">law.hearing</field>
+        <field name="arch" type="xml">
+            <calendar string="الجلسات" date_start="date" color="case_id" mode="month">
+                <field name="name"/>
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="hearing_type"/>
+                <field name="state"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_law_hearing_search" model="ir.ui.view">
+        <field name="name">law.hearing.search</field>
+        <field name="model">law.hearing</field>
+        <field name="arch" type="xml">
+            <search string="بحث الجلسات">
+                <field name="name"/>
+                <field name="case_id"/>
+                <field name="client_id"/>
+                <field name="court"/>
+                <separator/>
+                <filter string="مجدولة" name="scheduled" domain="[('state','=','scheduled')]"/>
+                <filter string="منعقدة" name="held" domain="[('state','=','held')]"/>
+                <filter string="مؤجلة" name="postponed" domain="[('state','=','postponed')]"/>
+                <filter string="ملغاة" name="cancelled" domain="[('state','=','cancelled')]"/>
+                <group>
+                    <filter string="القضية" name="group_case" context="{'group_by': 'case_id'}"/>
+                    <filter string="نوع الجلسة" name="group_type" context="{'group_by': 'hearing_type'}"/>
+                    <filter string="الحالة" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="التاريخ" name="group_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_law_hearing" model="ir.actions.act_window">
+        <field name="name">الجلسات</field>
+        <field name="res_model">law.hearing</field>
+        <field name="view_mode">list,form,calendar</field>
+        <field name="context">{'search_default_scheduled': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">أضف أول جلسة محكمة</p>
+        </field>
+    </record>
+</odoo>

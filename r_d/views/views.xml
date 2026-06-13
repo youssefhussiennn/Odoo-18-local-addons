@@ -26,6 +26,7 @@
               <field name="com_name" readonly="x_studio_locked"/>
               <field name="statue" readonly="x_studio_locked"/>
               <field name="x_studio_regestraion" readonly="x_studio_locked"/>
+              <field name="priority" readonly="x_studio_locked"/>
               <field name="x_registration_number" readonly="x_studio_locked"/>
               <field name="x_studio_company_id" readonly="x_studio_locked"/>
               <field name="x_studio_crop" readonly="x_studio_locked"/>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem id="menu_law_root"
+            name="المكتب القانوني"
+            sequence="60"
+            action="action_law_dashboard"
+            web_icon="leaps_law_management,static/description/icon.png"/>
+
+        <menuitem id="menu_law_cases"
+            name="القضايا"
+            parent="menu_law_root"
+            sequence="10"/>
+        <menuitem id="menu_law_cases_list"
+            name="القضايا"
+            parent="menu_law_cases"
+            action="action_law_case"
+            sequence="10"/>
+        <menuitem id="menu_law_hearings"
+            name="الجلسات"
+            parent="menu_law_cases"
+            action="action_law_hearing"
+            sequence="20"/>
+
+        <menuitem id="menu_law_consultations"
+            name="الاستشارات"
+            parent="menu_law_root"
+            action="action_law_consultation"
+            sequence="20"/>
+
+        <menuitem id="menu_law_billing"
+            name="الفوترة"
+            parent="menu_law_root"
+            sequence="30"/>
+        <menuitem id="menu_law_time"
+            name="سجل الوقت"
+            parent="menu_law_billing"
+            action="action_law_time_entry"
+            sequence="10"/>
+
+        <menuitem id="menu_law_reports"
+            name="التقارير"
+            parent="menu_law_root"
+            sequence="80"/>
+
+<menuitem id="menu_company_documents_details"
+          name="Legal Documents"
+          action="action_company_documents_details"
+          parent="menu_law_root"
+          sequence="90"/>
+        <menuitem id="menu_law_report_cases"
+            name="تقرير القضايا"
+            parent="menu_law_reports"
+            action="action_case_report"
+            sequence="10"/>
+        <menuitem id="menu_law_report_hearings"
+            name="تقرير الجلسات"
+            parent="menu_law_reports"
+            action="action_hearing_report"
+            sequence="20"/>
+        <menuitem id="menu_law_report_time"
+            name="تقرير الوقت"
+            parent="menu_law_reports"
+            action="action_time_report"
+            sequence="30"/>
+        <menuitem id="menu_law_report_consultations"
+            name="تقرير الاستشارات"
+            parent="menu_law_reports"
+            action="action_consultation_report"
+            sequence="40"/>
+    </data>
+</odoo>

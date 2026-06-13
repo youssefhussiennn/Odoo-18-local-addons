@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_law_case_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" dir="rtl">
+                        <style>
+                            .law-header { background: #1a3a5c; color: white; padding: 20px; margin-bottom: 20px; border-radius: 4px; }
+                            .law-section { margin-bottom: 15px; }
+                            .law-label { font-weight: bold; color: #444; }
+                            .law-value { font-size: 14px; }
+                            .law-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                            .law-table th { background: #e8f0fe; padding: 8px; text-align: right; border: 1px solid #ccc; }
+                            .law-table td { padding: 8px; border: 1px solid #eee; text-align: right; }
+                            .law-table tr:nth-child(even) { background: #f9f9f9; }
+                            .status-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+                            .status-open { background: #28a745; color: white; }
+                            .status-draft { background: #6c757d; color: white; }
+                            .status-won { background: #007bff; color: white; }
+                            .status-lost { background: #dc3545; color: white; }
+                            .status-settled { background: #ffc107; color: #333; }
+                            .status-closed { background: #343a40; color: white; }
+                            .section-title { background: #f0f4f8; padding: 6px 12px; font-weight: bold; border-right: 4px solid #1a3a5c; margin-bottom: 10px; }
+                            .totals-row { font-weight: bold; background: #e8f0fe; }
+                        </style>
+
+                        <!-- Header -->
+                        <div class="law-header">
+                            <h2 style="margin:0;font-size:1.4em;">ملف القضية القانونية</h2>
+                            <div style="margin-top:6px;font-size:1.1em;"><t t-esc="doc.name"/> — <t t-esc="doc.title"/></div>
+                        </div>
+
+                        <!-- Case Info -->
+                        <div class="section-title">معلومات القضية</div>
+                        <table class="law-table" style="margin-bottom:20px;">
+                            <tbody>
+                                <tr>
+                                    <td class="law-label" style="width:25%;">رقم القضية</td>
+                                    <td><t t-esc="doc.name"/></td>
+                                    <td class="law-label" style="width:25%;">نوع القضية</td>
+                                    <td><t t-esc="dict(doc._fields['case_type']._description_selection(doc.env)).get(doc.case_type, doc.case_type)"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="law-label">الحالة</td>
+                                    <td><t t-esc="dict(doc._fields['state']._description_selection(doc.env)).get(doc.state, doc.state)"/></td>
+                                    <td class="law-label">الأولوية</td>
+                                    <td><t t-esc="dict(doc._fields['priority']._description_selection(doc.env)).get(doc.priority, doc.priority)"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="law-label">تاريخ الفتح</td>
+                                    <td><t t-esc="doc.date_opened"/></td>
+                                    <td class="law-label">تاريخ الإغلاق</td>
+                                    <td><t t-esc="doc.date_closed or '-'"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Parties -->
+                        <div class="section-title">الأطراف</div>
+                        <table class="law-table" style="margin-bottom:20px;">
+                            <tbody>
+                                <tr>
+                                    <td class="law-label" style="width:25%;">الموكل</td>
+                                    <td><t t-esc="doc.client_id.name"/></td>
+                                    <td class="law-label" style="width:25%;">الطرف المقابل</td>
+                                    <td><t t-esc="doc.opposing_party or '-'"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="law-label">المحامي المسؤول</td>
+                                    <td><t t-esc="doc.attorney_id.name"/></td>
+                                    <td class="law-label">هاتف الموكل</td>
+                                    <td><t t-esc="doc.client_id.phone or '-'"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Court Details -->
+                        <div class="section-title">تفاصيل المحكمة</div>
+                        <table class="law-table" style="margin-bottom:20px;">
+                            <tbody>
+                                <tr>
+                                    <td class="law-label" style="width:25%;">المحكمة</td>
+                                    <td><t t-esc="doc.court or '-'"/></td>
+                                    <td class="law-label" style="width:25%;">رقم القضية لدى المحكمة</td>
+                                    <td><t t-esc="doc.court_case_number or '-'"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="law-label">القاضي</td>
+                                    <td colspan="3"><t t-esc="doc.judge or '-'"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Hearings -->
+                        <t t-if="doc.hearing_ids">
+                            <div class="section-title">سجل الجلسات</div>
+                            <table class="law-table" style="margin-bottom:20px;">
+                                <thead>
+                                    <tr>
+                                        <th>الرقم</th>
+                                        <th>التاريخ</th>
+                                        <th>النوع</th>
+                                        <th>القاضي</th>
+                                        <th>الحالة</th>
+                                        <th>النتيجة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="doc.hearing_ids" t-as="h">
+                                        <tr>
+                                            <td><t t-esc="h.name"/></td>
+                                            <td><t t-esc="h.date"/></td>
+                                            <td><t t-esc="dict(h._fields['hearing_type']._description_selection(h.env)).get(h.hearing_type, h.hearing_type)"/></td>
+                                            <td><t t-esc="h.judge or '-'"/></td>
+                                            <td><t t-esc="dict(h._fields['state']._description_selection(h.env)).get(h.state, h.state)"/></td>
+                                            <td><t t-esc="(h.result or '')[:60]"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- Time Entries -->
+                        <t t-if="doc.time_entry_ids">
+                            <div class="section-title">سجل الوقت والأتعاب</div>
+                            <table class="law-table" style="margin-bottom:20px;">
+                                <thead>
+                                    <tr>
+                                        <th>التاريخ</th>
+                                        <th>المحامي</th>
+                                        <th>وصف العمل</th>
+                                        <th>الساعات</th>
+                                        <th>سعر الساعة</th>
+                                        <th>المبلغ</th>
+                                        <th>مفوتر</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="doc.time_entry_ids" t-as="t">
+                                        <tr>
+                                            <td><t t-esc="t.date"/></td>
+                                            <td><t t-esc="t.attorney_id.name"/></td>
+                                            <td><t t-esc="t.description"/></td>
+                                            <td><t t-esc="'%.2f' % t.hours"/></td>
+                                            <td><t t-esc="'%.2f' % t.hourly_rate"/> <t t-esc="doc.currency_id.symbol"/></td>
+                                            <td><t t-esc="'%.2f' % t.amount"/> <t t-esc="doc.currency_id.symbol"/></td>
+                                            <td><t t-esc="'نعم' if t.invoiced else 'لا'"/></td>
+                                        </tr>
+                                    </t>
+                                    <tr class="totals-row">
+                                        <td colspan="3">الإجمالي</td>
+                                        <td><t t-esc="'%.2f' % doc.total_hours"/></td>
+                                        <td></td>
+                                        <td><t t-esc="'%.2f' % doc.total_billable"/> <t t-esc="doc.currency_id.symbol"/></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- Financial Summary -->
+                        <div class="section-title">الملخص المالي</div>
+                        <table class="law-table" style="margin-bottom:20px;">
+                            <tbody>
+                                <tr>
+                                    <td class="law-label" style="width:40%;">أتعاب الارتباط</td>
+                                    <td><t t-esc="'%.2f' % doc.retainer_fee"/> <t t-esc="doc.currency_id.symbol"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="law-label">إجمالي ساعات العمل</td>
+                                    <td><t t-esc="'%.2f' % doc.total_hours"/> ساعة</td>
+                                </tr>
+                                <tr>
+                                    <td class="law-label">إجمالي الأتعاب القابلة للفوترة</td>
+                                    <td><t t-esc="'%.2f' % doc.total_billable"/> <t t-esc="doc.currency_id.symbol"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="law-label">إجمالي المفوتر</td>
+                                    <td><t t-esc="'%.2f' % doc.total_invoiced"/> <t t-esc="doc.currency_id.symbol"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Signatures -->
+                        <div style="margin-top:60px;">
+                            <table width="100%">
+                                <tr>
+                                    <td width="40%" style="border-top:1px solid #333;padding-top:8px;text-align:center;">
+                                        توقيع المحامي المسؤول
+                                    </td>
+                                    <td width="20%"></td>
+                                    <td width="40%" style="border-top:1px solid #333;padding-top:8px;text-align:center;">
+                                        توقيع الموكل
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:center;padding-top:6px;">
+                                        <t t-esc="doc.attorney_id.name"/>
+                                    </td>
+                                    <td></td>
+                                    <td style="text-align:center;padding-top:6px;">
+                                        <t t-esc="doc.client_id.name"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_law_case" model="ir.actions.report">
+        <field name="name">تقرير القضية</field>
+        <field name="model">law.case</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">leaps_law_management.report_law_case_template</field>
+        <field name="report_file">leaps_law_management.report_law_case_template</field>
+        <field name="binding_model_id" ref="model_law_case"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

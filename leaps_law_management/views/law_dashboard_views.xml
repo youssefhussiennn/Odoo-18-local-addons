@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_law_dashboard_form" model="ir.ui.view">
+        <field name="name">law.dashboard.form</field>
+        <field name="model">law.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="لوحة تحكم المكتب القانوني" create="false" edit="false">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_refresh" type="object" string="تحديث"
+                            class="btn btn-primary" icon="fa-refresh"/>
+                    </div>
+                    <div class="oe_title">
+                        <h1>لوحة تحكم المكتب القانوني</h1>
+                    </div>
+
+                    <!-- Row 1: Cases KPIs -->
+                    <separator string="إحصائيات القضايا"/>
+                    <div class="row mb-3">
+                        <div class="col-sm-6 col-md-3 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#004085;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="active_cases"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">القضايا النشطة</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#155724;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="won_cases"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">القضايا المكسوبة</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#721c24;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="lost_cases"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">القضايا الخاسرة</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#856404;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="settled_cases"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">قضايا التسوية</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Hearings & Consultations -->
+                    <separator string="الجلسات والاستشارات"/>
+                    <div class="row mb-3">
+                        <div class="col-sm-6 col-md-3 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#17a2b8;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="hearings_today"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">جلسات اليوم</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#0c5460;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="hearings_this_week"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">جلسات هذا الأسبوع</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#6f42c1;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="consultations_today"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">استشارات اليوم</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#4a0080;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="consultations_this_month"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">استشارات هذا الشهر</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Financial -->
+                    <separator string="المالية"/>
+                    <div class="row mb-3">
+                        <div class="col-sm-6 col-md-4 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#dc3545;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="pending_invoices"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">فواتير غير مدفوعة</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#a71d2a;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:1.6em;font-weight:700;display:block;">
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="pending_amount" widget="monetary"/>
+                                </span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">المبلغ غير المدفوع</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4 mb-3">
+                            <div class="o_stat_info text-center p-3 rounded" style="background:#495057;color:white;margin:4px;">
+                                <span class="o_stat_value" style="font-size:2em;font-weight:700;display:block;"><field name="unbilled_hours" digits="[16,1]"/></span>
+                                <span class="o_stat_text" style="font-size:0.85em;opacity:0.9;">ساعات غير مفوترة</span>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Dashboard -->
+    <record id="action_law_dashboard" model="ir.actions.act_window">
+        <field name="name">لوحة التحكم</field>
+        <field name="res_model">law.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">main</field>
+        <field name="context">{'form_view_initial_mode': 'readonly'}</field>
+    </record>
+</odoo>

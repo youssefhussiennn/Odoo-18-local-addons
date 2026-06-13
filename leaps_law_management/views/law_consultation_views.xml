@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_law_consultation_form" model="ir.ui.view">
+        <field name="name">law.consultation.form</field>
+        <field name="model">law.consultation</field>
+        <field name="arch" type="xml">
+            <form string="الاستشارة القانونية">
+                <header>
+                    <button name="action_done" string="منتهية" type="object"
+                        class="btn-primary" invisible="state != 'scheduled'"/>
+                    <button name="action_cancel" string="إلغاء" type="object"
+                        invisible="state == 'cancelled'"/>
+                    <button name="action_reschedule" string="إعادة جدولة" type="object"
+                        invisible="state == 'scheduled'"/>
+                    <button name="action_create_invoice" string="إنشاء فاتورة" type="object"
+                        class="btn-secondary"
+                        invisible="state != 'done' or invoice_id != False"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="scheduled,done,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="معلومات الاستشارة">
+                            <field name="client_id"/>
+                            <field name="attorney_id"/>
+                            <field name="date"/>
+                            <field name="duration"/>
+                            <field name="case_type"/>
+                        </group>
+                        <group string="المالية والنتائج">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="fee"/>
+                            <field name="result_action"/>
+                            <field name="case_id" invisible="result_action != 'new_case'"/>
+                            <field name="invoice_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="ملخص الاستشارة">
+                        <field name="summary" nolabel="1" colspan="2"
+                            placeholder="أدخل ملخص الاستشارة هنا..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_law_consultation_list" model="ir.ui.view">
+        <field name="name">law.consultation.list</field>
+        <field name="model">law.consultation</field>
+        <field name="arch" type="xml">
+            <list string="الاستشارات"
+                decoration-success="state == 'done'"
+                decoration-danger="state == 'cancelled'"
+                decoration-info="state == 'scheduled'">
+                <field name="name"/>
+                <field name="client_id"/>
+                <field name="attorney_id"/>
+                <field name="date"/>
+                <field name="duration" optional="show"/>
+                <field name="case_type"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="fee"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'done'"
+                    decoration-danger="state == 'cancelled'"
+                    decoration-info="state == 'scheduled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_law_consultation_search" model="ir.ui.view">
+        <field name="name">law.consultation.search</field>
+        <field name="model">law.consultation</field>
+        <field name="arch" type="xml">
+            <search string="بحث الاستشارات">
+                <field name="name"/>
+                <field name="client_id"/>
+                <field name="attorney_id"/>
+                <separator/>
+                <filter string="مجدولة" name="scheduled" domain="[('state','=','scheduled')]"/>
+                <filter string="منتهية" name="done" domain="[('state','=','done')]"/>
+                <filter string="ملغاة" name="cancelled" domain="[('state','=','cancelled')]"/>
+                <separator/>
+                <filter string="مدني" name="civil" domain="[('case_type','=','civil')]"/>
+                <filter string="جنائي" name="criminal" domain="[('case_type','=','criminal')]"/>
+                <filter string="تجاري" name="commercial" domain="[('case_type','=','commercial')]"/>
+                <filter string="أحوال شخصية" name="family" domain="[('case_type','=','family')]"/>
+                <group>
+                    <filter string="المحامي" name="group_attorney" context="{'group_by': 'attorney_id'}"/>
+                    <filter string="مجال الاستشارة" name="group_type" context="{'group_by': 'case_type'}"/>
+                    <filter string="الحالة" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="التاريخ" name="group_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_law_consultation" model="ir.actions.act_window">
+        <field name="name">الاستشارات</field>
+        <field name="res_model">law.consultation</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_scheduled': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">أضف أول استشارة قانونية</p>
+        </field>
+    </record>
+</odoo>

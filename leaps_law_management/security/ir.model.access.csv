@@ -1,0 +1,19 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_law_case_user,law.case user,model_law_case,leaps_law_management.group_law_user,1,0,0,0
+access_law_case_manager,law.case manager,model_law_case,leaps_law_management.group_law_manager,1,1,1,0
+access_law_case_admin,law.case admin,model_law_case,leaps_law_management.group_law_admin,1,1,1,1
+access_law_hearing_user,law.hearing user,model_law_hearing,leaps_law_management.group_law_user,1,0,0,0
+access_law_hearing_manager,law.hearing manager,model_law_hearing,leaps_law_management.group_law_manager,1,1,1,0
+access_law_hearing_admin,law.hearing admin,model_law_hearing,leaps_law_management.group_law_admin,1,1,1,1
+access_law_time_entry_user,law.time.entry user,model_law_time_entry,leaps_law_management.group_law_user,1,1,1,0
+access_law_time_entry_manager,law.time.entry manager,model_law_time_entry,leaps_law_management.group_law_manager,1,1,1,0
+access_law_time_entry_admin,law.time.entry admin,model_law_time_entry,leaps_law_management.group_law_admin,1,1,1,1
+access_law_consultation_user,law.consultation user,model_law_consultation,leaps_law_management.group_law_user,1,0,0,0
+access_law_consultation_manager,law.consultation manager,model_law_consultation,leaps_law_management.group_law_manager,1,1,1,0
+access_law_consultation_admin,law.consultation admin,model_law_consultation,leaps_law_management.group_law_admin,1,1,1,1
+access_law_dashboard_user,law.dashboard user,model_law_dashboard,leaps_law_management.group_law_user,1,1,1,0
+access_law_dashboard_manager,law.dashboard manager,model_law_dashboard,leaps_law_management.group_law_manager,1,1,1,0
+access_law_dashboard_admin,law.dashboard admin,model_law_dashboard,leaps_law_management.group_law_admin,1,1,1,1
+access_company_document_user,company.document user,model_company_document_details,leaps_law_management.group_law_user,1,0,0,0
+access_company_document_manager,company.document manager,model_company_document_details,leaps_law_management.group_law_manager,1,1,1,0
+access_company_document_admin,company.document admin,model_company_document_details,leaps_law_management.group_law_admin,1,1,1,1

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ===== A) تحليلات القضايا ===== -->
+
+    <record id="view_law_case_pivot" model="ir.ui.view">
+        <field name="name">law.case.pivot</field>
+        <field name="model">law.case</field>
+        <field name="arch" type="xml">
+            <pivot string="تحليل القضايا">
+                <field name="attorney_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="retainer_fee" type="measure"/>
+                <field name="total_billable" type="measure"/>
+                <field name="total_invoiced" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_law_case_graph" model="ir.ui.view">
+        <field name="name">law.case.graph</field>
+        <field name="model">law.case</field>
+        <field name="arch" type="xml">
+            <graph string="تحليل القضايا" type="bar">
+                <field name="case_type"/>
+                <field name="retainer_fee" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_case_report" model="ir.actions.act_window">
+        <field name="name">تقرير القضايا</field>
+        <field name="res_model">law.case</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- ===== B) تحليلات الجلسات ===== -->
+
+    <record id="view_law_hearing_pivot" model="ir.ui.view">
+        <field name="name">law.hearing.pivot</field>
+        <field name="model">law.hearing</field>
+        <field name="arch" type="xml">
+            <pivot string="تحليل الجلسات">
+                <field name="case_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="hearing_type" type="row"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_law_hearing_graph" model="ir.ui.view">
+        <field name="name">law.hearing.graph</field>
+        <field name="model">law.hearing</field>
+        <field name="arch" type="xml">
+            <graph string="تحليل الجلسات" type="bar">
+                <field name="hearing_type"/>
+                <field name="state"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_hearing_report" model="ir.actions.act_window">
+        <field name="name">تقرير الجلسات</field>
+        <field name="res_model">law.hearing</field>
+        <field name="view_mode">list,pivot,graph,calendar</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- ===== C) تحليلات سجل الوقت ===== -->
+
+    <record id="view_law_time_entry_pivot" model="ir.ui.view">
+        <field name="name">law.time.entry.pivot</field>
+        <field name="model">law.time.entry</field>
+        <field name="arch" type="xml">
+            <pivot string="تحليل سجل الوقت">
+                <field name="attorney_id" type="row"/>
+                <field name="case_id" type="col"/>
+                <field name="hours" type="measure"/>
+                <field name="amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_law_time_entry_graph" model="ir.ui.view">
+        <field name="name">law.time.entry.graph</field>
+        <field name="model">law.time.entry</field>
+        <field name="arch" type="xml">
+            <graph string="تحليل سجل الوقت" type="bar">
+                <field name="attorney_id"/>
+                <field name="hours" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_time_report" model="ir.actions.act_window">
+        <field name="name">تقرير سجل الوقت</field>
+        <field name="res_model">law.time.entry</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- ===== D) تحليلات الاستشارات ===== -->
+
+    <record id="view_law_consultation_pivot" model="ir.ui.view">
+        <field name="name">law.consultation.pivot</field>
+        <field name="model">law.consultation</field>
+        <field name="arch" type="xml">
+            <pivot string="تحليل الاستشارات">
+                <field name="attorney_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="fee" type="measure"/>
+                <field name="duration" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_law_consultation_graph" model="ir.ui.view">
+        <field name="name">law.consultation.graph</field>
+        <field name="model">law.consultation</field>
+        <field name="arch" type="xml">
+            <graph string="تحليل الاستشارات" type="bar">
+                <field name="case_type"/>
+                <field name="fee" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_consultation_report" model="ir.actions.act_window">
+        <field name="name">تقرير الاستشارات</field>
+        <field name="res_model">law.consultation</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>
