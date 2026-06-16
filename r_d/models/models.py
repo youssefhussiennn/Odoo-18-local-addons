@@ -75,6 +75,103 @@ class r_d(models.Model):
     tds_pdf_filename = fields.Char(string="TDS Filename")
     tds_date = fields.Datetime(string="TDS Updated On")
     
+    # === Manufacturing License ===
+    manufacturing_license = fields.Boolean(string="Manufacturing License", tracking=True)
+    manufacturing_license_pdf = fields.Binary(string="Manufacturing License PDF")
+    manufacturing_license_pdf_filename = fields.Char(string="Manufacturing License Filename")
+    manufacturing_license_date = fields.Datetime(string="Manufacturing License Updated On")
+
+
+    # === Manufacturer Product List ===
+    manufacturer_product_list = fields.Boolean(string="Manufacturer Product List", tracking=True)
+    manufacturer_product_list_pdf = fields.Binary(string="Manufacturer Product List PDF")
+    manufacturer_product_list_pdf_filename = fields.Char(string="Manufacturer Product List Filename")
+    manufacturer_product_list_date = fields.Datetime(string="Manufacturer Product List Updated On")
+
+
+    # === Certificate of Composition ===
+    coc = fields.Boolean(string="COC (Certificate of Composition)", tracking=True)
+    coc_pdf = fields.Binary(string="COC PDF")
+    coc_pdf_filename = fields.Char(string="COC Filename")
+    coc_date = fields.Datetime(string="COC Updated On")
+
+
+    # === Quality Guarantee ===
+    quality_guarantee = fields.Boolean(string="Quality Guarantee Certificate", tracking=True)
+    quality_guarantee_pdf = fields.Binary(string="Quality Guarantee PDF")
+    quality_guarantee_pdf_filename = fields.Char(string="Quality Guarantee Filename")
+    quality_guarantee_date = fields.Datetime(string="Quality Guarantee Updated On")
+
+
+    # === Package Guarantee ===
+    package_guarantee = fields.Boolean(string="Package Guarantee Certificate", tracking=True)
+    package_guarantee_pdf = fields.Binary(string="Package Guarantee PDF")
+    package_guarantee_pdf_filename = fields.Char(string="Package Guarantee Filename")
+    package_guarantee_date = fields.Datetime(string="Package Guarantee Updated On")
+
+
+    # === Toxicological Studies ===
+    toxicological_studies = fields.Boolean(string="Toxicological Studies", tracking=True)
+    toxicological_studies_pdf = fields.Binary(string="Toxicological Studies PDF")
+    toxicological_studies_pdf_filename = fields.Char(string="Toxicological Studies Filename")
+    toxicological_studies_date = fields.Datetime(string="Toxicological Studies Updated On")
+
+
+    # === Analytical Method ===
+    analytical_method = fields.Boolean(string="Analytical Method", tracking=True)
+    analytical_method_pdf = fields.Binary(string="Analytical Method PDF")
+    analytical_method_pdf_filename = fields.Char(string="Analytical Method Filename")
+    analytical_method_date = fields.Datetime(string="Analytical Method Updated On")
+
+
+    # === Residue Analysis ===
+    residue_analysis = fields.Boolean(string="Residue Analysis Method", tracking=True)
+    residue_analysis_pdf = fields.Binary(string="Residue Analysis PDF")
+    residue_analysis_pdf_filename = fields.Char(string="Residue Analysis Filename")
+    residue_analysis_date = fields.Datetime(string="Residue Analysis Updated On")
+
+
+    # === Major Impurities Analysis ===
+    impurities_analysis = fields.Boolean(string="Major Impurities Analysis", tracking=True)
+    impurities_analysis_pdf = fields.Binary(string="Major Impurities Analysis PDF")
+    impurities_analysis_pdf_filename = fields.Char(string="Major Impurities Analysis Filename")
+    impurities_analysis_date = fields.Datetime(string="Major Impurities Analysis Updated On")
+
+
+    # === International Classification ===
+    international_classification = fields.Boolean(string="International Classification", tracking=True)
+    international_classification_pdf = fields.Binary(string="International Classification PDF")
+    international_classification_pdf_filename = fields.Char(string="International Classification Filename")
+    international_classification_date = fields.Datetime(string="International Classification Updated On")
+
+
+    # === ADI / MRL ===
+    adi_mrl = fields.Boolean(string="ADI / MRL", tracking=True)
+    adi_mrl_pdf = fields.Binary(string="ADI / MRL PDF")
+    adi_mrl_pdf_filename = fields.Char(string="ADI / MRL Filename")
+    adi_mrl_date = fields.Datetime(string="ADI / MRL Updated On")
+
+
+    # === Safe Handling Storage Application ===
+    safe_handling = fields.Boolean(string="Safe Handling Storage Application", tracking=True)
+    safe_handling_pdf = fields.Binary(string="Safe Handling PDF")
+    safe_handling_pdf_filename = fields.Char(string="Safe Handling Filename")
+    safe_handling_date = fields.Datetime(string="Safe Handling Updated On")
+
+
+    # === MSDS ===
+    msds = fields.Boolean(string="MSDS", tracking=True)
+    msds_pdf = fields.Binary(string="MSDS PDF")
+    msds_pdf_filename = fields.Char(string="MSDS Filename")
+    msds_date = fields.Datetime(string="MSDS Updated On")
+
+
+    # === Other Documents ===
+    other_documents = fields.Boolean(string="Other Required Documents", tracking=True)
+    other_documents_pdf = fields.Binary(string="Other Required Documents PDF")
+    other_documents_pdf_filename = fields.Char(string="Other Required Documents Filename")
+    other_documents_date = fields.Datetime(string="Other Required Documents Updated On")
+    
     
     statue = fields.Selection([
         ('1', 'Under Research'),
@@ -101,14 +198,30 @@ class r_d(models.Model):
     def write(self, vals):
         now = fields.Datetime.now()
 
-        if 'loa' in vals:
-            vals['loa_date'] = now
-        if 'coo' in vals:
-            vals['coo_date'] = now
-        if 'coa' in vals:
-            vals['coa_date'] = now
-        if 'tds' in vals:
-            vals['tds_date'] = now
+        certificate_fields = [
+            'loa',
+            'coo',
+            'coa',
+            'tds',
+            'manufacturing_license',
+            'manufacturer_product_list',
+            'coc',
+            'quality_guarantee',
+            'package_guarantee',
+            'toxicological_studies',
+            'analytical_method',
+            'residue_analysis',
+            'impurities_analysis',
+            'international_classification',
+            'adi_mrl',
+            'safe_handling',
+            'msds',
+            'other_documents'
+        ]
+
+        for field in certificate_fields:
+            if field in vals:
+                vals[field + '_date'] = now
 
         return super().write(vals)
     

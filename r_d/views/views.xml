@@ -7,7 +7,7 @@
       <form string="RD">
 
         <header>
-<!-- 
+          <!-- 
           <button name="action_confirm" string="Approve" type="object" class="btn-success"
             invisible="statue in ('Rejected or Approved')" />
           <button name="action_reject" string="Reject" type="object" class="btn-primary"
@@ -22,84 +22,247 @@
         <sheet>
           <group>
             <group string="Main Information">
-              <field name="name" readonly="x_studio_locked"/>
-              <field name="com_name" readonly="x_studio_locked"/>
-              <field name="statue" readonly="x_studio_locked"/>
-              <field name="x_studio_regestraion" readonly="x_studio_locked"/>
-              <field name="priority" readonly="x_studio_locked"/>
-              <field name="x_registration_number" readonly="x_studio_locked"/>
-              <field name="x_studio_company_id" readonly="x_studio_locked"/>
-              <field name="x_studio_crop" readonly="x_studio_locked"/>
-              <field name="x_studio_product_category" readonly="x_studio_locked"/>
-              <field name="x_studio_material" readonly="x_studio_locked"/>
-              <field name="x_studio_pests" readonly="x_studio_locked"/>
-            </group>
-            <group string="Documents For Registration">
-
-                <field name="x_studio_locked" readonly="x_studio_locked"/>
-
-                <!-- LOA -->
-                <field name="loa" readonly="x_studio_locked"/>
-                <field name="loa_pdf"
-                      filename="loa_pdf_filename"
-                      invisible="not loa"
-                      required="loa"/>
-                <field name="loa_date"
-                      readonly="1"
-                      invisible="not loa"/>
-
-                <!-- COO -->
-                <field name="coo" readonly="x_studio_locked"/>
-                <field name="coo_pdf"
-                      filename="coo_pdf_filename"
-                      invisible="not coo"
-                      required="coo"/>
-                <field name="coo_date"
-                      readonly="1"
-                      invisible="not coo"/>
-
-                <!-- COA -->
-                <field name="coa" readonly="x_studio_locked"/>
-                <field name="coa_pdf"
-                      filename="coa_pdf_filename"
-                      invisible="not coa"
-                      required="coa"/>
-                <field name="coa_date"
-                      readonly="1"
-                      invisible="not coa"/>
-
-                <!-- TDS -->
-                <field name="tds" readonly="x_studio_locked"/>
-                <field name="tds_pdf"
-                      filename="tds_pdf_filename"
-                      invisible="not tds"
-                      required="tds"/>
-                <field name="tds_date"
-                      readonly="1"
-                      invisible="not tds"/>
-
+              <field name="name" readonly="x_studio_locked" />
+              <field name="com_name" readonly="x_studio_locked" />
+              <field name="x_studio_user_id" readonly="x_studio_locked" />
+              <field name="statue" readonly="x_studio_locked" />
+              <field name="x_studio_regestraion" readonly="x_studio_locked" />
+              <field name="priority" readonly="x_studio_locked" />
+              <field name="x_registration_number" readonly="x_studio_locked" />
+              <field name="x_studio_company_id" readonly="x_studio_locked" />
+              <field name="x_studio_crop" readonly="x_studio_locked" />
+              <field name="x_studio_product_category" readonly="x_studio_locked" />
+              <field name="x_studio_material" readonly="x_studio_locked" />
+              <field name="x_studio_pests" readonly="x_studio_locked" />
             </group>
 
             <group string="Compound Details">
-              <field name="type" readonly="x_studio_locked" widget="many2many_tags"/>
-              <field name="function" readonly="x_studio_locked"/>
-              <field name="pd" readonly="x_studio_locked"/>
-              <field name="x_studio_qtyyear" readonly="x_studio_locked"/>
-              <field name="x_studio_sample" readonly="x_studio_locked"/>
-              <field name="x_studio_sequence" readonly="x_studio_locked"/>
-              <field name="x_studio_target_comption" readonly="x_studio_locked"/>
-              <field name="x_studio_usage_rate" readonly="x_studio_locked"/>
-              <field name="x_studio_user_id" readonly="x_studio_locked"/>
-              <field name="x_studio_stuff" readonly="x_studio_locked"/>
+              <field name="type" readonly="x_studio_locked" widget="many2many_tags" />
+              <field name="function" readonly="x_studio_locked" />
+              <field name="pd" readonly="x_studio_locked" />
+              <field name="x_studio_qtyyear" readonly="x_studio_locked" />
+              <field name="x_studio_sample" readonly="x_studio_locked" />
+              <field name="x_studio_sequence" readonly="x_studio_locked" />
+              <field name="x_studio_target_comption" readonly="x_studio_locked" />
+              <field name="x_studio_usage_rate" readonly="x_studio_locked" />
+              <field name="x_studio_stuff" readonly="x_studio_locked" />
             </group>
             <group string="Notes">
-                <field name="x_studio_memo" readonly="x_studio_locked"/>
+              <field name="x_studio_memo" readonly="x_studio_locked" />
 
             </group>
           </group>
-        </sheet>
 
-        <chatter/>
+          <notebook>
+            <page string="Documents For Registration" name="docs_tab">
+              <group>
+                <group>
+                  <field name="x_studio_locked" readonly="x_studio_locked" />
+
+                  <!-- LOA -->
+                  <field name="loa" readonly="x_studio_locked" />
+                  <field name="loa_pdf"
+                    filename="loa_pdf_filename"
+                    invisible="not loa"
+                    required="loa" />
+                  <field name="loa_date"
+                    readonly="1"
+                    invisible="not loa" />
+
+
+                  <!-- COO -->
+                  <field name="coo" readonly="x_studio_locked" />
+                  <field name="coo_pdf"
+                    filename="coo_pdf_filename"
+                    invisible="not coo"
+                    required="coo" />
+                  <field name="coo_date"
+                    readonly="1"
+                    invisible="not coo" />
+
+
+                  <!-- COA -->
+                  <field name="coa" readonly="x_studio_locked" />
+                  <field name="coa_pdf"
+                    filename="coa_pdf_filename"
+                    invisible="not coa"
+                    required="coa" />
+                  <field name="coa_date"
+                    readonly="1"
+                    invisible="not coa" />
+
+
+                  <!-- TDS -->
+                  <field name="tds" readonly="x_studio_locked" />
+                  <field name="tds_pdf"
+                    filename="tds_pdf_filename"
+                    invisible="not tds"
+                    required="tds" />
+                  <field name="tds_date"
+                    readonly="1"
+                    invisible="not tds" />
+
+
+                  <!-- Manufacturing License -->
+                  <field name="manufacturing_license" readonly="x_studio_locked" />
+                  <field name="manufacturing_license_pdf"
+                    filename="manufacturing_license_pdf_filename"
+                    invisible="not manufacturing_license"
+                    required="manufacturing_license" />
+                  <field name="manufacturing_license_date"
+                    readonly="1"
+                    invisible="not manufacturing_license" />
+
+
+                  <!-- Manufacturer Product List -->
+                  <field name="manufacturer_product_list" readonly="x_studio_locked" />
+                  <field name="manufacturer_product_list_pdf"
+                    filename="manufacturer_product_list_pdf_filename"
+                    invisible="not manufacturer_product_list"
+                    required="manufacturer_product_list" />
+                  <field name="manufacturer_product_list_date"
+                    readonly="1"
+                    invisible="not manufacturer_product_list" />
+                </group>
+                <group>
+                  <!-- COC -->
+                  <field name="coc" readonly="x_studio_locked" />
+                  <field name="coc_pdf"
+                    filename="coc_pdf_filename"
+                    invisible="not coc"
+                    required="coc" />
+                  <field name="coc_date"
+                    readonly="1"
+                    invisible="not coc" />
+
+
+                  <!-- Quality Guarantee -->
+                  <field name="quality_guarantee" readonly="x_studio_locked" />
+                  <field name="quality_guarantee_pdf"
+                    filename="quality_guarantee_pdf_filename"
+                    invisible="not quality_guarantee"
+                    required="quality_guarantee" />
+                  <field name="quality_guarantee_date"
+                    readonly="1"
+                    invisible="not quality_guarantee" />
+
+
+                  <!-- Package Guarantee -->
+                  <field name="package_guarantee" readonly="x_studio_locked" />
+                  <field name="package_guarantee_pdf"
+                    filename="package_guarantee_pdf_filename"
+                    invisible="not package_guarantee"
+                    required="package_guarantee" />
+                  <field name="package_guarantee_date"
+                    readonly="1"
+                    invisible="not package_guarantee" />
+
+
+                  <!-- Toxicological Studies -->
+                  <field name="toxicological_studies" readonly="x_studio_locked" />
+                  <field name="toxicological_studies_pdf"
+                    filename="toxicological_studies_pdf_filename"
+                    invisible="not toxicological_studies"
+                    required="toxicological_studies" />
+                  <field name="toxicological_studies_date"
+                    readonly="1"
+                    invisible="not toxicological_studies" />
+
+
+                  <!-- Analytical Method -->
+                  <field name="analytical_method" readonly="x_studio_locked" />
+                  <field name="analytical_method_pdf"
+                    filename="analytical_method_pdf_filename"
+                    invisible="not analytical_method"
+                    required="analytical_method" />
+                  <field name="analytical_method_date"
+                    readonly="1"
+                    invisible="not analytical_method" />
+
+
+                  <!-- Residue Analysis -->
+                  <field name="residue_analysis" readonly="x_studio_locked" />
+                  <field name="residue_analysis_pdf"
+                    filename="residue_analysis_pdf_filename"
+                    invisible="not residue_analysis"
+                    required="residue_analysis" />
+                  <field name="residue_analysis_date"
+                    readonly="1"
+                    invisible="not residue_analysis" />
+
+
+                  <!-- Major Impurities Analysis -->
+                  <field name="impurities_analysis" readonly="x_studio_locked" />
+                  <field name="impurities_analysis_pdf"
+                    filename="impurities_analysis_pdf_filename"
+                    invisible="not impurities_analysis"
+                    required="impurities_analysis" />
+                  <field name="impurities_analysis_date"
+                    readonly="1"
+                    invisible="not impurities_analysis" />
+
+
+                  <!-- International Classification -->
+                  <field name="international_classification" readonly="x_studio_locked" />
+                  <field name="international_classification_pdf"
+                    filename="international_classification_pdf_filename"
+                    invisible="not international_classification"
+                    required="international_classification" />
+                  <field name="international_classification_date"
+                    readonly="1"
+                    invisible="not international_classification" />
+
+
+                  <!-- ADI / MRL -->
+                  <field name="adi_mrl" readonly="x_studio_locked" />
+                  <field name="adi_mrl_pdf"
+                    filename="adi_mrl_pdf_filename"
+                    invisible="not adi_mrl"
+                    required="adi_mrl" />
+                  <field name="adi_mrl_date"
+                    readonly="1"
+                    invisible="not adi_mrl" />
+
+
+                  <!-- Safe Handling -->
+                  <field name="safe_handling" readonly="x_studio_locked" />
+                  <field name="safe_handling_pdf"
+                    filename="safe_handling_pdf_filename"
+                    invisible="not safe_handling"
+                    required="safe_handling" />
+                  <field name="safe_handling_date"
+                    readonly="1"
+                    invisible="not safe_handling" />
+
+
+                  <!-- MSDS -->
+                  <field name="msds" readonly="x_studio_locked" />
+                  <field name="msds_pdf"
+                    filename="msds_pdf_filename"
+                    invisible="not msds"
+                    required="msds" />
+                  <field name="msds_date"
+                    readonly="1"
+                    invisible="not msds" />
+
+
+                  <!-- Other Required Documents -->
+                  <field name="other_documents" readonly="x_studio_locked" />
+                  <field name="other_documents_pdf"
+                    filename="other_documents_pdf_filename"
+                    invisible="not other_documents"
+                    required="other_documents" />
+                  <field name="other_documents_date"
+                    readonly="1"
+                    invisible="not other_documents" />
+
+                </group>
+              </group>
+
+            </page>
+          </notebook>
+        </sheet>
+        <chatter />
       </form>
     </field>
   </record>
@@ -110,15 +273,15 @@
     <field name="model">x_details</field>
     <field name="arch" type="xml">
       <list string="RD">
-        <field name="name" readonly="1"/>
-        <field name="x_registration_number" readonly="1"/>
-        <field name="x_studio_company_id" readonly="1"/>
-        <field name="x_studio_crop" readonly="1"/>
-        <field name="x_studio_product_category" readonly="1"/>
-        <field name="x_studio_qtyyear" readonly="1"/>
-        <field name="statue" readonly="1"/>
-        <field name="x_studio_user_id" readonly="1"/>
-        <field name="x_active" readonly="1"/>
+        <field name="name" readonly="1" />
+        <field name="x_registration_number" readonly="1" />
+        <field name="x_studio_company_id" readonly="1" />
+        <field name="x_studio_crop" readonly="1" />
+        <field name="x_studio_product_category" readonly="1" />
+        <field name="x_studio_qtyyear" readonly="1" />
+        <field name="statue" readonly="1" />
+        <field name="x_studio_user_id" readonly="1" />
+        <field name="x_active" readonly="1" />
       </list>
     </field>
   </record>
@@ -233,7 +396,7 @@
         </sheet>
 
         <!-- Chatter -->
-        <chatter/>
+        <chatter />
       </form>
     </field>
   </record>

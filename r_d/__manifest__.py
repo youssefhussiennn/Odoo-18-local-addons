@@ -12,7 +12,7 @@
     'website': "",
 
     'category': 'Purchase',
-    'version': '18.0.2.9',
+    'version': '18.0.3.0',
 
 
     'depends': ['base','mail','purchase'],
