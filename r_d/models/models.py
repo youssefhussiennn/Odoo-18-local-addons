@@ -51,6 +51,16 @@ class r_d(models.Model):
     pd = fields.Char(string="PD")
     x_studio_user_id = fields.Many2one('res.users', string="Responsible")
     
+    statue = fields.Selection([
+        ('1', 'Under Research'),
+	    ('6', 'Completing Documents'),
+        ('2', 'Waiting Sample'),
+        ('3', 'Under Registration'),
+        ('4','Registered'),
+        ('5', 'Rejected'),
+    ], string="Status", default='1', tracking=True)
+        
+    
     # === LOA ===
     loa = fields.Boolean(string="LOA", tracking=True)
     loa_pdf = fields.Binary(string="LOA PDF")
@@ -172,16 +182,113 @@ class r_d(models.Model):
     other_documents_pdf_filename = fields.Char(string="Other Required Documents Filename")
     other_documents_date = fields.Datetime(string="Other Required Documents Updated On")
     
+    documents_count = fields.Integer(
+    string="Documents Completed",
+    compute="_compute_documents_count",
+    store=True
+    )
+
+    @api.depends(
+        'loa',
+        'coo',
+        'coa',
+        'tds',
+        'manufacturing_license',
+        'manufacturer_product_list',
+        'coc',
+        'quality_guarantee',
+        'package_guarantee',
+        'toxicological_studies',
+        'analytical_method',
+        'residue_analysis',
+        'impurities_analysis',
+        'international_classification',
+        'adi_mrl',
+        'safe_handling',
+        'msds',
+        'other_documents'
+    )
     
-    statue = fields.Selection([
-        ('1', 'Under Research'),
-	('6', 'Completing Documents'),
-        ('2', 'Waiting Sample'),
-        ('3', 'Under Registration'),
-        ('4','Registered'),
-        ('5', 'Rejected'),
-    ], string="Status", default='1', tracking=True)
-        
+    
+    def _compute_documents_count(self):
+        for record in self:
+            documents = [
+                record.loa,
+                record.coo,
+                record.coa,
+                record.tds,
+                record.manufacturing_license,
+                record.manufacturer_product_list,
+                record.coc,
+                record.quality_guarantee,
+                record.package_guarantee,
+                record.toxicological_studies,
+                record.analytical_method,
+                record.residue_analysis,
+                record.impurities_analysis,
+                record.international_classification,
+                record.adi_mrl,
+                record.safe_handling,
+                record.msds,
+                record.other_documents,
+            ]
+
+            record.documents_count = sum(documents)    
+
+    last_document_update = fields.Datetime(
+        string="Last Document Update",
+        compute="_compute_last_document_update",
+        store=True
+    )
+
+
+    @api.depends(
+        'loa_date',
+        'coo_date',
+        'coa_date',
+        'tds_date',
+        'manufacturing_license_date',
+        'manufacturer_product_list_date',
+        'coc_date',
+        'quality_guarantee_date',
+        'package_guarantee_date',
+        'toxicological_studies_date',
+        'analytical_method_date',
+        'residue_analysis_date',
+        'impurities_analysis_date',
+        'international_classification_date',
+        'adi_mrl_date',
+        'safe_handling_date',
+        'msds_date',
+        'other_documents_date'
+    )
+    def _compute_last_document_update(self):
+        for record in self:
+            dates = [
+                record.loa_date,
+                record.coo_date,
+                record.coa_date,
+                record.tds_date,
+                record.manufacturing_license_date,
+                record.manufacturer_product_list_date,
+                record.coc_date,
+                record.quality_guarantee_date,
+                record.package_guarantee_date,
+                record.toxicological_studies_date,
+                record.analytical_method_date,
+                record.residue_analysis_date,
+                record.impurities_analysis_date,
+                record.international_classification_date,
+                record.adi_mrl_date,
+                record.safe_handling_date,
+                record.msds_date,
+                record.other_documents_date,
+            ]
+
+            dates = [date for date in dates if date]
+
+            record.last_document_update = max(dates) if dates else False
+    
     # def action_reset(self):
     #     self.write({'statue': 'draft'})
     #     self.write({'x_studio_locked': False})
@@ -194,34 +301,34 @@ class r_d(models.Model):
     #     self.write({'statue': 'Rejected'})
     #     self.write({'x_studio_locked': True})
 
-
     def write(self, vals):
         now = fields.Datetime.now()
 
-        certificate_fields = [
-            'loa',
-            'coo',
-            'coa',
-            'tds',
-            'manufacturing_license',
-            'manufacturer_product_list',
-            'coc',
-            'quality_guarantee',
-            'package_guarantee',
-            'toxicological_studies',
-            'analytical_method',
-            'residue_analysis',
-            'impurities_analysis',
-            'international_classification',
-            'adi_mrl',
-            'safe_handling',
-            'msds',
-            'other_documents'
+        certificate_pdf_fields = [
+            'loa_pdf',
+            'coo_pdf',
+            'coa_pdf',
+            'tds_pdf',
+            'manufacturing_license_pdf',
+            'manufacturer_product_list_pdf',
+            'coc_pdf',
+            'quality_guarantee_pdf',
+            'package_guarantee_pdf',
+            'toxicological_studies_pdf',
+            'analytical_method_pdf',
+            'residue_analysis_pdf',
+            'impurities_analysis_pdf',
+            'international_classification_pdf',
+            'adi_mrl_pdf',
+            'safe_handling_pdf',
+            'msds_pdf',
+            'other_documents_pdf'
         ]
 
-        for field in certificate_fields:
-            if field in vals:
-                vals[field + '_date'] = now
+        for pdf_field in certificate_pdf_fields:
+            if pdf_field in vals:
+                date_field = pdf_field.replace('_pdf', '_date')
+                vals[date_field] = now
 
         return super().write(vals)
     

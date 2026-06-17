@@ -46,6 +46,8 @@
               <field name="x_studio_target_comption" readonly="x_studio_locked" />
               <field name="x_studio_usage_rate" readonly="x_studio_locked" />
               <field name="x_studio_stuff" readonly="x_studio_locked" />
+              <field name="x_studio_locked" readonly="x_studio_locked" />
+
             </group>
             <group string="Notes">
               <field name="x_studio_memo" readonly="x_studio_locked" />
@@ -57,7 +59,8 @@
             <page string="Documents For Registration" name="docs_tab">
               <group>
                 <group>
-                  <field name="x_studio_locked" readonly="x_studio_locked" />
+                  <field name="documents_count" readonly="1" />
+                  <field name="last_document_update" readonly="1" />
 
                   <!-- LOA -->
                   <field name="loa" readonly="x_studio_locked" />
