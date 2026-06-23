@@ -23,6 +23,12 @@
                 </group>
                 <footer>
                     <button name="get_account_statement_total_report" string="Print" type="object" />
+                    <button name="action_generate_xlsx"
+                        type="object"
+                        string="Generate Excel"
+                        class="btn-primary"/>
+
+                <button string="Cancel" special="cancel"/>
                 </footer>
             </form>
             </field>
@@ -37,7 +43,15 @@
             <field name="context">{'default_report_type':'partner'}</field>
             <field name="view_id" ref="account_statement_wizard_form"/>
         </record>
-        
+        <record id="account_statement_team_wizard_action_window" model="ir.actions.act_window">
+            <field name="name">Account Statement Team</field>
+            <field name="res_model">account.statement.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_report_type': 'sales_team'}</field>
+            <field name="view_id" ref="account_statement_team_wizard_form"/>
+        </record>
+
         <menuitem action="account_statement_wizard_action_window" id="account_statement_wizard_menu" sequence="66" parent="account.menu_finance_reports"/>
         <menuitem action="account_statement_wizard_action_window" id="account_statement_wizard_menu_so" sequence="66" parent="sale.sale_order_menu"/>
         

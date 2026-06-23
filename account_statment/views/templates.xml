@@ -165,7 +165,7 @@
                                         <t t-set="balance" t-value="total_initial_balance"/>
                                         <t t-set="total_initial_balance" t-value="round((total_initial_balance),2)"/>
                                         <td>
-                                            <span t-esc="total_initial_balance" />
+                                            <span t-esc="total_initial_balance" t-options="{'widget': 'monetary', 'display_currency': data.currency_id[0]}"/>
                                         </td>
                                     </tr>
                                     <t t-foreach="data" t-as="line">
@@ -238,8 +238,8 @@
 
                                                     <td class="text-right">
                                                         <t t-if="line.debit != 0">
-                                                            <span t-if="not line.partner_id.property_purchase_currency_id" style="float:right" t-esc="line.debit" />
-                                                            <span style="float:right" t-if="line.partner_id.property_purchase_currency_id" t-esc="line.amount_currency" />
+                                                            <span t-if="not line.partner_id.property_purchase_currency_id" style="float:right" t-esc="line.debit" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                                            <span style="float:right" t-if="line.partner_id.property_purchase_currency_id" t-esc="line.amount_currency" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                                         </t>
                                                     </td>
 
@@ -270,7 +270,7 @@
                                                         the balance including the taxed amount -->
                                                         <t t-set="x_studio_taxed_amount_total" t-value="0"/>
                                                         <t t-set="balance_with_tax" t-value="balance + x_studio_taxed_amount_total"/>
-                                                        <span style="float:right" t-esc="balance_with_tax"/>
+                                                        <span style="float:right" t-esc="balance_with_tax" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                                     </td>
                                                 </tr>
                                             </t>
@@ -309,7 +309,7 @@
                                                             <span style="float:right" t-esc="round((inv.quantity),2)"/>
                                                         </td>
                                                         <td class="text-right">
-                                                            <span style="float:right" t-esc="round((inv.price_unit-((inv.price_unit*inv.discount)/100)),2)" />
+                                                            <span style="float:right" t-esc="round((inv.price_unit-((inv.price_unit*inv.discount)/100)),2)" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
 
                                                             <t t-if="inv.discount &gt; 0 and line.move_id.move_type in ('out_invoice')">
                                                                 <t t-set="total_discount" t-value="round((total_discount + (inv.price_unit * ((inv.discount or 0.0) / 100.0) * inv.quantity)),2)"/>
@@ -321,13 +321,13 @@
                                                         <!--DEBIT-->
                                                         <td class="text-right">
                                                             <t t-if="line.move_id.move_type not in ('out_refund', 'in_invoice')">
-                                                                <span style="float:right" t-esc="round(abs(inv.price_total),2)" />
+                                                                <span style="float:right" t-esc="round(abs(inv.price_total),2)" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                                             </t>
                                                         </td>
                                                         <!--CREDIT-->
                                                         <td class="text-right">
                                                             <t t-if="line.move_id.move_type in ('out_refund', 'in_invoice')">
-                                                                <span style="float:right" t-esc="round((inv.price_subtotal + x_studio_taxed_amount_total),2)" />
+                                                                <span style="float:right" t-esc="round((inv.price_subtotal + x_studio_taxed_amount_total),2)" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                                             </t>
                                                         </td>
 
@@ -359,10 +359,10 @@
                                                                 <t t-set="total_sales_after_discount" t-value="round((total_sales_after_discount + inv.price_subtotal),2)"/>
                                                                 <t t-set="total_sales_before_discount" t-value="round((total_sales_before_discount + (inv.quantity*inv.price_unit)),2)"/>
                                                             </t>
-                                                            <span style="float:right" t-esc="balance" />
+                                                            <span style="float:right" t-esc="balance" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                                         </td>
                                                         <td>
-                                                        <span style="float:right" t-esc="x_studio_taxed_amount_total" />
+                                                        <span style="float:right" t-esc="x_studio_taxed_amount_total" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                                         </td>
                                                     </tr>
                                                 </t>
@@ -374,11 +374,11 @@
 
                                         </td>
                                         <td>
-                                            <span t-esc="total_debit" />
+                                            <span t-esc="total_debit" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
 
                                         </td>
                                         <td>
-                                            <span t-esc="total_credit" />
+                                            <span t-esc="total_credit" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
 
                                         </td>
                                         <td>
@@ -392,7 +392,7 @@
                                             t-esc="balance - abs(total_customer_allowed_discount)"
                                             t-options="{&quot;widget&quot;: &quot;monetary&quot;,
                                             &quot;display_currency&quot;: line.currency_id}"/>-->
-                                            <span t-esc="balance" />
+                                            <span t-esc="balance" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
 
                                         </td>
                                     </tr>
@@ -403,7 +403,7 @@
 
                                         </td>
                                         <td>
-                                            <span t-esc="total_sales_before_discount" />
+                                            <span t-esc="total_sales_before_discount" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
 
                                         </td>
                                     </tr>
@@ -418,7 +418,7 @@
                                             t-options="{&quot;widget&quot;: &quot;monetary&quot;,
                                             &quot;display_currency&quot;: line.currency_id}"/> -->
                                             <!-- <t t-if="total_discount !=0"> -->
-                                            <span t-esc="total_customer_allowed_discount" />
+                                            <span t-esc="total_customer_allowed_discount" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                             <!-- </t> -->
                                             <!-- <t t-else="">
                                                     <t t-set="discount" t-value="0"/>
@@ -450,7 +450,7 @@
 
                                         </td>
                                         <td>
-                                            <span t-esc="total_refund" />
+                                            <span t-esc="total_refund" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
 
                                         </td>
                                         <!-- <td colspan="3">
@@ -474,7 +474,7 @@
                                         </td>
                                         <td>
                                             <t t-set="total_sales_after_discount" t-value="total_sales_after_discount - total_customer_allowed_discount"/>
-                                            <span t-esc="total_sales_after_discount" />
+                                            <span t-esc="total_sales_after_discount" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                         </td>
                                     </tr>
 
@@ -483,7 +483,7 @@
                                             <span style="float:right">اجمالي سداد</span>
                                         </td>
                                         <td>
-                                            <span t-esc="abs(total_payment)" />
+                                            <span t-esc="abs(total_payment)" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
 
                                         </td>
                                         <!-- <td colspan="3">
@@ -535,7 +535,7 @@
 
                                     <!--    </td>-->
                                     <!--    <td>-->
-                                    <!--        <span t-esc="abs(total_safty_checks)" />-->
+                                    <!--        <span t-esc="abs(total_safty_checks)" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>-->
 
                                     <!--    </td>-->
                                     <!--</tr>-->
@@ -545,7 +545,7 @@
 
                                     <!--    </td>-->
                                     <!--    <td>-->
-                                    <!--        <span t-esc="abs(total_collection_checks)" />-->
+                                    <!--        <span t-esc="abs(total_collection_checks)" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>-->
 
                                     <!--    </td>-->
                                     <!--</tr>-->
