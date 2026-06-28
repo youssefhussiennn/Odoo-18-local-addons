@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ── Attendance Form: Add GPS + Portal fields ── -->
+  <record id="view_hr_attendance_form_gps" model="ir.ui.view">
+    <field name="name">hr.attendance.form.driver.portal</field>
+    <field name="model">hr.attendance</field>
+    <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+        <group string="GPS Data" col="2" invisible="not portal_entry">
+          <group string="Check-In Location">
+            <field name="check_in_latitude"/>
+            <field name="check_in_longitude"/>
+            <field name="check_in_location" readonly="1"/>
+            <field name="portal_tz" readonly="1"/>
+          </group>
+          <group string="Check-Out Location">
+            <field name="check_out_latitude"/>
+            <field name="check_out_longitude"/>
+            <field name="check_out_location" readonly="1"/>
+          </group>
+        </group>
+        <group string="Portal Info" col="2" invisible="not portal_entry">
+          <field name="portal_entry" readonly="1"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+
+
+
+</odoo>

@@ -34,7 +34,7 @@
             </field>
         </record>
 
-          <record id="account_statement_wizard_action_window" model="ir.actions.act_window">
+        <record id="account_statement_wizard_action_window" model="ir.actions.act_window">
             <field name="name">Account Statement</field>
             <field name="res_model">account.statement.wizard</field>
             <field name="type">ir.actions.act_window</field>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_attendance_portal_public,hr.attendance portal public read,hr_attendance.model_hr_attendance,,1,0,0,0
+access_hr_employee_portal_public,hr.employee portal public read,hr.model_hr_employee,,1,0,0,0
