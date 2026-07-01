@@ -4,494 +4,357 @@
     <t t-call="web.layout">
       <t t-set="head">
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <meta charset="utf-8"/>
-        <title>Atlas - تسجيل حضور السائقين</title>
+        <title>Atlas - Driver Attendance</title>
         <style>
           *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-
-          body{
-            background:#f4f6f9;
-            min-height:100vh;
-            font-family:'Segoe UI',Tahoma,sans-serif;
-            display:flex;
-            align-items:flex-start;
-            justify-content:center;
-            padding:24px 16px 60px;
-            direction:rtl;
-          }
-
-          .card{
-            width:100%;
-            max-width:440px;
-            background:#fff;
-            border-radius:20px;
-            overflow:hidden;
-            box-shadow:0 8px 32px rgba(0,0,0,0.10);
-            border:1px solid #e8ecf0;
-          }
-
-          /* ── Header ── */
-          .hdr{
-            background:#fff;
-            padding:28px 24px 20px;
-            text-align:center;
-            border-bottom:3px solid #4a7c3f;
-          }
-          .hdr img{
-            width:160px;
-            margin-bottom:14px;
-            display:block;
-            margin-left:auto;
-            margin-right:auto;
-          }
-          .hdr-title{
-            font-size:17px;
-            font-weight:700;
-            color:#1a1a1a;
-            margin-bottom:2px;
-          }
-          .hdr-sub{
-            font-size:12px;
-            color:#4a7c3f;
-            font-weight:600;
-            letter-spacing:0.5px;
-          }
-
-          /* ── Body ── */
+          body{background:#f4f6f9;min-height:100vh;font-family:'Segoe UI',Tahoma,sans-serif;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 60px;}
+          .card{width:100%;max-width:420px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.10);border:1px solid #e8ecf0;}
+          .hdr{background:#fff;padding:26px 24px 18px;text-align:center;border-bottom:3px solid #4a7c3f;position:relative;}
+          .hdr img{width:150px;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;}
+          .hdr-title{font-size:16px;font-weight:700;color:#1a1a1a;}
+          .hdr-sub{font-size:11px;color:#4a7c3f;font-weight:600;letter-spacing:0.5px;margin-top:2px;}
+          .lang-toggle{position:absolute;top:16px;left:16px;background:#f4f6f9;border:1px solid #dde1e7;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;color:#4a7c3f;cursor:pointer;}
           .bdy{padding:24px 20px;}
-
-          /* ── Search ── */
-          .search-wrap{position:relative;}
-          .search-inner{
-            display:flex;
-            align-items:center;
-            background:#f8f9fb;
-            border:1.5px solid #dde1e7;
-            border-radius:12px;
-            overflow:hidden;
-            transition:border-color 0.2s,box-shadow 0.2s;
-          }
-          .search-inner:focus-within{
-            border-color:#4a7c3f;
-            box-shadow:0 0 0 3px rgba(74,124,63,0.10);
-          }
-          .search-icon{padding:0 14px;font-size:18px;}
-          #searchBox{
-            flex:1;
-            padding:14px 4px 14px 12px;
-            border:none;
-            outline:none;
-            font-size:15px;
-            color:#1a1a1a;
-            background:transparent;
-            direction:rtl;
-            text-align:right;
-          }
-          #searchBox::placeholder{color:#aaa;}
-
-          /* ── Dropdown ── */
-          .emp-list{
-            position:absolute;
-            top:calc(100% + 6px);
-            left:0;right:0;
-            background:#fff;
-            border:1.5px solid #dde1e7;
-            border-radius:12px;
-            z-index:300;
-            max-height:240px;
-            overflow-y:auto;
-            box-shadow:0 8px 24px rgba(0,0,0,0.10);
-            display:none;
-          }
-          .emp-item{
-            padding:13px 16px;
-            cursor:pointer;
-            border-bottom:1px solid #f0f2f5;
-            transition:background 0.15s;
-            text-align:right;
-          }
-          .emp-item:last-child{border-bottom:none;}
-          .emp-item:hover{background:#f4faf3;}
-          .ei-name{font-weight:700;font-size:14px;color:#1a1a1a;}
-          .ei-meta{font-size:12px;color:#888;margin-top:2px;}
-
-          /* ── Employee Result Card ── */
-          .emp-card{
-            display:none;
-            margin-top:16px;
-            border:1.5px solid #e8ecf0;
-            border-radius:14px;
-            overflow:hidden;
-          }
-
-          .emp-card-header{
-            display:flex;
-            align-items:center;
-            gap:14px;
-            padding:16px;
-            background:#f8f9fb;
-            border-bottom:1px solid #e8ecf0;
-            flex-direction:row-reverse;
-          }
-
-          .avatar{
-            width:48px;height:48px;
-            border-radius:50%;
-            background:linear-gradient(135deg,#4a7c3f,#2a8ab5);
-            display:flex;align-items:center;justify-content:center;
-            font-size:20px;flex-shrink:0;
-          }
-
-          .emp-card-info{text-align:right;flex:1;}
-          .ec-name{font-size:16px;font-weight:700;color:#1a1a1a;}
-          .ec-status{font-size:12px;margin-top:4px;font-weight:600;}
-          .ec-status.in {color:#4a7c3f;}
-          .ec-status.out{color:#e53935;}
-
-          .emp-card-body{padding:14px 16px;}
-
-          .info-row{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            padding:7px 0;
-            border-bottom:1px solid #f0f2f5;
-            font-size:13px;
-          }
+          .field{margin-bottom:16px;}
+          .field-label{display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px;}
+          .field input{width:100%;padding:13px 14px;border:1.5px solid #dde1e7;border-radius:10px;font-size:16px;outline:none;transition:border-color 0.2s;text-align:center;letter-spacing:1px;background:#fff;}
+          .field input:focus{border-color:#4a7c3f;}
+          .field input.pin-input{letter-spacing:8px;font-weight:700;}
+          .btn-login{width:100%;padding:14px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#4a7c3f,#2d5a1f);color:#fff;box-shadow:0 4px 16px rgba(74,124,63,0.30);transition:transform 0.1s;}
+          .btn-login:active{transform:scale(0.98);}
+          .btn-login:disabled{opacity:0.5;cursor:not-allowed;}
+          .err-box{display:none;margin-bottom:14px;padding:11px 14px;background:#fff5f5;border:1.5px solid #ffcdd2;border-radius:10px;color:#c62828;font-size:13px;text-align:center;}
+          .welcome{display:none;}
+          .driver-card{background:#f4faf3;border:1.5px solid #c8e6c9;border-radius:14px;padding:18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
+          .avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#4a7c3f,#2a8ab5);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;color:#fff;}
+          .driver-name{font-size:16px;font-weight:700;color:#1a1a1a;}
+          .driver-code{font-size:12px;color:#888;margin-top:2px;}
+          .status-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f8f9fb;border:1.5px solid #e8ecf0;border-radius:10px;margin-bottom:14px;font-size:14px;}
+          .status-label{color:#666;}
+          .status-val{font-weight:700;}
+          .status-val.in{color:#4a7c3f;}
+          .status-val.out{color:#e53935;}
+          .info-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px solid #f0f2f5;}
           .info-row:last-child{border-bottom:none;}
           .ir-label{color:#888;}
-          .ir-value{font-weight:600;color:#1a1a1a;text-align:left;}
-
-          /* ── GPS row ── */
-          .gps-row{
-            padding:10px 16px;
-            background:#fffbf0;
-            border-top:1px solid #f0e8c8;
-            font-size:12px;
-            color:#8a6d00;
-            text-align:right;
-          }
-          .gps-row.ok  {background:#f4faf3;border-color:#c8e6c9;color:#2e7d32;}
-          .gps-row.err {background:#fff5f5;border-color:#ffcdd2;color:#c62828;}
-
-          /* ── Action Button ── */
-          .btn-action{
-            display:none;
-            width:100%;
-            padding:15px;
-            border:none;
-            border-radius:12px;
-            font-size:16px;
-            font-weight:700;
-            cursor:pointer;
-            margin-top:14px;
-            transition:transform 0.1s,box-shadow 0.2s;
-            letter-spacing:0.3px;
-          }
-          .btn-action:active{transform:scale(0.98);}
+          .ir-value{font-weight:600;color:#1a1a1a;}
+          .gps-row{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;}
+          .gps-row.pending{background:#fffbf0;border:1px solid #f0e8c8;color:#8a6d00;}
+          .gps-row.ok{background:#f4faf3;border:1px solid #c8e6c9;color:#2e7d32;}
+          .gps-row.err{background:#fff5f5;border:1px solid #ffcdd2;color:#c62828;}
+          .btn-action{width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:10px;display:none;color:#fff;}
+          .btn-in{background:linear-gradient(135deg,#4a7c3f,#2d5a1f);box-shadow:0 4px 16px rgba(74,124,63,0.30);}
+          .btn-out{background:linear-gradient(135deg,#e53935,#b71c1c);box-shadow:0 4px 16px rgba(229,57,53,0.30);}
           .btn-action:disabled{opacity:0.5;cursor:not-allowed;}
-          .btn-in{
-            background:linear-gradient(135deg,#4a7c3f,#2d5a1f);
-            color:#fff;
-            box-shadow:0 4px 16px rgba(74,124,63,0.30);
-          }
-          .btn-out{
-            background:linear-gradient(135deg,#e53935,#b71c1c);
-            color:#fff;
-            box-shadow:0 4px 16px rgba(229,57,53,0.30);
-          }
-
-          /* ── Result ── */
-          .result{
-            display:none;
-            margin-top:14px;
-            padding:16px;
-            border-radius:12px;
-            text-align:right;
-          }
-          .result.ok {background:#f4faf3;border:1.5px solid #c8e6c9;}
+          .result{display:none;margin-bottom:14px;padding:16px;border-radius:12px;text-align:center;}
+          .result.ok{background:#f4faf3;border:1.5px solid #c8e6c9;}
           .result.err{background:#fff5f5;border:1.5px solid #ffcdd2;}
-          .result-icon{font-size:32px;text-align:center;margin-bottom:8px;}
-          .result-msg{font-size:14px;font-weight:700;color:#1a1a1a;text-align:center;margin-bottom:12px;}
-          .result-rows .info-row .ir-value{color:#4a7c3f;}
+          .result-icon{font-size:32px;margin-bottom:8px;}
+          .result-msg{font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:10px;}
           .worked-big{font-size:22px;color:#4a7c3f;font-weight:800;}
-
-          /* ── Maps ── */
-          .maps-btn{
-            display:none;
-            width:100%;
-            padding:11px;
-            margin-top:10px;
-            background:#e3f2fd;
-            border:1.5px solid #90caf9;
-            border-radius:10px;
-            color:#1565c0;
-            font-size:14px;
-            font-weight:600;
-            cursor:pointer;
-            text-align:center;
-            text-decoration:none;
-          }
-          .maps-btn:hover{background:#bbdefb;}
-
-          /* ── Reset ── */
-          .reset-btn{
-            display:none;
-            width:100%;
-            padding:11px;
-            margin-top:10px;
-            background:#f4f6f9;
-            border:1.5px solid #dde1e7;
-            border-radius:10px;
-            color:#4a7c3f;
-            font-size:14px;
-            font-weight:600;
-            cursor:pointer;
-            text-align:center;
-          }
-          .reset-btn:hover{background:#e8ecf0;}
-
-          /* ── Spinner ── */
-          .spinner{
-            display:inline-block;
-            width:18px;height:18px;
-            border:2.5px solid rgba(255,255,255,0.4);
-            border-top-color:#fff;
-            border-radius:50%;
-            animation:spin 0.7s linear infinite;
-            vertical-align:middle;
-            margin-left:8px;
-          }
+          .maps-btn{display:none;width:100%;padding:11px;margin-bottom:10px;background:#e3f2fd;border:1.5px solid #90caf9;border-radius:10px;color:#1565c0;font-size:14px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;}
+          .logout-btn{display:block;width:100%;padding:11px;background:#f4f6f9;border:1.5px solid #dde1e7;border-radius:10px;color:#888;font-size:13px;font-weight:600;cursor:pointer;text-align:center;}
+          .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;}
           @keyframes spin{to{transform:rotate(360deg);}}
-
-          /* ── Footer ── */
-          .ftr{
-            padding:14px;
-            text-align:center;
-            font-size:11px;
-            color:#aaa;
-            border-top:1px solid #f0f2f5;
-            letter-spacing:0.5px;
-          }
-
-          @media(max-width:480px){
-            body{padding:0;}
-            .card{border-radius:0;min-height:100vh;}
-          }
+          .ftr{padding:14px;text-align:center;font-size:11px;color:#aaa;border-top:1px solid #f0f2f5;letter-spacing:0.5px;}
+          @media(max-width:460px){body{padding:0;}.card{border-radius:0;min-height:100vh;}}
         </style>
       </t>
 
       <div class="card">
 
-        <!-- Header -->
         <div class="hdr">
+          <span class="lang-toggle" id="langToggle">EN</span>
           <img src="/hr_attendance_portal/static/img/atlas_logo.png" alt="Atlas"/>
-          <div class="hdr-title">&#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x62D;&#x636;&#x648;&#x631; &#x627;&#x644;&#x633;&#x627;&#x626;&#x642;&#x64A;&#x646;</div>
-          <div class="hdr-sub">DRIVER ATTENDANCE SYSTEM</div>
+          <div class="hdr-title" id="txtTitle">Attendance</div>
+          <div class="hdr-sub">ATTENDANCE SYSTEM</div>
         </div>
 
-        <!-- Body -->
         <div class="bdy">
 
-          <!-- Search -->
-          <div class="search-wrap">
-            <div class="search-inner">
-              <span class="search-icon">&#x1F50D;</span>
-              <input type="text" id="searchBox"
-                     placeholder="&#x627;&#x628;&#x62D;&#x62B; &#x628;&#x627;&#x633;&#x645;&#x643; &#x623;&#x648; &#x643;&#x648;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x638;&#x641;..."
-                     autocomplete="off"/>
-            </div>
-            <div id="empList" class="emp-list"></div>
+          <!-- ── LOGIN SCREEN ── -->
+          <div id="loginScreen">
+            <div class="err-box" id="loginErr"></div>
+
+            <form autocomplete="off" onsubmit="return false;">
+              <input type="text" style="display:none;" autocomplete="username"/>
+              <input type="password" style="display:none;" autocomplete="new-password"/>
+
+              <div class="field">
+                <label class="field-label" id="lblCode">Employee Code</label>
+                <input type="text" id="codeInput" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="atlas_emp_code"/>
+              </div>
+
+              <div class="field">
+                <label class="field-label" id="lblPin">PIN</label>
+                <input type="password" id="pinInput" class="pin-input" inputmode="numeric" maxlength="6" autocomplete="new-password" name="atlas_emp_pin"/>
+              </div>
+            </form>
+
+            <button class="btn-login" id="btnLogin">
+              <span id="btnLoginText">Login</span>
+            </button>
           </div>
 
-          <!-- Employee Card -->
-          <div class="emp-card" id="empCard">
+          <!-- ── WELCOME / ACTION SCREEN ── -->
+          <div id="welcomeScreen" class="welcome">
 
-            <div class="emp-card-header">
+            <div class="driver-card">
               <div class="avatar">&#x1F464;</div>
-              <div class="emp-card-info">
-                <div class="ec-name"  id="ecName"></div>
-                <div class="ec-status" id="ecStatus"></div>
+              <div>
+                <div class="driver-name" id="wName"></div>
+                <div class="driver-code" id="wCode"></div>
               </div>
             </div>
 
-            <div class="emp-card-body">
-              <div class="info-row" id="ciRow" style="display:none;">
-                <span class="ir-label">&#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;</span>
+            <div class="status-row">
+              <span class="status-label" id="lblStatus">Current Status</span>
+              <span class="status-val" id="statusVal">...</span>
+            </div>
+
+            <div id="ciRow" style="display:none;">
+              <div class="info-row">
+                <span class="ir-label" id="lblCiSince">Checked in at</span>
                 <span class="ir-value" id="ciVal"></span>
               </div>
             </div>
 
-            <div class="gps-row" id="gpsRow">
-              &#x1F4E1; &#x62C;&#x627;&#x631; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;...
+            <div class="gps-row pending" id="gpsRow">
+              &#x1F4E1; <span id="gpsTxt">Detecting location...</span>
             </div>
 
+            <div class="result" id="result">
+              <div class="result-icon" id="rIcon"></div>
+              <div class="result-msg" id="rMsg"></div>
+              <div id="rRows"></div>
+            </div>
+
+            <a class="maps-btn" id="mapsBtn" href="#" target="_blank" rel="noopener">
+              &#x1F4CD; <span id="mapsTxt">Open location in Google Maps</span>
+            </a>
+
+            <button class="btn-action btn-in" id="btnIn">
+              <span id="btnInText">&#x2705; Check In</span>
+            </button>
+            <button class="btn-action btn-out" id="btnOut">
+              <span id="btnOutText">&#x1F3C1; Check Out</span>
+            </button>
+
+            <button class="logout-btn" id="logoutBtn">
+              <span id="logoutTxt">&#x2190; Logout</span>
+            </button>
+
           </div>
 
-          <!-- Action Buttons -->
-          <button class="btn-action btn-in"  id="btnIn">&#x2705; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;</button>
-          <button class="btn-action btn-out" id="btnOut">&#x1F3C1; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x627;&#x646;&#x635;&#x631;&#x627;&#x641;</button>
-
-          <!-- Result -->
-          <div class="result" id="result">
-            <div class="result-icon" id="rIcon"></div>
-            <div class="result-msg"  id="rMsg"></div>
-            <div class="result-rows" id="rRows"></div>
-          </div>
-
-          <!-- Maps -->
-          <a class="maps-btn" id="mapsBtn" href="#" target="_blank" rel="noopener">
-            &#x1F4CD; &#x641;&#x62A;&#x62D; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639; &#x639;&#x644;&#x649; &#x62E;&#x631;&#x627;&#x626;&#x637; Google
-          </a>
-
-          <!-- Reset -->
-          <button class="reset-btn" id="resetBtn">
-            &#x2190; &#x628;&#x62D;&#x62B; &#x639;&#x646; &#x633;&#x627;&#x626;&#x642; &#x622;&#x62E;&#x631;
-          </button>
-
-        </div><!-- /bdy -->
+        </div>
 
         <div class="ftr">ATLAS FOR AGRICULTURAL DEVELOPMENT</div>
 
-      </div><!-- /card -->
+      </div>
 
       <script type="text/javascript">
-        var emp   = null;
-        var gps   = null;
-        var timer = null;
+        var lang = 'ar';
+        var dict = {
+          ar: {
+            title: '&#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;',
+            code: '&#x643;&#x648;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x638;&#x641;',
+            pin: '&#x627;&#x644;&#x631;&#x642;&#x645; &#x627;&#x644;&#x633;&#x631;&#x64A;',
+            login: '&#x62F;&#x62E;&#x648;&#x644;',
+            status: '&#x627;&#x644;&#x62D;&#x627;&#x644;&#x629; &#x627;&#x644;&#x62D;&#x627;&#x644;&#x64A;&#x629;',
+            ciSince: '&#x645;&#x633;&#x62C;&#x651;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631; &#x645;&#x646;&#x630;',
+            gpsDetect: '&#x62C;&#x627;&#x631; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;...',
+            gpsErr: '&#x644;&#x627; &#x64A;&#x645;&#x643;&#x646; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;',
+            gpsNotSupported: 'GPS &#x63A;&#x64A;&#x631; &#x645;&#x62A;&#x627;&#x62D;',
+            checkin: '&#x2705; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;',
+            checkout: '&#x1F3C1; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x627;&#x646;&#x635;&#x631;&#x627;&#x641;',
+            processing: '&#x62C;&#x627;&#x631; &#x627;&#x644;&#x645;&#x639;&#x627;&#x644;&#x62C;&#x629;...',
+            in: '&#x1F7E2; &#x645;&#x633;&#x62C;&#x651;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;',
+            out: '&#x1F534; &#x63A;&#x64A;&#x631; &#x645;&#x633;&#x62C;&#x651;&#x644;',
+            mapsLink: '&#x641;&#x62A;&#x62D; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639; &#x639;&#x644;&#x649; Google Maps',
+            logout: '&#x2190; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x62E;&#x631;&#x648;&#x62C;',
+            date: '&#x1F4C5; &#x627;&#x644;&#x62A;&#x627;&#x631;&#x64A;&#x62E;',
+            time: '&#x1F552; &#x627;&#x644;&#x648;&#x642;&#x62A;',
+            worked: '&#x23F1; &#x633;&#x627;&#x639;&#x627;&#x62A; &#x627;&#x644;&#x639;&#x645;&#x644;',
+            location: '&#x1F4CD; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;',
+            fillBoth: '&#x64A;&#x631;&#x62C;&#x649; &#x625;&#x62F;&#x62E;&#x627;&#x644; &#x627;&#x644;&#x643;&#x648;&#x62F; &#x648;&#x627;&#x644;&#x631;&#x642;&#x645; &#x627;&#x644;&#x633;&#x631;&#x64A;'
+          },
+          en: {
+            title: 'Attendance',
+            code: 'Employee Code',
+            pin: 'PIN',
+            login: 'Login',
+            status: 'Current Status',
+            ciSince: 'Checked in since',
+            gpsDetect: 'Detecting location...',
+            gpsErr: 'Could not detect location',
+            gpsNotSupported: 'GPS not supported',
+            checkin: '&#x2705; Check In',
+            checkout: '&#x1F3C1; Check Out',
+            processing: 'Processing...',
+            in: '&#x1F7E2; Checked In',
+            out: '&#x1F534; Not Checked In',
+            mapsLink: 'Open location in Google Maps',
+            logout: '&#x2190; Logout',
+            date: '&#x1F4C5; Date',
+            time: '&#x1F552; Time',
+            worked: '&#x23F1; Worked Hours',
+            location: '&#x1F4CD; Location',
+            fillBoth: 'Please enter both code and PIN'
+          }
+        };
 
-        var searchBox = document.getElementById('searchBox');
-        var empList   = document.getElementById('empList');
-        var empCard   = document.getElementById('empCard');
-        var ecName    = document.getElementById('ecName');
-        var ecStatus  = document.getElementById('ecStatus');
-        var ciRow     = document.getElementById('ciRow');
-        var ciVal     = document.getElementById('ciVal');
-        var gpsRow    = document.getElementById('gpsRow');
-        var btnIn     = document.getElementById('btnIn');
-        var btnOut    = document.getElementById('btnOut');
-        var result    = document.getElementById('result');
-        var rIcon     = document.getElementById('rIcon');
-        var rMsg      = document.getElementById('rMsg');
-        var rRows     = document.getElementById('rRows');
-        var mapsBtn   = document.getElementById('mapsBtn');
-        var resetBtn  = document.getElementById('resetBtn');
+        function t(key) { return dict[lang][key]; }
 
-        // ── Search ──────────────────────────────────────────
-        searchBox.addEventListener('input', function() {
-          clearTimeout(timer);
-          var q = this.value.trim();
-          if (q.length &lt; 2) { empList.style.display='none'; return; }
-          timer = setTimeout(function() { doSearch(q); }, 300);
+        function applyLang() {
+          document.getElementById('txtTitle').innerHTML   = t('title');
+          document.getElementById('lblCode').innerHTML    = t('code');
+          document.getElementById('lblPin').innerHTML     = t('pin');
+          document.getElementById('btnLoginText').innerHTML = t('login');
+          document.getElementById('lblStatus').innerHTML  = t('status');
+          document.getElementById('lblCiSince').innerHTML = t('ciSince');
+          document.getElementById('gpsTxt').innerHTML     = t('gpsDetect');
+          document.getElementById('btnInText').innerHTML  = t('checkin');
+          document.getElementById('btnOutText').innerHTML = t('checkout');
+          document.getElementById('mapsTxt').innerHTML    = t('mapsLink');
+          document.getElementById('logoutTxt').innerHTML  = t('logout');
+          document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
+          document.getElementById('langToggle').textContent = lang === 'ar' ? 'EN' : 'AR';
+        }
+
+        document.getElementById('langToggle').addEventListener('click', function() {
+          lang = lang === 'ar' ? 'en' : 'ar';
+          applyLang();
         });
 
-        document.addEventListener('click', function(e) {
-          if (!e.target.closest('.search-wrap')) { empList.style.display='none'; }
+        applyLang();
+
+        var gps = null;
+        var currentCode = null;
+        var currentPin  = null;
+
+        var codeInput   = document.getElementById('codeInput');
+        var pinInput    = document.getElementById('pinInput');
+        var btnLogin    = document.getElementById('btnLogin');
+        var loginErr    = document.getElementById('loginErr');
+        var loginScreen = document.getElementById('loginScreen');
+        var welcomeScreen = document.getElementById('welcomeScreen');
+        var wName       = document.getElementById('wName');
+        var wCode       = document.getElementById('wCode');
+        var statusVal   = document.getElementById('statusVal');
+        var ciRow       = document.getElementById('ciRow');
+        var ciVal       = document.getElementById('ciVal');
+        var gpsRow      = document.getElementById('gpsRow');
+        var btnIn       = document.getElementById('btnIn');
+        var btnOut      = document.getElementById('btnOut');
+        var result      = document.getElementById('result');
+        var rIcon       = document.getElementById('rIcon');
+        var rMsg        = document.getElementById('rMsg');
+        var rRows       = document.getElementById('rRows');
+        var mapsBtn     = document.getElementById('mapsBtn');
+        var logoutBtn   = document.getElementById('logoutBtn');
+
+        // Clear fields on load to defeat autofill
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            codeInput.value = '';
+            pinInput.value  = '';
+          }, 50);
+          codeInput.focus();
         });
 
-        function doSearch(q) {
-          ajax('/drivers/attendance/search', {query: q}, function(res) {
-            empList.innerHTML = '';
-            if (!res.employees || !res.employees.length) {
-              var d = document.createElement('div');
-              d.className   = 'emp-item';
-              d.textContent = '&#x644;&#x627; &#x62A;&#x648;&#x62C;&#x62F; &#x646;&#x62A;&#x627;&#x626;&#x62C;';
-              empList.appendChild(d);
-            } else {
-              res.employees.forEach(function(e) {
-                var d    = document.createElement('div');
-                d.className = 'emp-item';
-                d.setAttribute('data-id',   e.id);
-                d.setAttribute('data-name', e.name);
-                var n    = document.createElement('div');
-                n.className   = 'ei-name';
-                n.textContent = e.name;
-                var m    = document.createElement('div');
-                m.className   = 'ei-meta';
-                m.textContent = [e.job, e.department, e.code ? '&#x643;&#x648;&#x62F;: ' + e.code : ''].filter(Boolean).join(' · ');
-                d.appendChild(n);
-                d.appendChild(m);
-                d.addEventListener('click', function() {
-                  selectEmp(this.getAttribute('data-id'), this.getAttribute('data-name'));
-                });
-                empList.appendChild(d);
-              });
+        btnLogin.addEventListener('click', doLogin);
+        pinInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { doLogin(); }
+        });
+
+        function doLogin() {
+          var code = codeInput.value.trim();
+          var pin  = pinInput.value.trim();
+          loginErr.style.display = 'none';
+
+          if (!code || !pin) {
+            loginErr.textContent = t('fillBoth');
+            loginErr.style.display = 'block';
+            return;
+          }
+
+          btnLogin.disabled = true;
+          btnLogin.innerHTML = '<span class="spinner"></span> ' + t('processing');
+
+          ajax('/drivers/attendance/login', {code: code, pin: pin}, function(res) {
+            btnLogin.disabled  = false;
+            btnLogin.innerHTML = '<span id="btnLoginText">' + t('login') + '</span>';
+
+            if (res.error) {
+              loginErr.textContent = res.error;
+              loginErr.style.display = 'block';
+              pinInput.value = '';
+              pinInput.focus();
+              return;
             }
-            empList.style.display = 'block';
+
+            currentCode = code;
+            currentPin  = pin;
+
+            wName.textContent = res.employee_name;
+            wCode.textContent = res.employee_code ? ('#' + res.employee_code) : '';
+
+            loginScreen.style.display   = 'none';
+            welcomeScreen.style.display = 'block';
+
+            getGPS();
+            loadStatus();
           });
         }
 
-        // ── Select Employee ──────────────────────────────────
-        function selectEmp(id, name) {
-          empList.style.display  = 'none';
-          searchBox.value        = name;
-          searchBox.disabled     = true;
-          emp = {id: parseInt(id), name: name};
-
-          // Reset UI
-          result.style.display   = 'none';
-          mapsBtn.style.display  = 'none';
-          btnIn.style.display    = 'none';
-          btnOut.style.display   = 'none';
-          ciRow.style.display    = 'none';
-          gpsRow.className       = 'gps-row';
-          gpsRow.textContent     = '&#x1F4E1; &#x62C;&#x627;&#x631; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;...';
-
-          ecName.textContent     = name;
-          ecStatus.textContent   = '&#x62C;&#x627;&#x631; &#x627;&#x644;&#x62A;&#x62D;&#x642;&#x642;...';
-          ecStatus.className     = 'ec-status';
-          empCard.style.display  = 'block';
-          resetBtn.style.display = 'block';
-
-          ajax('/drivers/attendance/status', {employee_id: emp.id, tz_name: getTz()}, function(res) {
-            if (res.error) { ecStatus.textContent = res.error; return; }
-
+        function loadStatus() {
+          ajax('/drivers/attendance/status', {code: currentCode, pin: currentPin, tz_name: getTz()}, function(res) {
+            if (res.error) { statusVal.textContent = res.error; return; }
             if (res.is_checked_in) {
-              ecStatus.textContent = '&#x1F7E2; &#x645;&#x633;&#x62C;&#x651;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;';
-              ecStatus.className   = 'ec-status in';
+              statusVal.textContent = t('in');
+              statusVal.className   = 'status-val in';
               if (res.check_in_full) {
                 ciVal.textContent   = res.check_in_full;
-                ciRow.style.display = 'flex';
+                ciRow.style.display = 'block';
               }
               btnOut.style.display = 'block';
+              btnIn.style.display  = 'none';
             } else {
-              ecStatus.textContent = '&#x1F534; &#x644;&#x645; &#x64A;&#x633;&#x62C;&#x651;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;';
-              ecStatus.className   = 'ec-status out';
-              btnIn.style.display  = 'block';
+              statusVal.textContent = t('out');
+              statusVal.className   = 'status-val out';
+              btnIn.style.display   = 'block';
+              btnOut.style.display  = 'none';
             }
-            getGPS();
           });
         }
 
-        // ── GPS ─────────────────────────────────────────────
         function getGPS() {
           if (!navigator.geolocation) {
-            gpsRow.className   = 'gps-row err';
-            gpsRow.textContent = '&#x26A0;&#xFE0F; GPS &#x63A;&#x64A;&#x631; &#x645;&#x62A;&#x627;&#x62D; &#x641;&#x64A; &#x647;&#x630;&#x627; &#x627;&#x644;&#x645;&#x62A;&#x635;&#x641;&#x62D;';
+            setGps('err', t('gpsNotSupported'));
             return;
           }
           navigator.geolocation.getCurrentPosition(
             function(pos) {
               gps = {lat: pos.coords.latitude, lng: pos.coords.longitude};
-              gpsRow.className   = 'gps-row ok';
-              gpsRow.textContent = '&#x1F4CD; ' + gps.lat.toFixed(5) + ', ' + gps.lng.toFixed(5);
+              setGps('ok', '&#x1F4CD; ' + gps.lat.toFixed(5) + ', ' + gps.lng.toFixed(5));
             },
-            function() {
-              gpsRow.className   = 'gps-row err';
-              gpsRow.textContent = '&#x26A0;&#xFE0F; &#x644;&#x627; &#x64A;&#x645;&#x643;&#x646; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;';
-            },
+            function() { setGps('err', t('gpsErr')); },
             {enableHighAccuracy: true, timeout: 10000}
           );
         }
 
-        // ── Check In / Out ───────────────────────────────────
+        function setGps(cls, txt) {
+          gpsRow.className = 'gps-row ' + cls;
+          gpsRow.innerHTML = txt;
+        }
+
         btnIn.addEventListener('click',  function() { doAction('checkin');  });
         btnOut.addEventListener('click', function() { doAction('checkout'); });
 
         function doAction(action) {
           var btn = action === 'checkin' ? btnIn : btnOut;
-          btn.disabled    = true;
-          btn.innerHTML   = '&#x231B; &#x62C;&#x627;&#x631; &#x627;&#x644;&#x645;&#x639;&#x627;&#x644;&#x62C;&#x629;... <span class="spinner"></span>';
+          btn.disabled  = true;
+          btn.innerHTML = '<span class="spinner"></span> ' + t('processing');
           result.style.display = 'none';
 
           var now = new Date();
@@ -500,7 +363,8 @@
                     pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
 
           ajax('/drivers/attendance/'+action, {
-            employee_id    : emp.id,
+            code           : currentCode,
+            pin            : currentPin,
             latitude       : gps ? gps.lat : null,
             longitude      : gps ? gps.lng : null,
             location_label : gps ? gps.lat.toFixed(7)+','+gps.lng.toFixed(7) : '',
@@ -509,36 +373,31 @@
             tz_offset      : -now.getTimezoneOffset()
           }, function(res) {
             btn.disabled = false;
-            btn.textContent = action === 'checkin'
-              ? '&#x2705; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;'
-              : '&#x1F3C1; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x627;&#x646;&#x635;&#x631;&#x627;&#x641;';
+            btn.innerHTML = action === 'checkin'
+              ? '<span id="btnInText">' + t('checkin') + '</span>'
+              : '<span id="btnOutText">' + t('checkout') + '</span>';
 
             if (res.error) {
-              showResult(false, res.error, null);
+              showResult('err', res.error, '', '&#x274C;');
               return;
             }
 
-            // Build result rows
             var rows = '';
-            rows += makeRow('&#x1F4C5; &#x627;&#x644;&#x62A;&#x627;&#x631;&#x64A;&#x62E;', res.local_date || '');
-            rows += makeRow('&#x1F552; &#x627;&#x644;&#x648;&#x642;&#x62A;',    res.local_time || '');
+            rows += mkRow(t('date'), res.local_date || '');
+            rows += mkRow(t('time'), res.local_time || '');
             if (res.worked_hours) {
-              rows += makeRow('&#x23F1; &#x633;&#x627;&#x639;&#x627;&#x62A; &#x627;&#x644;&#x639;&#x645;&#x644;',
-                '<span class="worked-big">' + res.worked_hours + '</span>');
+              rows += mkRow(t('worked'), '<span class="worked-big">' + res.worked_hours + '</span>');
             }
             if (gps) {
-              rows += makeRow('&#x1F4CD; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;',
-                gps.lat.toFixed(5) + ', ' + gps.lng.toFixed(5));
+              rows += mkRow(t('location'), gps.lat.toFixed(5) + ', ' + gps.lng.toFixed(5));
             }
 
             var icon = action === 'checkin' ? '&#x1F7E2;' : '&#x1F3C1;';
-            var msg  = action === 'checkin'
-              ? '&#x62A;&#x645; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631; &#x628;&#x646;&#x62C;&#x627;&#x62D;'
-              : '&#x62A;&#x645; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x627;&#x646;&#x635;&#x631;&#x627;&#x641; &#x628;&#x646;&#x62C;&#x627;&#x62D;';
+            showResult('ok', res.message, rows, icon);
 
-            showResult(true, msg, rows, icon);
             btnIn.style.display  = 'none';
             btnOut.style.display = 'none';
+            ciRow.style.display  = 'none';
 
             if (gps) {
               mapsBtn.href          = 'https://www.google.com/maps?q='+gps.lat+','+gps.lng;
@@ -547,34 +406,33 @@
           });
         }
 
-        function makeRow(label, value) {
+        function mkRow(label, value) {
           return '<div class="info-row"><span class="ir-label">'+label+'</span><span class="ir-value">'+value+'</span></div>';
         }
 
-        function showResult(ok, msg, rows, icon) {
-          result.className    = 'result ' + (ok ? 'ok' : 'err');
-          rIcon.innerHTML     = icon || (ok ? '&#x2705;' : '&#x274C;');
-          rMsg.textContent    = msg;
-          rRows.innerHTML     = rows || '';
+        function showResult(type, msg, rows, icon) {
+          result.className     = 'result ' + type;
+          rIcon.innerHTML      = icon || '';
+          rMsg.textContent     = msg;
+          rRows.innerHTML      = rows || '';
           result.style.display = 'block';
         }
 
-        // ── Reset ────────────────────────────────────────────
-        resetBtn.addEventListener('click', function() {
-          emp = null; gps = null;
-          searchBox.value        = '';
-          searchBox.disabled     = false;
-          empCard.style.display  = 'none';
-          btnIn.style.display    = 'none';
-          btnOut.style.display   = 'none';
-          result.style.display   = 'none';
-          mapsBtn.style.display  = 'none';
-          resetBtn.style.display = 'none';
-          empList.style.display  = 'none';
-          searchBox.focus();
+        logoutBtn.addEventListener('click', function() {
+          currentCode = null;
+          currentPin  = null;
+          gps         = null;
+          codeInput.value = '';
+          pinInput.value  = '';
+          loginErr.style.display      = 'none';
+          welcomeScreen.style.display = 'none';
+          loginScreen.style.display   = 'block';
+          result.style.display        = 'none';
+          mapsBtn.style.display       = 'none';
+          ciRow.style.display         = 'none';
+          codeInput.focus();
         });
 
-        // ── Helpers ──────────────────────────────────────────
         function getTz() {
           try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(e) { return 'UTC'; }
         }
@@ -590,8 +448,6 @@
           xhr.onerror = function() { cb({error:'Network error'}); };
           xhr.send(JSON.stringify({jsonrpc:'2.0',method:'call',params:params}));
         }
-
-        window.addEventListener('load', function() { searchBox.focus(); });
       </script>
 
     </t>

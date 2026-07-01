@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_x_details_user,x_details,model_x_details,base.group_user,1,1,1,1
-access_x_stuff_user,x_stuff,model_x_stuff,base.group_user,1,1,1,1
-access_x_deals_user,x_deals,model_x_deals,base.group_user,1,1,1,1
-access_type_user,type,model_type,base.group_user,1,1,1,1
