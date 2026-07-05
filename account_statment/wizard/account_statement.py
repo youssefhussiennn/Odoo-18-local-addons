@@ -466,6 +466,7 @@ class AccountStatementWizard(models.TransientModel):
             ('المتأخر', 15, 'char', 'char'),
             ('شيكات ضمان', 15, 'char', 'char'),
             ('شيكات تحت التحصيل', 15, 'char', 'char'),
+            ('رصيد غير مغطي', 15, 'char', 'char'),
         ]
 
         fp = BytesIO()
@@ -580,7 +581,9 @@ class AccountStatementWizard(models.TransientModel):
                     worksheet.write(row - 1, 11, total_safty_check, wbf['content'])
 
                     #total collection checks for partner
-                    total_collection_check = abs(sum(all_record_of_salesperson.filtered(lambda x:x.partner_id == partner and x.account_id.is_collection_account == True).mapped(lambda x:x.debit - x.credit)))
+                    total_collection_check = abs(sum(all_record_of_salesperson.filtered(
+                        lambda x: x.partner_id == partner and x.account_id.is_collection_account == True).mapped(
+                        lambda x: x.debit - x.credit)))
                     worksheet.write(row - 1, 12, total_collection_check, wbf['content'])
 
                     # total refund for each partner
@@ -621,7 +624,9 @@ class AccountStatementWizard(models.TransientModel):
                     total_over_due_amount = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_invoice', 'in_refund'] and x.move_id.payment_state in ['not_paid', 'partial', 'in_payment'] and str(x.move_id.invoice_date_due) < datetime.datetime.today().strftime('%Y-%m-%d')).mapped(lambda x:x.move_id.amount_residual)))
                     worksheet.write(row - 1, 10, total_over_due_amount, wbf['content'])
 
-                    
+                    # رصيد غير مغطي = صافي رصيد العميل - (شيكات ضمان + شيكات تحت التحصيل)
+                    uncovered_balance = total_balance - (total_safty_check + total_collection_check)
+                    worksheet.write(row - 1, 13, uncovered_balance, wbf['content'])
 
                     row += 1
 
@@ -698,6 +703,13 @@ class AccountStatementWizard(models.TransientModel):
 
                 worksheet.write(row - 1, 0, 'شيكات تحت التحصيل', wbf['header_orange'])
                 worksheet.write(row - 1, 1, salesperson_total_collection_check, wbf['content'])
+                row += 1
+
+                # رصيد غير مغطي total
+                salesperson_uncovered_balance = salesperson_total_balance - (
+                            salesperson_total_safty_check + salesperson_total_collection_check)
+                worksheet.write(row - 1, 0, 'رصيد غير مغطي', wbf['header_orange'])
+                worksheet.write(row - 1, 1, salesperson_uncovered_balance, wbf['content'])
                 row += 5
 
                 
@@ -965,8 +977,7 @@ class AccountStatementWizard(models.TransientModel):
 
                     row += 1
 
-
-                worksheet.merge_range('A'+str(row+1)+':L'+str(row+1), 'الاجمالي', wbf['header_orange'])
+                worksheet.merge_range('A' + str(row + 1) + ':N' + str(row + 1), 'الاجمالي', wbf['header_orange'])
                 # print(salesperson_total_safty_check)
                 # print(salesperson_total_collection_check)
                 row += 2
@@ -983,18 +994,18 @@ class AccountStatementWizard(models.TransientModel):
         workbook.close()
 
         return fp.getvalue()
-    
+
     def action_generate_xlsx(self):
- 
+
         import io
         import base64
         import xlsxwriter
- 
+
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
         sheet = workbook.add_worksheet("Statement")
- 
-        # ── Formats ────────────────────────────────────────────────────────────
+
+        # ── Formats ──────────────────────────────────────────────────────────
         header_fmt = workbook.add_format({
             'bold': True, 'border': 1,
             'align': 'center', 'valign': 'vcenter',
@@ -1017,60 +1028,81 @@ class AccountStatementWizard(models.TransientModel):
             'num_format': '#,##0.00', 'bg_color': '#F2F2F2',
             'font_name': 'Arial',
         })
- 
-        # ── Column widths ───────────────────────────────────────────────────────
-        col_widths = [12, 18, 20, 25, 8, 12, 14, 14, 14, 12]
+        safty_fmt = workbook.add_format({
+            'bold': True, 'border': 1, 'align': 'right',
+            'num_format': '#,##0.00', 'bg_color': '#FFF3CD',
+            'font_name': 'Arial',
+        })
+
+        # ── Column widths ─────────────────────────────────────────────────────
+        col_widths = [12, 18, 20, 25, 8, 12, 14, 14, 14, 12, 16, 16]
         for i, w in enumerate(col_widths):
             sheet.set_column(i, i, w)
- 
-        # ── Source domain (same as PDF) ─────────────────────────────────────────
+
+        # ── Source domain ─────────────────────────────────────────────────────
         domain = self._date_domain()
         if self.partner_id:
-            domain.append(('partner_id', '=', self.partner_id.id))
- 
+            domain += [
+                ('partner_id', '=', self.partner_id.id),
+                '|', '|', '|',
+                ('account_id.account_type', 'in', ('liability_payable', 'asset_receivable')),
+                ('account_id.is_safty_account', '=', True),
+                ('account_id.is_collection_account', '=', True),
+                ('account_id.customer_allowed_discount', '=', True),
+                ('parent_state', '=', 'posted'),
+            ]
+        else:
+            if self.team_id and not self.user_ids:
+                domain += [
+                    ('partner_id.team_id', '=', self.team_id.id),
+                    '|', '|', '|',
+                    ('account_id.account_type', 'in', ('liability_payable', 'asset_receivable')),
+                    ('account_id.is_safty_account', '=', True),
+                    ('account_id.is_collection_account', '=', True),
+                    ('account_id.customer_allowed_discount', '=', True),
+                    ('parent_state', '=', 'posted'),
+                ]
+            else:
+                domain += [
+                    ('partner_id.user_id.id', 'in', self.user_ids.ids),
+                    '|', '|', '|',
+                    ('account_id.account_type', 'in', ('liability_payable', 'asset_receivable')),
+                    ('account_id.is_safty_account', '=', True),
+                    ('account_id.is_collection_account', '=', True),
+                    ('account_id.customer_allowed_discount', '=', True),
+                    ('parent_state', '=', 'posted'),
+                ]
+
         lines = self.env['account.move.line'].search(domain)
         partners = lines.mapped('partner_id')
- 
+
         row = 0
- 
+
         for partner in partners:
- 
-            # ── Partner lines sorted by date (same as PDF) ──────────────────────
+
             partner_lines = lines.filtered(
                 lambda l: l.partner_id.id == partner.id
             ).sorted(key=lambda l: l.date)
- 
+
             if not partner_lines:
                 continue
- 
-            # ── Partner header ───────────────────────────────────────────────────
-            sheet.merge_range(row, 0, row, 9, partner.name, header_fmt)
+
+            # ── Partner header ────────────────────────────────────────────────
+            sheet.merge_range(row, 0, row, 11, partner.name, header_fmt)
             row += 1
- 
-            # Column headers (RTL labels matching PDF)
+
+            # ── Column headers ────────────────────────────────────────────────
             headers = [
-                "تاريخ", "مستند", "بيان",
-                "الصنف", "كمية", "سعر",
-                "مدين", "دائن", "رصيد", "ضريبه"
+                'تاريخ', 'مستند', 'بيان', 'الصنف',
+                'كمية', 'سعر', 'مدين', 'دائن',
+                'رصيد', 'ضريبه', 'شيكات الضمان', 'شيكات تحت التحصيل'
             ]
             for col, h in enumerate(headers):
                 sheet.write(row, col, h, header_fmt)
             row += 1
- 
-            # ── Initial balance (mirrors PDF exactly) ────────────────────────────
-            # Use the wizard's date_from as the cutoff — everything before it
-            # belongs in the opening balance. Using partner_lines[0].date was
-            # wrong because that's just the first transaction in the filtered
-            # set, not the report start date.
+
+            # ── Opening balance ───────────────────────────────────────────────
             first_date = self.date_start
-            currency   = partner_lines[0].currency_id
- 
-            # get_initial_balance uses amount_currency for non-EGP partners,
-            # but the 2 prior lines (invoice + payment) cancel each other out
-            # in amount_currency. The PDF shows 2500 because the opening balance
-            # displayed is debit - credit (the net receivable position).
-            # We call it both ways and use whichever is non-zero, falling back
-            # to debit - credit which reflects the true receivable balance.
             _prior_lines = self.env['account.move.line'].sudo().search([
                 ('date', '<', first_date),
                 ('partner_id', '=', partner.id),
@@ -1078,269 +1110,256 @@ class AccountStatementWizard(models.TransientModel):
                 ('parent_state', '=', 'posted'),
             ])
             total_initial_balance = sum(_prior_lines.mapped(lambda l: l.debit - l.credit))
- 
-            # PDF: total_initial_balance + abs(sum(data.filtered(
-            #          lambda x: x.move_id.is_opening_balance).mapped(
-            #          lambda x: x.debit - x.credit)))
-            # No date filter — takes ALL is_opening_balance lines in partner_lines.
             opening_sum = abs(sum(
                 x.debit - x.credit
                 for x in partner_lines.filtered(lambda x: x.move_id.is_opening_balance)
             ))
- 
             total_initial_balance = round(total_initial_balance + opening_sum, 2)
             balance = total_initial_balance
- 
-            import logging
-            _logger = logging.getLogger(__name__)
-            _logger.warning("=== EXCEL OPENING BALANCE DEBUG ===")
-            _logger.warning("partner        : %s (id=%s)", partner.name, partner.id)
-            _logger.warning("date_start     : %s", self.date_start)
-            _logger.warning("first_date     : %s", first_date)
-            _logger.warning("currency       : %s", currency.name if currency else 'EMPTY')
-            _prior = self.env['account.move.line'].sudo().search([
-                ('date', '<', first_date),
-                ('partner_id', '=', partner.id),
-                ('account_id.account_type', 'in', ('asset_receivable', 'liability_payable')),
-                ('parent_state', '=', 'posted'),
-            ])
-            _logger.warning("prior_lines cnt: %s", len(_prior))
-            for _l in _prior:
-                _logger.warning(
-                    "  line id=%s | date=%s | move=%s | debit=%s | credit=%s | amount_currency=%s | account=%s | account_type=%s",
-                    _l.id, _l.date, _l.move_id.name, _l.debit, _l.credit, _l.amount_currency,
-                    _l.account_id.name, _l.account_id.account_type,
-                )
-            _logger.warning("opening_sum    : %s", opening_sum)
-            _logger.warning("final balance  : %s", total_initial_balance)
-            _logger.warning("===================================")
- 
-            sheet.merge_range(row, 0, row, 7, "رصيد افتتاحي", cell_fmt)
+
+            sheet.merge_range(row, 0, row, 7, 'رصيد افتتاحي', cell_fmt)
             sheet.write(row, 8, total_initial_balance, money_fmt)
+            sheet.write(row, 9, '', cell_fmt)
+            sheet.write(row, 10, '', cell_fmt)
+            sheet.write(row, 11, '', cell_fmt)
             row += 1
- 
-            # ── Running totals (mirrors every PDF variable) ──────────────────────
-            old_invoices                   = []
-            old_entries                    = []   # dedup journal entry move_ids
-            total_debit                    = 0
-            total_credit                   = 0
-            total_sales_before_discount    = 0
-            total_sales_after_discount     = 0
-            total_refund                   = 0
-            total_payment                  = 0
-            total_customer_allowed_discount= 0
-            total_safty_checks             = 0
-            total_collection_checks        = 0
-            total_discount                 = 0
-            purchase_total_discount        = 0
- 
-            # ── Main loop ────────────────────────────────────────────────────────
+
+            # ── Running totals ────────────────────────────────────────────────
+            old_invoices = []
+            old_entries = []
+            total_debit = 0
+            total_credit = 0
+            total_sales_before_discount = 0
+            total_sales_after_discount = 0
+            total_refund = 0
+            total_payment = 0
+            total_customer_allowed_discount = 0
+            total_safty_checks = 0
+            total_collection_checks = 0
+            total_discount = 0
+            purchase_total_discount = 0
+
+            # ── Main loop ─────────────────────────────────────────────────────
             for line in partner_lines:
- 
-                use_currency = bool(line.partner_id.property_purchase_currency_id)
- 
-                # ── 1. customer_allowed_discount: accumulate then skip ───────────
+
+                # 1. Customer allowed discount
                 if line.account_id.customer_allowed_discount:
                     total_customer_allowed_discount = round(
                         total_customer_allowed_discount - line.credit + line.debit, 2
                     )
                     continue
- 
-                # ── 2. safety account: accumulate then skip ──────────────────────
+
+                # 2. Safety cheque — show as its own row in شيكات الضمان column
                 if line.account_id.is_safty_account:
-                    total_safty_checks = round(
-                        total_safty_checks - line.credit + line.debit, 2
-                    )
-                    continue
- 
-                # ── 3. collection account: accumulate then skip ──────────────────
-                if line.account_id.is_collection_account:
-                    total_collection_checks = round(
-                        total_collection_checks - line.credit + line.debit, 2
-                    )
-                    continue
- 
-                # ── 4. customer discount journal entry: skip entirely ─────────────
-                if line.move_id.is_customer_discount:
-                    continue
- 
-                # ── 5. opening balance lines: already handled above ───────────────
-                if line.move_id.is_opening_balance:
-                    continue
- 
-                # ── 6. Journal ENTRY block (PDF "entry" branch) ──────────────────
-                if line.move_id.move_type == 'entry':
- 
-                    # Only process the partner-facing line (receivable/payable account).
-                    # The PDF template receives each line individually but only one line
-                    # per move reaches the display branch because the receivable line is
-                    # the one linked to the partner. We deduplicate by move_id here.
-                    if line.move_id.id in old_entries:
-                        continue
- 
-                    # Only handle the line that belongs to a receivable/payable account
-                    # (account type = 'asset_receivable' or 'liability_payable').
-                    # This filters out the bank/cash counterpart line.
-                    if line.account_id.account_type not in (
-                        'asset_receivable', 'liability_payable'
-                    ):
-                        continue
- 
-                    old_entries.append(line.move_id.id)
- 
-                    debit  = line.debit  or 0
-                    credit = line.credit or 0
- 
-                    if use_currency:
-                        balance      = round(balance + line.amount_currency, 2)
-                        total_credit = round(total_credit + abs(line.amount_currency), 2)
-                        # PDF writes debit col as amount_currency when > 0
-                        disp_debit  = line.amount_currency if debit  != 0 else 0
-                        disp_credit = abs(line.amount_currency) if credit != 0 else 0
-                    else:
-                        balance      = round(balance - credit + debit, 2)
-                        total_credit = round(total_credit + credit, 2)
-                        disp_debit   = debit
-                        disp_credit  = credit
- 
-                    # total_payment (non-general journals only)
-                    if line.journal_id.type != 'general':
-                        if use_currency:
-                            total_payment = round(total_payment + line.amount_currency, 2)
-                        else:
-                            total_payment = round(total_payment + (credit - debit), 2)
- 
-                    desc = (
-                        "شيك"        if line.journal_id.type == 'bank'
-                        else "قيود عامة" if line.journal_id.type == 'general'
-                        else "سداد نقدي"
-                    )
- 
-                    sheet.write(row, 0, str(line.date),        cell_fmt)
+                    line_safty_amount = round(abs(line.debit - line.credit), 2)
+                    total_safty_checks = round(total_safty_checks + line_safty_amount, 2)
+                    sheet.write(row, 0, str(line.date), cell_fmt)
                     sheet.write(row, 1, line.move_id.name or '', cell_fmt)
-                    sheet.write(row, 2, desc,                   cell_fmt)
-                    sheet.write(row, 3, line.name or '',         cell_fmt)
-                    sheet.write(row, 4, 0,                       cell_fmt)
-                    sheet.write(row, 5, 0,                       cell_fmt)
-                    sheet.write(row, 6, disp_debit  if disp_debit  else '', money_fmt)
-                    sheet.write(row, 7, disp_credit if disp_credit else '', money_fmt)
-                    sheet.write(row, 8, balance,                 money_fmt)
-                    sheet.write(row, 9, '',                      cell_fmt)
+                    sheet.write(row, 2, 'شيك ضمان', cell_fmt)
+                    sheet.write(row, 3, line.name or '', cell_fmt)
+                    sheet.write(row, 4, '', cell_fmt)
+                    sheet.write(row, 5, '', cell_fmt)
+                    sheet.write(row, 6, '', cell_fmt)
+                    sheet.write(row, 7, '', cell_fmt)
+                    sheet.write(row, 8, '', cell_fmt)
+                    sheet.write(row, 9, '', cell_fmt)
+                    sheet.write(row, 10, line_safty_amount, safty_fmt)
                     row += 1
                     continue
- 
-                # ── 7. Invoice / refund block (PDF invoice branch) ────────────────
+
+                # 3. Collection cheque
+                # 3. Collection cheque — show as its own row in شيكات تحت التحصيل column
+                if line.account_id.is_collection_account:
+                    line_collection_amount = round(abs(line.debit - line.credit), 2)
+                    total_collection_checks = round(total_collection_checks + line_collection_amount, 2)
+                    sheet.write(row, 0, str(line.date), cell_fmt)
+                    sheet.write(row, 1, line.move_id.name or '', cell_fmt)
+                    sheet.write(row, 2, 'شيك تحت التحصيل', cell_fmt)
+                    sheet.write(row, 3, line.name or '', cell_fmt)
+                    sheet.write(row, 4, '', cell_fmt)
+                    sheet.write(row, 5, '', cell_fmt)
+                    sheet.write(row, 6, '', cell_fmt)
+                    sheet.write(row, 7, '', cell_fmt)
+                    sheet.write(row, 8, '', cell_fmt)
+                    sheet.write(row, 9, '', cell_fmt)
+                    sheet.write(row, 10, '', cell_fmt)
+                    sheet.write(row, 11, line_collection_amount, safty_fmt)
+                    row += 1
+                    continue
+
+                # 4. Customer discount entry
+                if line.move_id.is_customer_discount:
+                    continue
+
+                # 5. Opening balance
+                if line.move_id.is_opening_balance:
+                    continue
+
+                # 6. Journal Entry (payment)
+                if line.move_id.move_type == 'entry':
+                    if line.move_id.id in old_entries:
+                        continue
+                    if line.account_id.account_type not in (
+                            'asset_receivable', 'liability_payable'
+                    ):
+                        continue
+                    old_entries.append(line.move_id.id)
+
+                    debit = line.debit or 0
+                    credit = line.credit or 0
+                    balance = round(balance - credit + debit, 2)
+                    total_credit = round(total_credit + credit, 2)
+                    disp_debit = debit
+                    disp_credit = credit
+
+                    if line.journal_id.type != 'general':
+                        total_payment = round(total_payment + (credit - debit), 2)
+
+                    desc = (
+                        'شيك' if line.journal_id.type == 'bank'
+                        else 'قيود عامة' if line.journal_id.type == 'general'
+                        else 'سداد نقدي'
+                    )
+
+                    sheet.write(row, 0, str(line.date), cell_fmt)
+                    sheet.write(row, 1, line.move_id.name or '', cell_fmt)
+                    sheet.write(row, 2, desc, cell_fmt)
+                    sheet.write(row, 3, line.name or '', cell_fmt)
+                    sheet.write(row, 4, 0, cell_fmt)
+                    sheet.write(row, 5, 0, cell_fmt)
+                    sheet.write(row, 6, disp_debit or '', money_fmt)
+                    sheet.write(row, 7, disp_credit or '', money_fmt)
+                    sheet.write(row, 8, balance, money_fmt)
+                    sheet.write(row, 9, '', cell_fmt)
+                    sheet.write(row, 10, '', cell_fmt)
+                    sheet.write(row, 11, '', cell_fmt)
+                    row += 1
+                    continue
+
+
+                # 7. Invoice / Refund
                 if (
-                    line.move_id.invoice_line_ids
-                    and line.move_id.move_type in ('out_refund', 'in_refund', 'out_invoice', 'in_invoice')
-                    and not line.move_id.is_customer_discount
-                    and line.move_id.name not in old_invoices
+                        line.move_id.invoice_line_ids
+                        and line.move_id.move_type in ('out_refund', 'in_refund', 'out_invoice', 'in_invoice')
+                        and not line.move_id.is_customer_discount
+                        and line.move_id.name not in old_invoices
                 ):
                     old_invoices.append(line.move_id.name)
- 
+
                     for inv in line.move_id.invoice_line_ids:
- 
                         tax_total = round(inv.x_studio_taxed_amount or 0, 2)
- 
                         price = round(
                             inv.price_unit - ((inv.price_unit * (inv.discount or 0)) / 100), 2
                         )
                         qty = round(inv.quantity, 2)
- 
-                        # Discount accumulation (mirrors PDF)
+
                         if (inv.discount or 0) > 0:
                             disc_amt = inv.price_unit * ((inv.discount or 0) / 100.0) * inv.quantity
                             if line.move_id.move_type == 'out_invoice':
                                 total_discount = round(total_discount + disc_amt, 2)
                             elif line.move_id.move_type == 'in_invoice':
                                 purchase_total_discount = round(purchase_total_discount + disc_amt, 2)
- 
-                        # Debit / credit display (mirrors PDF cells)
+
                         if line.move_id.move_type not in ('out_refund', 'in_invoice'):
-                            disp_debit  = round(abs(inv.price_total), 2)
+                            disp_debit = round(abs(inv.price_total), 2)
                             disp_credit = 0
                         else:
-                            disp_debit  = 0
+                            disp_debit = 0
                             disp_credit = round(inv.price_subtotal + tax_total, 2)
- 
-                        # Balance + running totals (mirrors PDF exactly)
+
                         if line.move_id.move_type not in ('out_refund', 'in_invoice'):
-                            balance     = round(balance + inv.price_subtotal + tax_total, 2)
+                            balance = round(balance + inv.price_subtotal + tax_total, 2)
                             total_debit = round(total_debit + inv.price_subtotal + tax_total, 2)
                         else:
-                            balance      = round(balance - inv.price_subtotal - tax_total, 2)
+                            balance = round(balance - inv.price_subtotal - tax_total, 2)
                             total_credit = round(total_credit + inv.price_subtotal + tax_total, 2)
- 
+
                         if line.move_id.move_type == 'out_refund':
                             total_refund = round(total_refund + inv.price_subtotal + tax_total, 2)
- 
-                        if line.move_id.move_type == 'in_invoice':
-                            pass  # total_purchase tracked if needed
- 
                         if line.move_id.move_type == 'out_invoice':
-                            total_sales_after_discount  = round(total_sales_after_discount  + inv.price_subtotal, 2)
-                            total_sales_before_discount = round(total_sales_before_discount + (inv.quantity * inv.price_unit), 2)
- 
+                            total_sales_after_discount = round(total_sales_after_discount + inv.price_subtotal, 2)
+                            total_sales_before_discount = round(
+                                total_sales_before_discount + (inv.quantity * inv.price_unit), 2)
+
                         desc = (
-                            "مرتجع"           if line.move_id.move_type in ('out_refund', 'in_refund')
-                            else "فاتورة مشتريات" if line.move_id.move_type == 'in_invoice'
-                            else "فاتورة مبيعات"
+                            'مرتجع' if line.move_id.move_type in ('out_refund', 'in_refund')
+                            else 'فاتورة مشتريات' if line.move_id.move_type == 'in_invoice'
+                            else 'فاتورة مبيعات'
                         )
- 
-                        sheet.write(row, 0, str(inv.date),           cell_fmt)
-                        sheet.write(row, 1, line.move_id.name or '',  cell_fmt)
-                        sheet.write(row, 2, desc,                      cell_fmt)
-                        sheet.write(row, 3, inv.name or '',            cell_fmt)
-                        sheet.write(row, 4, qty,                       cell_fmt)
-                        sheet.write(row, 5, price,                     money_fmt)
-                        sheet.write(row, 6, disp_debit  or '',         money_fmt)
-                        sheet.write(row, 7, disp_credit or '',         money_fmt)
-                        sheet.write(row, 8, balance,                   money_fmt)
-                        sheet.write(row, 9, tax_total   or '',         money_fmt)
+
+                        sheet.write(row, 0, str(inv.date), cell_fmt)
+                        sheet.write(row, 1, line.move_id.name or '', cell_fmt)
+                        sheet.write(row, 2, desc, cell_fmt)
+                        sheet.write(row, 3, inv.name or '', cell_fmt)
+                        sheet.write(row, 4, qty, cell_fmt)
+                        sheet.write(row, 5, price, money_fmt)
+                        sheet.write(row, 6, disp_debit or '', money_fmt)
+                        sheet.write(row, 7, disp_credit or '', money_fmt)
+                        sheet.write(row, 8, balance, money_fmt)
+                        sheet.write(row, 9, tax_total or '', money_fmt)
+                        sheet.write(row, 10, '', cell_fmt)
+                        sheet.write(row, 11, '', cell_fmt)
                         row += 1
- 
-            # ── Footer totals (mirrors PDF summary rows exactly) ─────────────────
+                        continue
+
+            # ── Footer ────────────────────────────────────────────────────────
             row += 1
- 
-            net_sales = round(total_sales_after_discount - total_customer_allowed_discount, 2)
- 
+            net_sales = round(total_sales_before_discount - total_refund, 2)
+
             footer_rows = [
-                ("الرصيد — مدين / دائن",  None,        total_debit,                      total_credit),
-                ("اجمالي مبيعات",          None,        None,                             total_sales_before_discount),
-                ("اجمالي الخصم",           None,        None,                             total_customer_allowed_discount),
-                ("اجمالي مرتجعات",         None,        None,                             total_refund),
-                ("صافي مبيعات",            None,        None,                             net_sales),
-                ("اجمالي سداد",            None,        None,                             abs(total_payment)),
-                ("الرصيد النهائي",         None,        None,                             balance),
+                ('الرصيد — مدين / دائن', total_debit, total_credit),
+                ('اجمالي مبيعات', None, total_sales_before_discount),
+                ('اجمالي الخصم', None, total_customer_allowed_discount),
+                ('اجمالي مرتجعات', None, total_refund),
+                ('صافي مبيعات', None, net_sales),
+                ('اجمالي سداد', None, abs(total_payment)),
+                ('الرصيد النهائي', None, balance),
             ]
- 
-            for label, _, val_left, val_right in footer_rows:
+
+            for label, val_left, val_right in footer_rows:
                 sheet.merge_range(row, 0, row, 6, label, footer_label_fmt)
                 if val_left is not None:
-                    sheet.write(row, 7, val_left,  footer_val_fmt)
+                    sheet.write(row, 7, val_left, footer_val_fmt)
                 else:
-                    sheet.write(row, 7, '',        footer_label_fmt)
+                    sheet.write(row, 7, '', footer_label_fmt)
                 sheet.write(row, 8, val_right, footer_val_fmt)
-                sheet.write(row, 9, '',        footer_label_fmt)
+                sheet.write(row, 9, '', footer_label_fmt)
+                sheet.write(row, 10, '', footer_label_fmt)
+                sheet.write(row, 11, '', footer_label_fmt)
                 row += 1
- 
-            # Special row: الرصيد shows debit in col 7, credit in col 8, balance in col 9
-            # already written above; add a blank separator before next partner
+
+            # اجمالي شيكات الضمان
+            sheet.merge_range(row, 0, row, 10, 'اجمالي شيكات الضمان', footer_label_fmt)
+            sheet.write(row, 11, abs(total_safty_checks), safty_fmt)
+            row += 1
+
+            # اجمالي شيكات تحت التحصيل
+            sheet.merge_range(row, 0, row, 10, 'اجمالي شيكات تحت التحصيل', footer_label_fmt)
+            sheet.write(row, 11, abs(total_collection_checks), safty_fmt)
+            row += 1
+
+            # اجمالي الشيكات
+            total_all_cheques = abs(total_safty_checks) + abs(total_collection_checks)
+            sheet.merge_range(row, 0, row, 9, 'اجمالي الشيكات', footer_label_fmt)
+            sheet.write(row, 10, total_all_cheques, safty_fmt)
+            sheet.write(row, 11, total_all_cheques, safty_fmt)
+            row += 1
+
             row += 2
- 
+
         workbook.close()
         output.seek(0)
- 
+
         file_data = base64.b64encode(output.read())
- 
+
         self.write({
-            'excel_file':     file_data,
+            'excel_file': file_data,
             'excel_filename': 'account_statement.xlsx',
         })
- 
+
         return {
-            'type':   'ir.actions.act_url',
-            'url':    f'/web/content/?model={self._name}&id={self.id}'
-                      f'&field=excel_file&download=true&filename={self.excel_filename}',
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/?model={self._name}&id={self.id}'
+                   f'&field=excel_file&download=true&filename={self.excel_filename}',
             'target': 'self',
         }

@@ -357,6 +357,34 @@
           btn.innerHTML = '<span class="spinner"></span> ' + t('processing');
           result.style.display = 'none';
 
+          refreshGPS(function() {
+            sendAction(action, btn);
+          });
+        }
+
+        function refreshGPS(callback) {
+          if (!navigator.geolocation) {
+            gps = null;
+            setGps('err', t('gpsNotSupported'));
+            callback();
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(
+            function(pos) {
+              gps = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+              setGps('ok', '&#x1F4CD; ' + gps.lat.toFixed(5) + ', ' + gps.lng.toFixed(5));
+              callback();
+            },
+            function() {
+              gps = null;
+              setGps('err', t('gpsErr'));
+              callback();
+            },
+            {enableHighAccuracy: true, timeout: 10000, maximumAge: 0}
+          );
+        }
+
+        function sendAction(action, btn) {
           var now = new Date();
           var pad = function(n) { return String(n).padStart(2,'0'); };
           var dt  = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+
@@ -398,6 +426,14 @@
             btnIn.style.display  = 'none';
             btnOut.style.display = 'none';
             ciRow.style.display  = 'none';
+
+            if (action === 'checkin') {
+              statusVal.textContent = t('in');
+              statusVal.className   = 'status-val in';
+            } else {
+              statusVal.textContent = t('out');
+              statusVal.className   = 'status-val out';
+            }
 
             if (gps) {
               mapsBtn.href          = 'https://www.google.com/maps?q='+gps.lat+','+gps.lng;
