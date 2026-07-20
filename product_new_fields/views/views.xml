@@ -9,6 +9,10 @@
               <field name="country_of_origin_new"/>
               <field name="usage_rate"/>
               <field name="composition"/>
+              <field name="color"/>
+              <field name="formulation"/>
+              <field name="pests"/>
+              <field name="crop"/>
             </xpath>
         </field>
     </record>
@@ -22,6 +26,10 @@
                 <field name="country_of_origin_new"/>
                 <field name="usage_rate"/>
                 <field name="composition"/>
+                <field name="color"/>
+              <field name="formulation"/>
+              <field name="pests"/>
+              <field name="crop"/>
             </xpath>
 
             <xpath expr="//field[@name='qty_delivered']" position="attributes">

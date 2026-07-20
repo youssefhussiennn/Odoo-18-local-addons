@@ -1017,7 +1017,7 @@ class AccountStatementWizard(models.TransientModel):
         })
         money_fmt = workbook.add_format({
             'border': 1, 'align': 'right', 'valign': 'vcenter',
-            'num_format': '#,##0.00', 'font_name': 'Arial',
+            'num_format': ',###0.00', 'font_name': 'Arial',
         })
         footer_label_fmt = workbook.add_format({
             'bold': True, 'border': 1, 'align': 'right',

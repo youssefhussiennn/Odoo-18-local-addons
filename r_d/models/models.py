@@ -187,6 +187,13 @@ class r_d(models.Model):
     compute="_compute_documents_count",
     store=True
     )
+    
+    document_authentication = fields.Boolean(string="توثيق الاوراق")
+
+    
+    def action_document_authentication(self):
+        self.write({'document_authentication': '1'})
+
 
     @api.depends(
         'loa',

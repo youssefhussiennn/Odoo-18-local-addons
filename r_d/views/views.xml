@@ -14,6 +14,7 @@
             invisible="statue in ('Rejected or Approved')" />
           <button name="action_reset" string="Reset to Draft" type="object" class="btn-primary"
             invisible="statue in ('draft')" /> -->
+          <button name="action_document_authentication" string="توثيق الاوراق" type="object" class="btn-primary"/>
 
 
           <field name="statue" widget="statusbar"
@@ -47,6 +48,7 @@
               <field name="x_studio_usage_rate" readonly="x_studio_locked" />
               <field name="x_studio_stuff" readonly="x_studio_locked" />
               <field name="x_studio_locked" readonly="x_studio_locked" />
+              <field name="document_authentication" readonly="1" />
 
             </group>
             <group string="Notes">

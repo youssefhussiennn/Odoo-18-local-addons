@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_pesticide_registration_list" model="ir.ui.view">
+        <field name="name">pesticide.registration.list</field>
+        <field name="model">pesticide.registration</field>
+        <field name="arch" type="xml">
+            <list string="Pesticide Registrations">
+                <field name="registration_no"/>
+                <field name="name"/>
+                <field name="name_en" optional="show"/>
+                <field name="category"/>
+                <field name="category_en" optional="show"/>
+                <field name="dosage_form"/>
+                <field name="dosage_form_en" optional="hide"/>
+                <field name="active_ingredient" optional="show"/>
+                <field name="active_ingredient_en" optional="show"/>
+                <field name="total_content"/>
+                <field name="valid_until"/>
+                <field name="holder"/>
+                <field name="holder_en" optional="hide"/>
+                <field name="x_r_d_id" optional="show"/>
+                <field name="x_contact_vendor_id" optional="show"/>
+                <field name="search_term_id"/>
+                <field name="last_synced"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pesticide_registration_form" model="ir.ui.view">
+        <field name="name">pesticide.registration.form</field>
+        <field name="model">pesticide.registration</field>
+        <field name="arch" type="xml">
+            <form string="Pesticide Registration">
+                <header>
+                    <button name="action_open_source_page" type="object"
+                            string="View on ICAMA" class="btn-secondary"/>
+                    <button name="action_link_rd_and_vendor" type="object"
+                            string="Link R&amp;D / Vendor" class="btn-secondary"/>
+                    <button name="action_retranslate" type="object"
+                            string="Force Re-translate" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                        <h3><field name="name_en" readonly="1"/></h3>
+                    </div>
+                    <group>
+                        <group string="中文 (Chinese)">
+                            <field name="registration_no"/>
+                            <field name="category"/>
+                            <field name="dosage_form"/>
+                            <field name="active_ingredient"/>
+                            <field name="total_content"/>
+                            <field name="holder"/>
+                        </group>
+                        <group string="English">
+                            <field name="category_en" readonly="1"/>
+                            <field name="dosage_form_en" readonly="1"/>
+                            <field name="active_ingredient_en" readonly="1"/>
+                            <field name="holder_en" readonly="1"/>
+                            <field name="valid_until"/>
+                        </group>
+                    </group>
+                    <group string="Internal Links">
+                        <field name="x_r_d_id"/>
+                        <field name="x_contact_vendor_id"/>
+                    </group>
+                    <group>
+                        <field name="search_term_id"/>
+                        <field name="last_synced"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pesticide_registration_search" model="ir.ui.view">
+        <field name="name">pesticide.registration.search</field>
+        <field name="model">pesticide.registration</field>
+        <field name="arch" type="xml">
+            <search string="Search Pesticide Registrations">
+                <field name="name" string="Name (中文 or English)"
+                       filter_domain="['|', ('name', 'ilike', self), ('name_en', 'ilike', self)]"/>
+                <field name="registration_no"/>
+                <field name="category" string="Category (中文 or English)"
+                       filter_domain="['|', ('category', 'ilike', self), ('category_en', 'ilike', self)]"/>
+                <field name="dosage_form" string="Dosage Form (中文 or English)"
+                       filter_domain="['|', ('dosage_form', 'ilike', self), ('dosage_form_en', 'ilike', self)]"/>
+                <field name="holder" string="Holder (中文 or English)"
+                       filter_domain="['|', ('holder', 'ilike', self), ('holder_en', 'ilike', self)]"/>
+                <field name="active_ingredient" string="Active Ingredient (中文 or English)"
+                       filter_domain="['|', ('active_ingredient', 'ilike', self), ('active_ingredient_en', 'ilike', self)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_category" string="Category (中文)" context="{'group_by': 'category'}"/>
+                    <filter name="group_category_en" string="Category (EN)" context="{'group_by': 'category_en'}"/>
+                    <filter name="group_dosage_form" string="Dosage Form (中文)" context="{'group_by': 'dosage_form'}"/>
+                    <filter name="group_dosage_form_en" string="Dosage Form (EN)" context="{'group_by': 'dosage_form_en'}"/>
+                    <filter name="group_active_ingredient_en" string="Active Ingredient (EN)" context="{'group_by': 'active_ingredient_en'}"/>
+                    <filter name="group_vendor" string="Vendor" context="{'group_by': 'x_contact_vendor_id'}"/>
+                    <filter name="group_search_term" string="Search Term" context="{'group_by': 'search_term_id'}"/>
+                </group>
+                <filter name="unlinked_rd" string="Missing R&amp;D Link" domain="[('x_r_d_id', '=', False)]"/>
+                <filter name="unlinked_vendor" string="Missing Vendor Link" domain="[('x_contact_vendor_id', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pesticide_registration" model="ir.actions.act_window">
+        <field name="name">Pesticide Registrations</field>
+        <field name="res_model">pesticide.registration</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_pesticide_registration_search"/>
+    </record>
+
+</odoo>

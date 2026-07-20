@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_pesticide" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.pesticide.icama</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="ICAMA Pesticide Search" name="pesticide_icama_search">
+                    <block title="Translation">
+                        <setting string="Lara Access Key ID"
+                                 help="Used to translate ICAMA pesticide/vendor names between Chinese and English, one batch call per sync instead of one call per record. Requires the 'lara-sdk' Python package on the server (pip install lara-sdk). Leave blank to fall back to the free Google Translate endpoint instead. Get credentials at app.laratranslate.com > API credentials.">
+                            <field name="pesticide_lara_access_key_id" placeholder="your-access-key-id"/>
+                        </setting>
+                        <setting string="Lara Access Key Secret"
+                                 help="Paired with the Access Key ID above. Lara only shows this once when created - store it safely, it can't be retrieved again if lost.">
+                            <field name="pesticide_lara_access_key_secret" password="True" placeholder="your-access-key-secret"/>
+                            <button name="action_test_lara_connection" type="object"
+                                    string="Test Connection" class="btn-link"/>
+                        </setting>
+                        <setting string="Require Lara"
+                                 help="If a translation call fails, raise an error instead of silently falling back to Google.">
+                            <field name="pesticide_require_lara"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_pesticide_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'pesticide_icama_search'}</field>
+    </record>
+
+    <menuitem id="menu_pesticide_settings"
+              name="Settings"
+              parent="menu_pesticide_root"
+              action="action_pesticide_settings"
+              groups="base.group_system"
+              sequence="40"/>
+
+</odoo>

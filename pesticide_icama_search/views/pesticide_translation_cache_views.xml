@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_pesticide_translation_cache_list" model="ir.ui.view">
+        <field name="name">pesticide.translation.cache.list</field>
+        <field name="model">pesticide.translation.cache</field>
+        <field name="arch" type="xml">
+            <list string="Translation Cache" editable="bottom">
+                <field name="source_lang"/>
+                <field name="source_text"/>
+                <field name="target_lang"/>
+                <field name="target_text"/>
+                <field name="provider"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pesticide_translation_cache_search" model="ir.ui.view">
+        <field name="name">pesticide.translation.cache.search</field>
+        <field name="model">pesticide.translation.cache</field>
+        <field name="arch" type="xml">
+            <search string="Search Translation Cache">
+                <field name="source_text"/>
+                <field name="target_text"/>
+                <filter name="provider_google" string="Google Fallback"
+                        domain="[('provider', '=', 'google')]"/>
+                <filter name="provider_lara" string="Lara"
+                        domain="[('provider', '=', 'lara')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_provider" string="Provider" context="{'group_by': 'provider'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pesticide_translation_cache" model="ir.actions.act_window">
+        <field name="name">Translation Cache</field>
+        <field name="res_model">pesticide.translation.cache</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_pesticide_translation_cache_search"/>
+        <field name="help">
+            Every zh/en string this module has ever translated, cached
+            here so it's never sent to the translator again. You can
+            edit an entry directly if a translation needs correcting -
+            the fix applies immediately, everywhere that string is used.
+        </field>
+    </record>
+
+    <menuitem id="menu_pesticide_translation_cache"
+              name="Translation Cache"
+              parent="menu_pesticide_root"
+              action="action_pesticide_translation_cache"
+              sequence="30"/>
+
+</odoo>

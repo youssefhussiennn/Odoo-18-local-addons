@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Automated Action: whenever a pesticide.registration is created
+         or its English name/holder change (i.e. right after a sync),
+         auto-populate x_r_d_id / x_contact_vendor_id by exact,
+         case-insensitive match on English name. Never creates new
+         x_r_d / x_contact_vendor records - only links to existing ones.
+         Visible/editable at Settings > Technical > Automation Rules.
+         ================================================================ -->
+
+    <record id="base_automation_link_rd_vendor" model="base.automation">
+        <field name="name">Auto-link Pesticide Registration to R&amp;D / Vendor</field>
+        <field name="model_id" ref="model_pesticide_registration"/>
+        <field name="trigger">on_create_or_write</field>
+        <field name="trigger_field_ids"
+               eval="[(6, 0, [ref('field_pesticide_registration__name_en'),
+                               ref('field_pesticide_registration__holder_en')])]"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="ir_actions_server_link_rd_vendor" model="ir.actions.server">
+        <field name="name">Link Pesticide Registration to R&amp;D / Vendor</field>
+        <field name="model_id" ref="model_pesticide_registration"/>
+        <field name="state">code</field>
+        <field name="code">records._link_rd_and_vendor()</field>
+        <field name="usage">base_automation</field>
+        <field name="base_automation_id" ref="base_automation_link_rd_vendor"/>
+    </record>
+
+    <!-- ================================================================
+         Manual/bulk version of the same action, for the Action (⚙) menu
+         on the list and form views - e.g. to re-link existing records
+         after adding new x_r_d / x_contact_vendor entries.
+         ================================================================ -->
+
+    <record id="ir_actions_server_link_rd_vendor_bulk" model="ir.actions.server">
+        <field name="name">Link to R&amp;D / Vendor</field>
+        <field name="model_id" ref="model_pesticide_registration"/>
+        <field name="binding_model_id" ref="model_pesticide_registration"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_link_rd_and_vendor()</field>
+    </record>
+
+    <record id="ir_actions_server_retranslate_bulk" model="ir.actions.server">
+        <field name="name">Force Re-translate (bypass cache)</field>
+        <field name="model_id" ref="model_pesticide_registration"/>
+        <field name="binding_model_id" ref="model_pesticide_registration"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_retranslate()</field>
+    </record>
+
+</odoo>

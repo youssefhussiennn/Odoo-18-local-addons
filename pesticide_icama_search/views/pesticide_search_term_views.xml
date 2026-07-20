@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_pesticide_search_term_list" model="ir.ui.view">
+        <field name="name">pesticide.search.term.list</field>
+        <field name="model">pesticide.search.term</field>
+        <field name="arch" type="xml">
+            <list string="ICAMA Saved Searches">
+                <field name="name"/>
+                <field name="pesticide_name"/>
+                <field name="category"/>
+                <field name="dosage_form"/>
+                <field name="holder" optional="show"/>
+                <field name="active_ingredient" optional="show"/>
+                <field name="result_count"/>
+                <field name="last_run"/>
+                <field name="last_run_state" widget="badge"
+                       decoration-success="last_run_state == 'done'"
+                       decoration-danger="last_run_state == 'error'"/>
+                <field name="active" invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pesticide_search_term_form" model="ir.ui.view">
+        <field name="name">pesticide.search.term.form</field>
+        <field name="model">pesticide.search.term</field>
+        <field name="arch" type="xml">
+            <form string="ICAMA Saved Search">
+                <header>
+                    <button name="action_search_now" type="object"
+                            string="Search Now" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Glyphosate products"/></h1>
+                    </div>
+                    <group>
+                        <group string="Search Criteria (中文 or English)">
+                            <field name="pesticide_name" placeholder="e.g. 草铵膦 or Glufosinate"/>
+                            <field name="category" placeholder="e.g. 除草剂 or Herbicide"/>
+                            <field name="dosage_form" placeholder="e.g. 悬浮剂 or Suspension Concentrate"/>
+                            <field name="active_ingredient" placeholder="e.g. 草甘膦 or Glyphosate"/>
+                            <field name="holder" placeholder="e.g. 江苏 or Jiangsu"/>
+                            <field name="registration_no"/>
+                            <field name="fuzzy_match"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Last Run">
+                            <field name="last_run"/>
+                            <field name="last_run_state"/>
+                            <field name="last_run_message"/>
+                            <field name="result_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Results">
+                            <field name="result_ids">
+                                <list>
+                                    <field name="registration_no"/>
+                                    <field name="name"/>
+                                    <field name="name_en" optional="show"/>
+                                    <field name="category"/>
+                                    <field name="category_en" optional="show"/>
+                                    <field name="dosage_form"/>
+                                    <field name="dosage_form_en" optional="hide"/>
+                                    <field name="active_ingredient" optional="show"/>
+                                    <field name="active_ingredient_en" optional="hide"/>
+                                    <field name="total_content"/>
+                                    <field name="valid_until"/>
+                                    <field name="holder"/>
+                                    <field name="holder_en" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pesticide_search_term" model="ir.actions.act_window">
+        <field name="name">ICAMA Saved Searches</field>
+        <field name="res_model">pesticide.search.term</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

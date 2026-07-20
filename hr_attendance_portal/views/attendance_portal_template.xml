@@ -4,7 +4,7 @@
     <t t-call="web.layout">
       <t t-set="head">
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>Atlas - Driver Attendance</title>
+        <title>hr_attendance_portal - Driver Attendance</title>
         <style>
           *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
           body{background:#f4f6f9;min-height:100vh;font-family:'Segoe UI',Tahoma,sans-serif;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 60px;}
@@ -65,7 +65,7 @@
 
         <div class="hdr">
           <span class="lang-toggle" id="langToggle">EN</span>
-          <img src="/hr_attendance_portal/static/img/atlas_logo.png" alt="Atlas"/>
+          <img src="/hr_attendance_portal/static/img/atlas_logo.png" alt="hr_attendance_portal"/>
           <div class="hdr-title" id="txtTitle">Attendance</div>
           <div class="hdr-sub">ATTENDANCE SYSTEM</div>
         </div>
@@ -82,12 +82,12 @@
 
               <div class="field">
                 <label class="field-label" id="lblCode">Employee Code</label>
-                <input type="text" id="codeInput" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="atlas_emp_code"/>
+                <input type="text" id="codeInput" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="hr_attendance_portal_emp_code"/>
               </div>
 
               <div class="field">
                 <label class="field-label" id="lblPin">PIN</label>
-                <input type="password" id="pinInput" class="pin-input" inputmode="numeric" maxlength="6" autocomplete="new-password" name="atlas_emp_pin"/>
+                <input type="password" id="pinInput" class="pin-input" inputmode="numeric" maxlength="6" autocomplete="new-password" name="hr_attendance_portal_emp_pin"/>
               </div>
             </form>
 
@@ -148,7 +148,7 @@
 
         </div>
 
-        <div class="ftr">ATLAS FOR AGRICULTURAL DEVELOPMENT</div>
+        <div class="ftr">hr_attendance_portal FOR AGRICULTURAL DEVELOPMENT</div>
 
       </div>
 
@@ -163,8 +163,7 @@
             status: '&#x627;&#x644;&#x62D;&#x627;&#x644;&#x629; &#x627;&#x644;&#x62D;&#x627;&#x644;&#x64A;&#x629;',
             ciSince: '&#x645;&#x633;&#x62C;&#x651;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631; &#x645;&#x646;&#x630;',
             gpsDetect: '&#x62C;&#x627;&#x631; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;...',
-            gpsErr: '&#x644;&#x627; &#x64A;&#x645;&#x643;&#x646; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;',
-            gpsNotSupported: 'GPS &#x63A;&#x64A;&#x631; &#x645;&#x62A;&#x627;&#x62D;',
+            gpsErr: '&#x26A0;&#xFE0F; &#x641;&#x634;&#x644; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639; - &#x64A;&#x631;&#x62C;&#x649; &#x62A;&#x641;&#x639;&#x64A;&#x644; GPS',            gpsNotSupported: 'GPS &#x63A;&#x64A;&#x631; &#x645;&#x62A;&#x627;&#x62D;',
             checkin: '&#x2705; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;',
             checkout: '&#x1F3C1; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x627;&#x646;&#x635;&#x631;&#x627;&#x641;',
             processing: '&#x62C;&#x627;&#x631; &#x627;&#x644;&#x645;&#x639;&#x627;&#x644;&#x62C;&#x629;...',
@@ -186,7 +185,7 @@
             status: 'Current Status',
             ciSince: 'Checked in since',
             gpsDetect: 'Detecting location...',
-            gpsErr: 'Could not detect location',
+            gpsErr: 'Location failed - Please enable GPS and try again',
             gpsNotSupported: 'GPS not supported',
             checkin: '&#x2705; Check In',
             checkout: '&#x1F3C1; Check Out',
@@ -354,10 +353,22 @@
         function doAction(action) {
           var btn = action === 'checkin' ? btnIn : btnOut;
           btn.disabled  = true;
-          btn.innerHTML = '<span class="spinner"></span> ' + t('processing');
+          btn.innerHTML = '<span class="spinner"></span> ' + t('gpsDetect');
           result.style.display = 'none';
 
-          refreshGPS(function() {
+          refreshGPS(function(gpsSuccess) {
+            if (!gpsSuccess) {
+              btn.disabled  = false;
+              btn.textContent = action === 'checkin'
+                ? t('checkin')
+                : t('checkout');
+              showResult('err',
+                lang === 'ar'
+                  ? '&#x26A0;&#xFE0F; لا يمكن تسجيل الحضور بدون تحديد الموقع. يرجى تفعيل GPS والمحاولة مرة أخرى.'
+                  : '&#x26A0;&#xFE0F; Cannot check in/out without location. Please enable GPS and try again.',
+                '', '&#x26A0;&#xFE0F;');
+              return;
+            }
             sendAction(action, btn);
           });
         }
@@ -366,19 +377,19 @@
           if (!navigator.geolocation) {
             gps = null;
             setGps('err', t('gpsNotSupported'));
-            callback();
+            callback(false);
             return;
           }
           navigator.geolocation.getCurrentPosition(
             function(pos) {
               gps = {lat: pos.coords.latitude, lng: pos.coords.longitude};
               setGps('ok', '&#x1F4CD; ' + gps.lat.toFixed(5) + ', ' + gps.lng.toFixed(5));
-              callback();
+              callback(true);
             },
-            function() {
+            function(err) {
               gps = null;
               setGps('err', t('gpsErr'));
-              callback();
+              callback(false);
             },
             {enableHighAccuracy: true, timeout: 10000, maximumAge: 0}
           );

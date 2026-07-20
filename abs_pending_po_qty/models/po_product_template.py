@@ -32,7 +32,11 @@ class PurchaseOrderProductProduct(models.Model):
                 continue
             if product:
                 purchase_order_qty = 0
-                purchase_order_line = self.env['purchase.order.line'].search([('product_id', '=', product.id), ('order_id.state', 'not in', ('draft','cancel','sent','to approve'))])
+                purchase_order_line = self.env['purchase.order.line'].search([
+                    ('product_id', '=', product.id),
+                    ('order_id.state', 'not in', ('cancel', 'sent', 'to approve')),
+                    ('order_id.x_studio_type', '=', 'Global'),
+                ])
                 if purchase_order_line:
                     for pol in purchase_order_line:
                         product.purchase_order_qty += (pol.product_qty - pol.qty_received)
@@ -41,7 +45,11 @@ class PurchaseOrderProductProduct(models.Model):
         if self.id:
             template_id = self.env.ref('abs_pending_po_qty.purchase_order_line_tree_custom_view').id
             product_ids = []
-            po_line = self.env['purchase.order.line'].search([('product_id', '=', self.id), ('order_id.state', 'not in', ('draft','cancel','sent','to approve'))])
+            po_line = self.env['purchase.order.line'].search([
+                ('product_id', '=', self.id),
+                ('order_id.state', 'not in', ('cancel', 'sent', 'to approve')),
+                ('order_id.x_studio_type', '=', 'Global'),
+            ])
             for line_id in po_line:
                 product_ids.append(line_id.id)
             return {

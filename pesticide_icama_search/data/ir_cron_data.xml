@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ir_cron_pesticide_icama_search" model="ir.cron">
+        <field name="name">ICAMA: Refresh Pesticide Registration Searches</field>
+        <field name="model_id" ref="model_pesticide_search_term"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_run_all_searches()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="False"/>
+    </record>
+
+</odoo>

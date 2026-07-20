@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pesticide_search_term_user,pesticide.search.term.user,model_pesticide_search_term,base.group_user,1,1,1,1
+access_pesticide_registration_user,pesticide.registration.user,model_pesticide_registration,base.group_user,1,1,1,1
+access_pesticide_translation_cache_user,pesticide.translation.cache.user,model_pesticide_translation_cache,base.group_user,1,1,1,1

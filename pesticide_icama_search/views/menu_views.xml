@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_pesticide_root"
+              name="Pesticide Data"
+              sequence="60"/>
+
+    <menuitem id="menu_pesticide_search_term"
+              name="Saved Searches"
+              parent="menu_pesticide_root"
+              action="action_pesticide_search_term"
+              sequence="10"/>
+
+    <menuitem id="menu_pesticide_registration"
+              name="Registrations"
+              parent="menu_pesticide_root"
+              action="action_pesticide_registration"
+              sequence="20"/>
+
+</odoo>
