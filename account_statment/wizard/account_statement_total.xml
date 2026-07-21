@@ -33,6 +33,7 @@
                 </group>
                 <footer>
                     <button name="get_account_statement_total_report_new" string="Print Pdf" type="object" />
+                    <button name="get_account_statement_total_report_reconciles" string="Print Pdf المتحصلات" type="object" />
                     <button name="get_account_statement_total_report_excel" string="Print Excel" type="object" />
                 </footer>
             </form>

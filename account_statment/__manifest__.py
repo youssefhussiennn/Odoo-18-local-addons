@@ -28,6 +28,7 @@
         'views/templates.xml',
         'views/account_statement_total_pdf.xml',
         'views/account_statement_total_pdf2.xml',
+        'views/account_statement_total_pdf_reconcile.xml',
         'views/account_statement_team_pdf.xml',
         'views/account_statement_analytic_account.xml',
     ],

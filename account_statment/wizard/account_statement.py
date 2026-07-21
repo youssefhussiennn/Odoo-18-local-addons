@@ -199,6 +199,7 @@ class AccountStatementWizard(models.TransientModel):
                 total_due_amount_sales_person += total_due_amount
                 data_per_line = {
                     'partner_name': "",
+
                     'total_initial_balance': 0,
                     'total_sales_before_discount': 0,
                     'total_refund': 0,
@@ -414,6 +415,329 @@ class AccountStatementWizard(models.TransientModel):
         return self.env.ref('account_statment.action_report_account_statment_total_layout2').report_action(
             self, data=total_data)
 
+
+    # Report المتحصلات
+
+    def get_account_statement_total_report_reconciles(self):
+
+            if self.date_start and self.date_end and self.date_start > self.date_end:
+                raise UserError(
+                    "The Start date cannot be greater than the end date.")
+
+            if self.partner_id:
+                moves = self.env['account.move.line'].search([('partner_id', '=', self.partner_id.id), '|', '|', '|', (
+                    'account_id.account_type', 'in', ('asset_receivable', 'liability_payable')),
+                    ('account_id.is_safty_account', '=', True),
+                    ('account_id.is_collection_account', '=', True),
+                    ('account_id.customer_allowed_discount', '=', True),
+                    ('parent_state', '=', 'posted'), ('partner_id.property_purchase_currency_id', '=', self.currency_id.id)] + self._date_domain())
+            else:
+                if self.team_id and not self.user_ids:
+                    moves = self.env['account.move.line'].search(
+                        [('partner_id.team_id', '=', self.team_id.id), '|', '|', '|',
+                        ('account_id.account_type', 'in',
+                        ('asset_receivable', 'liability_payable')),
+                        ('account_id.is_safty_account', '=',
+                        True), ('account_id.is_collection_account', '=', True),
+                        ('account_id.customer_allowed_discount', '=', True), ('parent_state', '=', 'posted'), ('partner_id.property_purchase_currency_id', '=', self.currency_id.id)] + self._date_domain())
+
+                else:
+                    moves = self.env['account.move.line'].search(
+                        [('partner_id.user_id.id', 'in', self.user_ids.ids), '|', '|', '|',
+                        ('account_id.account_type', 'in',
+                        ('asset_receivable', 'liability_payable')),
+                        ('account_id.is_safty_account', '=',
+                        True), ('account_id.is_collection_account', '=', True),
+                        ('account_id.customer_allowed_discount', '=', True), ('parent_state', '=', 'posted'), ('partner_id.property_purchase_currency_id', '=', self.currency_id.id)] + self._date_domain())
+            if self.date_start and not self.date_end:
+                all_record = moves.filtered(lambda x: x.date >= self.date_start)
+
+            elif not self.date_start and self.date_end:
+                all_record = moves.filtered(lambda x: x.date <= self.date_end)
+            elif self.date_start and self.date_end:
+                all_record = moves.filtered(
+                    lambda x: x.date >= self.date_start and x.date <= self.date_end)
+            else:
+                all_record = moves
+
+            report_lines = []
+            lines = self.user_ids
+            total_initial_balance_sales_person = 0
+            total_sales_after_discount_sales_person = 0
+            total_sales_before_discount_sales_person = 0
+            total_purchase_sales_person = 0
+            total_refund_sales_person = 0
+            total_payment_sales_person = 0
+            total_payment_bank_sales_person = 0
+            total_payment_cash_sales_person = 0
+            total_safty_checks_sales_person = 0
+            total_collection_checks_sales_person = 0
+            total_customer_allowed_discount_sales_person = 0
+            total_discount_sales_person = 0
+            balance_sales_person = 0
+            total_due_amount_sales_person = 0
+            for o in lines:
+
+                data = all_record.filtered(
+                    lambda x: x.partner_id.user_id.name == o.name and x.partner_id.property_purchase_currency_id == self.currency_id).sorted(key=lambda y: y.date)
+                total_initial_balance_sales_person = 0
+                total_sales_after_discount_sales_person = 0
+                total_sales_before_discount_sales_person = 0
+                total_purchase_sales_person = 0
+                total_refund_sales_person = 0
+                total_payment_sales_person = 0
+                total_payment_bank_sales_person = 0
+                total_payment_cash_sales_person = 0
+                total_safty_checks_sales_person = 0
+                total_collection_checks_sales_person = 0
+                total_customer_allowed_discount_sales_person = 0
+                total_discount_sales_person = 0
+                balance_sales_person = 0
+                total_due_amount = 0
+                total_due_amount_sales_person = 0
+
+                accountings = self.env['res.partner'].search(
+                    [('user_id', 'in', self.user_ids.ids), ('property_purchase_currency_id', '=', self.currency_id.id)])
+                sales_person_lines = []
+                for account in accountings:
+
+                    x_studio_taxed_amount = 0
+                    x_studio_taxed_amount_refund = 0
+                    x_studio_taxed_amount_invoice = 0
+                    total_due_amount = 0
+                    if self.currency_id.name == 'EGP' or not self.currency_id:
+                        total_due_amount = account.total_overdue
+                    else:
+                        total_due_amount = self._get_total_due_currency(account)
+                    total_due_amount_sales_person += total_due_amount
+                    data_per_line = {
+                        'partner_name': "",
+                        'responsible': "",
+                        'responsible_person': "",
+                        'total_initial_balance': 0,
+                        'total_sales_before_discount': 0,
+                        'total_refund': 0,
+                        'Total_sales_updated': 0,
+                        'total_payment': 0,
+                        'total_payment_bank': 0,
+                        'total_payment_cash': 0,
+                        'balance': 0,
+                        'total_due_amount': 0,
+                        'total_safty_checks': 0,
+                        'total_collection_checks': 0,
+                        'comment': "",
+                        'total_sales_before_discount_sales_person': 0,
+                        'total_refund_sales_person': 0,
+                        'Total_sales_new': 0,
+                        'total_payment_sales_person': 0,
+                        'total_payment_bank_sales_person': 0,
+                        'total_payment_cash_sales_person': 0,
+                        'balance_sales_person': balance_sales_person,
+                        'total_due_amount_sales_person': 0,
+                        'total_collection_checks_sales_person': 0,
+                        'total_safty_checks_sales_person': 0,
+                        'total_purchase_sales_person': 0,
+                        'currency_id': 0
+                    }
+
+                    final_lines = data.filtered(
+                        lambda x: x.partner_id.name == account.name).sorted(key=lambda x: x.date)
+                    total_initial_balance = self.env['account.move.line'].sudo(
+                    ).with_context(curr=self.currency_id).get_initial_balance(account, self.date_start)
+                    if not total_initial_balance:
+                        total_initial_balance = 0
+                    total_initial_balance_sales_person = round(
+                        (total_initial_balance_sales_person + total_initial_balance), 2)
+
+                    balance = total_initial_balance
+                    total_sales_after_discount = 0
+                    total_sales_before_discount = 0
+                    discount = 0
+                    total_refund = 0
+                    total_payment = 0
+                    total_payment_bank = 0
+                    total_payment_cash = 0
+                    total_debit = 0
+                    total_credit = 0
+                    total_safty_checks = 0
+                    total_collection_checks = 0
+                    total_customer_allowed_discount = 0
+                    total_discount = 0
+                    purchase_total_discount = 0
+                    old_invoices = 'moves:'
+
+                    final_lines_checks = self.env['account.move.line'].sudo().search(
+                        [('partner_id', '=', account.id), ('move_id.move_type', '=', 'entry'), '|', ('account_id.is_collection_account', '=', True), ('account_id.is_safty_account', '=', True)])
+                    for line in final_lines_checks:
+                        if line.move_id.move_type == 'entry' and line.account_id.is_safty_account == True:
+                            total_safty_checks = round(
+                                (total_safty_checks - line.credit), 2)
+                            total_safty_checks = round(
+                                (total_safty_checks + line.debit), 2)
+                            total_safty_checks_sales_person = round(
+                                (total_safty_checks_sales_person - line.credit), 2)
+                            total_safty_checks_sales_person = round(
+                                (total_safty_checks_sales_person + line.debit), 2)
+                        elif line.move_id.move_type == 'entry' and line.account_id.is_collection_account == True:
+                            total_collection_checks = round(
+                                (total_collection_checks - line.credit), 2)
+                            total_collection_checks = round(
+                                (total_collection_checks + line.debit), 2)
+                            total_collection_checks_sales_person = round(
+                                (total_collection_checks_sales_person + line.debit), 2)
+                            total_collection_checks_sales_person = round(
+                                (total_collection_checks_sales_person - line.credit), 2)
+                    for line in final_lines:
+                        if line.account_id.customer_allowed_discount == True:
+                            total_customer_allowed_discount = round(
+                                (total_customer_allowed_discount - line.credit), 2)
+                            total_customer_allowed_discount = round(
+                                (total_customer_allowed_discount + line.debit), 2)
+                            total_customer_allowed_discount_sales_person = round(
+                                (total_customer_allowed_discount_sales_person - line.credit), 2)
+                            total_customer_allowed_discount_sales_person = round(
+                                (total_customer_allowed_discount_sales_person + line.debit), 2)
+                        elif line.move_id.move_type == 'entry' and line.account_id.is_safty_account == False and line.account_id.is_collection_account == False and line.account_id.customer_allowed_discount == False and line.move_id.is_customer_discount == False:
+                            if line.move_id.is_opening_balance == False:
+                                # journal type drives the bank/cash split
+                                journal_type = line.move_id.journal_id.type
+                                if not self.currency_id or self.currency_id.name == 'EGP':
+                                    amount = round((line.credit - line.debit), 2)
+                                else:
+                                    amount = round(abs(line.amount_currency), 2)
+
+                                total_payment = round(
+                                    (total_payment + amount), 2)
+                                total_payment_sales_person = round(
+                                    (total_payment_sales_person + amount), 2)
+
+                                if journal_type == 'bank':
+                                    total_payment_bank = round(
+                                        (total_payment_bank + amount), 2)
+                                    total_payment_bank_sales_person = round(
+                                        (total_payment_bank_sales_person + amount), 2)
+                                elif journal_type == 'cash':
+                                    total_payment_cash = round(
+                                        (total_payment_cash + amount), 2)
+                                    total_payment_cash_sales_person = round(
+                                        (total_payment_cash_sales_person + amount), 2)
+                                # journal types other than bank/cash (e.g. 'general')
+                                # still count toward total_payment above but are
+                                # not split into either bank or cash column
+                            elif line.move_id.is_opening_balance == True:
+                                total_initial_balance = total_initial_balance + \
+                                    (line.debit - line.credit)
+                                total_initial_balance_sales_person = total_initial_balance_sales_person + \
+                                    (line.debit - line.credit)
+                            balance = round((balance - line.credit), 2)
+                            balance = round(
+                                (balance + line.debit + line.x_studio_taxed_amount), 2)
+                            total_credit = round((total_credit + line.credit), 2)
+
+                        for invoice_line in line.move_id.invoice_line_ids:
+                            if line.move_id.move_type in ['out_refund', 'in_refund']:
+                                x_studio_taxed_amount_refund = round(
+                                    (x_studio_taxed_amount_refund - invoice_line.x_studio_taxed_amount), 2)
+                            if line.move_id.move_type in ['in_invoice', 'out_invoice']:
+                                x_studio_taxed_amount_invoice = round(
+                                    (x_studio_taxed_amount_invoice + invoice_line.x_studio_taxed_amount), 2)
+
+                        if line.move_id.invoice_line_ids and line.move_id.move_type in ['out_refund', 'in_refund', 'out_invoice', 'in_invoice'] and line.account_id.is_safty_account == False and line.account_id.is_collection_account == False and line.account_id.customer_allowed_discount == False and line.move_id.name not in old_invoices and line.move_id.is_customer_discount == False:
+                            old_invoices = old_invoices + ' , ' + line.move_id.name
+
+                            for inv in line.move_id.invoice_line_ids:
+                                if inv.discount > 0 and line.move_id.move_type in ['out_invoice']:
+                                    discount = round(
+                                        discount + (inv.price_unit * ((inv.discount or 0.0) / 100.0) * inv.quantity), 2)
+                                    total_discount = round(
+                                        (total_discount + (inv.price_unit * ((inv.discount or 0.0) / 100.0) * inv.quantity)), 2)
+                                    total_discount_sales_person = round(
+                                        (total_discount_sales_person + (inv.price_unit * ((inv.discount or 0.0) / 100.0) * inv.quantity)), 2)
+                                if inv.discount > 0 and line.move_id.move_type in ['in_invoice']:
+                                    purchase_total_discount = round(
+                                        (purchase_total_discount + (inv.price_unit * ((inv.discount or 0.0) / 100.0) * inv.quantity)), 2)
+                                if line.move_id.move_type not in ['out_refund', 'in_invoice']:
+                                    total_debit = round(
+                                        (total_debit + inv.price_subtotal), 2)
+                                    balance = round(
+                                        (balance + inv.price_subtotal), 2)
+                                    balance_sales_person = round(
+                                        (balance_sales_person + inv.price_subtotal), 2)
+                                else:
+                                    total_credit = round(
+                                        (total_credit + inv.price_subtotal), 2)
+                                if line.move_id.move_type in ['out_refund', 'in_refund']:
+                                    total_refund = round(
+                                        (total_refund + inv.price_subtotal), 2)
+                                    total_refund_sales_person = round(
+                                        (total_refund_sales_person + inv.price_subtotal), 2)
+                                if line.move_id.move_type in ['in_invoice']:
+                                    total_purchase_sales_person = round(
+                                        (total_purchase_sales_person + inv.price_subtotal), 2)
+                                if line.move_id.move_type in ['out_invoice']:
+                                    total_sales_after_discount = round(
+                                        (total_sales_after_discount + inv.price_subtotal), 2)
+                                    total_sales_before_discount = round(
+                                        (total_sales_before_discount + (inv.quantity * inv.price_unit)), 2)
+                                    total_sales_before_discount_sales_person = round(
+                                        (total_sales_before_discount_sales_person + (inv.quantity * inv.price_unit)), 2)
+                                    total_sales_after_discount_sales_person = round(
+                                        (total_sales_after_discount_sales_person + inv.price_subtotal), 2)
+
+                    computed_balance = balance + x_studio_taxed_amount_invoice + x_studio_taxed_amount_refund + total_customer_allowed_discount
+                    if self.hide_zero_balance and computed_balance == 0:
+                        continue
+
+                    data_per_line = {
+                        'partner_name': account.name,
+                        'responsible': account.followup_responsible_id.display_name if account.followup_responsible_id.display_name else "",
+                        'responsible_person': account.x_studio_responsible_person.display_name if account.x_studio_responsible_person.display_name else "",
+                        'total_initial_balance': total_initial_balance,
+                        'total_sales_before_discount': total_sales_before_discount,
+                        'total_refund': total_refund,
+                        'Total_sales_updated': total_sales_after_discount - total_refund - total_discount - total_customer_allowed_discount,
+                        'total_payment': total_payment,
+                        'total_payment_bank': total_payment_bank,
+                        'total_payment_cash': total_payment_cash,
+                        'x_studio_taxed_amount': x_studio_taxed_amount,
+                        'x_studio_taxed_amount_refund': x_studio_taxed_amount_refund,
+                        'x_studio_taxed_amount_invoice': x_studio_taxed_amount_invoice,
+                        'balance': total_initial_balance + total_sales_after_discount - total_refund - total_payment - total_customer_allowed_discount,
+                        'total_due_amount': total_due_amount,
+                        'total_safty_checks': abs(total_safty_checks),
+                        'total_collection_checks': abs(total_collection_checks),
+                        'comment': html2plaintext(account.comment),
+                        'total_sales_before_discount_sales_person': total_sales_before_discount_sales_person,
+                        'total_refund_sales_person': total_refund_sales_person,
+                        'Total_sales_new': round(total_sales_before_discount_sales_person - total_refund_sales_person),
+                        'total_payment_sales_person': total_payment_sales_person,
+                        'total_payment_bank_sales_person': total_payment_bank_sales_person,
+                        'total_payment_cash_sales_person': total_payment_cash_sales_person,
+                        'balance_sales_person': balance_sales_person + total_initial_balance + total_sales_after_discount - total_refund - total_payment - total_customer_allowed_discount,
+                        'total_due_amount_sales_person': total_due_amount_sales_person,
+                        'total_collection_checks_sales_person': total_collection_checks_sales_person,
+                        'total_safty_checks_sales_person': total_safty_checks_sales_person,
+                        'total_purchase_sales_person': total_purchase_sales_person,
+                        'currency_id': account.currency_id.id,
+                        'total_discount': total_discount,
+                        'discount': discount,
+                        'total_discount_sales_person': total_discount_sales_person,
+                        'total_customer_allowed_discount': total_customer_allowed_discount,
+                        'purchase_total_discount': purchase_total_discount,
+
+                    }
+                    sales_person_lines.append(data_per_line)
+                report_lines.append({
+                    'sales_person': o.name,
+                    'lines': sales_person_lines,
+                })
+            total_data = {
+                "date_start": self.date_start,
+                "date_end": self.date_end,
+                "lines": report_lines,
+            }
+            return self.env.ref('account_statment.action_report_account_statment_total_layout3').report_action(
+                self, data=total_data)
 # print excel sheet for account statement total
 
     def get_account_statement_total_report_excel(self):

@@ -1,0 +1,144 @@
+<odoo>
+    <data>
+        <record id="paperformat_portrait_account_statement_total" model="report.paperformat">
+            <field name="name">Account Statement Layout</field>
+            <field name="default" eval="True" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">19</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">10</field>
+            <field name="dpi">100</field>
+        </record>
+
+
+        <record id="action_report_account_statment_total_layout3" model="ir.actions.report">
+            <field name="name">Account Statement Total</field>
+            <field name="model">account.move.line</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">account_statment.account_statment_total_document3</field>
+            <field name="report_file">account_statment.account_statment_total_document3</field>
+            <field name="paperformat_id"
+                ref="account_statment.paperformat_portrait_account_statement_total" />
+            <field name="binding_model_id" eval="False" />
+            <field name="binding_type">report</field>
+        </record>
+
+
+        <template id="account_statment_total_document3">
+            <t t-call="web.html_container">
+                <t t-call="account_statment.custom_external_layout_account_statment">
+                    <t t-foreach="lines" t-as="sales_person">
+                        <t t-set="balance_sales_person" t-value="0" />
+                        <t t-set="total_due_amount_sales_person" t-value="0" />
+
+                        <div class="page">
+                            <br />
+                            <br />
+                            <div class="row" style="direction:rtl">
+                                <div style="width:50%;">
+                                    <h4 style="float:right">التاريخ: <span
+                                            t-esc="datetime.datetime.now().strftime('%Y-%m-%d')" />
+                                    </h4>
+                                </div>
+                                <div style="width:50%;">
+                                    <img t-if="env.company.logo"
+                                        t-att-src="image_data_uri(env.company.logo)"
+                                        style="max-height: 320px;max-width: 170px;float:left"
+                                        alt="Logo" />
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div style="width:100%">
+                                    <center>
+                                        <h3 style="text-align:center"> مبيعات المهندس <span
+                                                t-esc="sales_person['sales_person']" />
+                                        </h3>
+                                        <h3 style="text-align:center"> الفترة <span
+                                                t-esc="date_start" /> - <span t-esc="date_end" />
+                                        </h3>
+                                    </center>
+                                </div>
+                            </div>
+                            <br />
+                            <table class="table table-bordered " style="direction: rtl;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-right">
+                                            <span style="float:right">اسم العميل</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">بنك</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">نقدي</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">اجمالي سداد</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">المتأخر</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">المحاسب المسؤول</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">مسؤول التحصيل</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="sales_person['lines']" t-as="line">
+                                        <tr>
+                                            <td class="text-right">
+                                                <span t-esc="line['partner_name']" />
+                                            </td>
+
+                                            <td class="text-right">
+                                                <span t-esc="line['total_payment_bank']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
+                                            </td>
+
+                                            <td class="text-right">
+                                                <span t-esc="line['total_payment_cash']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
+                                            </td>
+
+                                            <td class="text-right">
+                                                <span t-esc="line['total_payment']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
+                                            </td>
+
+                                            <td class="text-right">
+                                                <span t-esc="line['total_due_amount']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
+                                                <t t-set="total_due_amount_sales_person"
+                                                    t-value="total_due_amount_sales_person + line['total_due_amount']" />
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="line['responsible']" />
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="line['responsible_person']" />
+                                            </td>
+                                        </tr>
+                                    </t>
+
+                                </tbody>
+
+                            </table>
+
+                            <p style="page-break-before:always;" />
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
