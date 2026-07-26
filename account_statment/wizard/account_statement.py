@@ -506,14 +506,15 @@ class AccountStatementWizard(models.TransientModel):
                     x_studio_taxed_amount_invoice = 0
                     total_due_amount = 0
                     if self.currency_id.name == 'EGP' or not self.currency_id:
-                        total_due_amount = account.total_overdue
+                        total_due_amount = account.total_overdue or 0
                     else:
-                        total_due_amount = self._get_total_due_currency(account)
+                        total_due_amount = self._get_total_due_currency(account) or 0
                     total_due_amount_sales_person += total_due_amount
                     data_per_line = {
                         'partner_name': "",
                         'responsible': "",
                         'responsible_person': "",
+                        'followup': "",
                         'total_initial_balance': 0,
                         'total_sales_before_discount': 0,
                         'total_refund': 0,
@@ -692,6 +693,8 @@ class AccountStatementWizard(models.TransientModel):
                         'partner_name': account.name,
                         'responsible': account.followup_responsible_id.display_name if account.followup_responsible_id.display_name else "",
                         'responsible_person': account.x_studio_responsible_person.display_name if account.x_studio_responsible_person.display_name else "",
+                        'followup': ', '.join(account.x_studio_followup.mapped('display_name')) if account.x_studio_followup else "",
+                        'balance_with_tax': computed_balance,
                         'total_initial_balance': total_initial_balance,
                         'total_sales_before_discount': total_sales_before_discount,
                         'total_refund': total_refund,
@@ -737,8 +740,7 @@ class AccountStatementWizard(models.TransientModel):
                 "lines": report_lines,
             }
             return self.env.ref('account_statment.action_report_account_statment_total_layout3').report_action(
-                self, data=total_data)
-# print excel sheet for account statement total
+                self, data=total_data)# print excel sheet for account statement total
 
     def get_account_statement_total_report_excel(self):
 

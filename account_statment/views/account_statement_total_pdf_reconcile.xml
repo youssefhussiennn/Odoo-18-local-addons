@@ -35,7 +35,6 @@
                 <t t-call="account_statment.custom_external_layout_account_statment">
                     <t t-foreach="lines" t-as="sales_person">
                         <t t-set="balance_sales_person" t-value="0" />
-                        <t t-set="total_due_amount_sales_person" t-value="0" />
 
                         <div class="page">
                             <br />
@@ -71,6 +70,9 @@
                                 <thead>
                                     <tr>
                                         <th class="text-right">
+                                            <span style="float:right">المحاسب المسؤول</span>
+                                        </th>
+                                        <th class="text-right">
                                             <span style="float:right">اسم العميل</span>
                                         </th>
                                         <th class="text-right">
@@ -83,19 +85,24 @@
                                             <span style="float:right">اجمالي سداد</span>
                                         </th>
                                         <th class="text-right">
-                                            <span style="float:right">المتأخر</span>
-                                        </th>
-                                        <th class="text-right">
-                                            <span style="float:right">المحاسب المسؤول</span>
+                                            <span style="float:right">الرصيد</span>
                                         </th>
                                         <th class="text-right">
                                             <span style="float:right">مسؤول التحصيل</span>
+                                        </th>
+                                        <th class="text-right">
+                                            <span style="float:right">المتابعة</span>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <t t-foreach="sales_person['lines']" t-as="line">
                                         <tr>
+                                            <td t-if="line_first" t-att-rowspan="line_size"
+                                                class="text-right">
+                                                <span t-esc="line['responsible']" />
+                                            </td>
+
                                             <td class="text-right">
                                                 <span t-esc="line['partner_name']" />
                                             </td>
@@ -116,16 +123,16 @@
                                             </td>
 
                                             <td class="text-right">
-                                                <span t-esc="line['total_due_amount']"
+                                                <span t-esc="line['balance_with_tax']"
                                                     t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
-                                                <t t-set="total_due_amount_sales_person"
-                                                    t-value="total_due_amount_sales_person + line['total_due_amount']" />
-                                            </td>
-                                            <td class="text-right">
-                                                <span t-esc="line['responsible']" />
+                                                <t t-set="balance_sales_person"
+                                                    t-value="balance_sales_person + line['balance_with_tax']" />
                                             </td>
                                             <td class="text-right">
                                                 <span t-esc="line['responsible_person']" />
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-esc="line['followup']" />
                                             </td>
                                         </tr>
                                     </t>
