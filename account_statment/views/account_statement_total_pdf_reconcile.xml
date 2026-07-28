@@ -137,6 +137,30 @@
                                         </tr>
                                     </t>
 
+                                    <tr t-if="sales_person['lines']" style="background-color:#eeeeee; font-weight:bold;">
+                                        <td colspan="2" class="text-right">
+                                            <span style="float:right">الإجمالي</span>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="line['total_payment_bank_sales_person']"
+                                                t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="line['total_payment_cash_sales_person']"
+                                                t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="line['total_payment_sales_person']"
+                                                t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="balance_sales_person"
+                                                t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
+                                        </td>
+                                        <td class="text-right"></td>
+                                        <td class="text-right"></td>
+                                    </tr>
+
                                 </tbody>
 
                             </table>
