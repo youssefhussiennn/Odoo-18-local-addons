@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytz
+import math
 import logging
 from datetime import datetime
 
@@ -7,6 +8,14 @@ from odoo import http, fields
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Company Geofence Settings
+# ─────────────────────────────────────────────────────────────────────────────
+COMPANY_LAT = 31.211201
+COMPANY_LNG = 29.961383
+ALLOWED_RADIUS_M = 100  # meters
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -53,11 +62,55 @@ def _get_request_meta():
     return ip_address, _detect_browser(user_agent)
 
 
+def _distance_meters(lat1, lng1, lat2, lng2):
+    """Haversine distance in meters between two GPS coordinates."""
+    R = 6371000  # Earth radius in meters
+    phi1    = math.radians(lat1)
+    phi2    = math.radians(lat2)
+    dphi    = math.radians(lat2 - lat1)
+    dlambda = math.radians(lng2 - lng1)
+    a = (math.sin(dphi / 2) ** 2
+         + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2)
+    return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
+def _check_geofence(employee, latitude, longitude, is_mission=False):
+    """
+    Returns None if allowed, or an error message if blocked.
+    - Mission check-ins bypass the geofence (but still need GPS).
+    - Employees without require_company_location are always allowed.
+    """
+    # GPS always required
+    if not latitude or not longitude:
+        return 'يجب تفعيل الموقع للتسجيل / Location is required'
+
+    # Mission → bypass geofence
+    if is_mission:
+        return None
+
+    # Not flagged for geofence → allowed anywhere
+    if not employee.require_company_location:
+        return None
+
+    # Geofence enforced
+    try:
+        dist = _distance_meters(
+            float(latitude), float(longitude),
+            COMPANY_LAT, COMPANY_LNG,
+        )
+    except Exception:
+        return 'خطأ في تحديد الموقع / Location error'
+
+    if dist > ALLOWED_RADIUS_M:
+        return (
+            f'يجب أن تكون داخل الشركة للتسجيل — تبعد حالياً {int(dist)} متر / '
+            f'You must be at the company location — you are {int(dist)}m away'
+        )
+    return None
+
+
 def _verify_employee(code, pin):
-    """
-    Verify employee by Badge ID (barcode) + PIN.
-    Returns employee record or None.
-    """
+    """Verify employee by Badge ID (barcode) + PIN. Returns employee or None."""
     code = (code or '').strip()
     pin  = (pin or '').strip()
     if not code or not pin:
@@ -83,26 +136,23 @@ def _verify_employee(code, pin):
 
 class DriverAttendancePortal(http.Controller):
 
-    # ── Landing page (login form) ───────────────────────────────────────────
     @http.route('/drivers/attendance', type='http', auth='public', website=True)
     def attendance_home(self, **kwargs):
         return request.render('hr_attendance_portal.portal_main', {})
 
-    # ── Verify login (code + PIN) ───────────────────────────────────────────
     @http.route('/drivers/attendance/login', type='json', auth='public', csrf=False)
     def login(self, code=None, pin=None, **kwargs):
         employee = _verify_employee(code, pin)
         if not employee:
             return {'error': 'كود الموظف أو الرقم السري غير صحيح / Invalid code or PIN'}
-
         return {
-            'success'       : True,
-            'employee_id'   : employee.id,
-            'employee_name' : employee.name,
-            'employee_code' : employee.barcode or '',
+            'success'         : True,
+            'employee_id'     : employee.id,
+            'employee_name'   : employee.name,
+            'employee_code'   : employee.barcode or '',
+            'require_location': employee.require_company_location,
         }
 
-    # ── Get current status — requires code+pin again for safety ────────────
     @http.route('/drivers/attendance/status', type='json', auth='public', csrf=False)
     def get_status(self, code=None, pin=None, tz_name='UTC', **kwargs):
         employee = _verify_employee(code, pin)
@@ -116,27 +166,36 @@ class DriverAttendancePortal(http.Controller):
 
         is_checked_in = bool(open_att)
         check_in_full = None
+        was_mission   = False
         if open_att and open_att.check_in:
             fmt           = _format_local(open_att.check_in, tz_name)
             check_in_full = fmt['full']
+            was_mission   = open_att.is_mission
 
         return {
-            'success'       : True,
-            'employee_id'   : employee.id,
-            'employee_name' : employee.name,
-            'is_checked_in' : is_checked_in,
-            'check_in_full' : check_in_full,
+            'success'         : True,
+            'employee_id'     : employee.id,
+            'employee_name'   : employee.name,
+            'is_checked_in'   : is_checked_in,
+            'check_in_full'   : check_in_full,
+            'was_mission'     : was_mission,
+            'require_location': employee.require_company_location,
         }
 
-    # ── Check IN ─────────────────────────────────────────────────────────────
     @http.route('/drivers/attendance/checkin', type='json', auth='public', csrf=False)
     def check_in(self, code=None, pin=None, latitude=None, longitude=None,
                  location_label='', local_datetime=None, tz_name='UTC',
-                 tz_offset=0, **kwargs):
+                 tz_offset=0, is_mission=False, **kwargs):
 
         employee = _verify_employee(code, pin)
         if not employee:
             return {'error': 'كود الموظف أو الرقم السري غير صحيح / Invalid code or PIN'}
+
+        is_mission = bool(is_mission)
+
+        geo_error = _check_geofence(employee, latitude, longitude, is_mission)
+        if geo_error:
+            return {'error': geo_error}
 
         open_att = request.env['hr.attendance'].sudo().search([
             ('employee_id', '=', employee.id),
@@ -158,6 +217,7 @@ class DriverAttendancePortal(http.Controller):
             'check_in_location'  : location_label or '',
             'portal_entry'       : True,
             'portal_tz'          : tz_name,
+            'is_mission'         : is_mission,
         }
 
         att_fields = request.env['hr.attendance'].sudo().fields_get()
@@ -172,14 +232,17 @@ class DriverAttendancePortal(http.Controller):
         local_display = _format_local(utc_now, tz_name)
 
         _logger.info(
-            'Driver Portal CHECK-IN: employee=%s | utc=%s | ip=%s',
-            employee.name, utc_now, ip_address,
+            'Portal CHECK-IN: employee=%s | mission=%s | utc=%s | ip=%s',
+            employee.name, is_mission, utc_now, ip_address,
         )
 
         return {
             'success'       : True,
             'action'        : 'checkin',
-            'message'       : 'تم تسجيل الحضور بنجاح / Checked in successfully',
+            'is_mission'    : is_mission,
+            'message'       : ('تم تسجيل حضور مأمورية بنجاح / Mission check-in successful'
+                               if is_mission
+                               else 'تم تسجيل الحضور بنجاح / Checked in successfully'),
             'employee_name' : employee.name,
             'attendance_id' : attendance.id,
             'local_time'    : local_display['time'],
@@ -190,7 +253,6 @@ class DriverAttendancePortal(http.Controller):
             'longitude'     : float(longitude) if longitude else None,
         }
 
-    # ── Check OUT ─────────────────────────────────────────────────────────────
     @http.route('/drivers/attendance/checkout', type='json', auth='public', csrf=False)
     def check_out(self, code=None, pin=None, latitude=None, longitude=None,
                   location_label='', local_datetime=None, tz_name='UTC',
@@ -207,6 +269,11 @@ class DriverAttendancePortal(http.Controller):
 
         if not open_att:
             return {'error': 'لا يوجد تسجيل حضور مفتوح / No open check-in found'}
+
+        # Checkout geofence: only enforce if the check-in was NOT a mission
+        geo_error = _check_geofence(employee, latitude, longitude, open_att.is_mission)
+        if geo_error:
+            return {'error': geo_error}
 
         utc_now = _parse_local_to_utc(local_datetime, tz_name) \
                   if local_datetime else datetime.utcnow()
@@ -236,7 +303,7 @@ class DriverAttendancePortal(http.Controller):
         checkin_display = _format_local(check_in_utc, tz_name)
 
         _logger.info(
-            'Driver Portal CHECK-OUT: employee=%s | worked=%sh%sm | ip=%s',
+            'Portal CHECK-OUT: employee=%s | worked=%sh%sm | ip=%s',
             employee.name, hours, minutes, ip_address,
         )
 

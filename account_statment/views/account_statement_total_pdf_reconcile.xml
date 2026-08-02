@@ -123,10 +123,13 @@
                                             </td>
 
                                             <td class="text-right">
-                                                <span t-esc="line['balance_with_tax']"
-                                                    t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}" />
-                                                <t t-set="balance_sales_person"
-                                                    t-value="balance_sales_person + line['balance_with_tax']" />
+                                                <t t-set="balance_with_tax" t-value="line['balance'] + line['x_studio_taxed_amount_invoice'] + line['x_studio_taxed_amount_refund'] + line['total_customer_allowed_discount']"/>
+                                               
+                                                <!-- Display the calculated balance with tax -->
+                                                <span t-esc="balance_with_tax" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
+                                                
+                                                <!-- Update balance_sales_person -->
+                                                <t t-set="balance_sales_person" t-value="balance_sales_person + balance_with_tax "/>
                                             </td>
                                             <td class="text-right">
                                                 <span t-esc="line['responsible_person']" />
@@ -136,7 +139,6 @@
                                             </td>
                                         </tr>
                                     </t>
-
                                     <tr t-if="sales_person['lines']" style="background-color:#eeeeee; font-weight:bold;">
                                         <td colspan="2" class="text-right">
                                             <span style="float:right">الإجمالي</span>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+  <!-- ── Attendance Form: GPS + Portal + Maps links ────────────────────────── -->
   <record id="view_hr_attendance_form_gps" model="ir.ui.view">
     <field name="name">hr.attendance.form.driver.portal</field>
     <field name="model">hr.attendance</field>
@@ -24,9 +25,21 @@
         </group>
         <group string="Portal Info" col="2" invisible="not portal_entry">
           <field name="portal_entry" readonly="1"/>
+          <field name="is_mission" readonly="1"/>
         </group>
       </xpath>
     </field>
   </record>
 
+  <!-- ── Employee Form: geofence checkbox ──────────────────────────────────── -->
+  <record id="view_employee_form_geofence" model="ir.ui.view">
+    <field name="name">hr.employee.form.geofence</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='pin']" position="after">
+        <field name="require_company_location"/>
+      </xpath>
+    </field>
+  </record>
 </odoo>

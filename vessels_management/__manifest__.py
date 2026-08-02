@@ -13,7 +13,7 @@ vessels_management module allows users to create and manage vessels, including d
     'images': ['static/description/img.png'],
     'category': 'Managment',
     'version': '18.0',
-    'depends': ['base','project','mail','contacts','sale_management','sale_project'],
+    'depends': ['base','project','mail','contacts','sale_management','sale_project','crm'],
     'data': [
         'security/ir.model.access.csv',
         'views/views.xml',

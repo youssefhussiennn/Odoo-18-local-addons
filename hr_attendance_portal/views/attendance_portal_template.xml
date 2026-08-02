@@ -136,6 +136,9 @@
             <button class="btn-action btn-in" id="btnIn">
               <span id="btnInText">&#x2705; Check In</span>
             </button>
+            <button class="btn-action btn-mission" id="btnMission" style="background:linear-gradient(135deg,#f57c00,#e65100);color:#fff;box-shadow:0 4px 16px rgba(245,124,0,0.30);">
+              <span id="btnMissionText">&#x1F697; Mission Check In</span>
+            </button>
             <button class="btn-action btn-out" id="btnOut">
               <span id="btnOutText">&#x1F3C1; Check Out</span>
             </button>
@@ -148,7 +151,7 @@
 
         </div>
 
-        <div class="ftr">hr_attendance_portal FOR AGRICULTURAL DEVELOPMENT</div>
+        <div class="ftr">ATLAS FOR AGRICULTURAL DEVELOPMENT</div>
 
       </div>
 
@@ -165,6 +168,7 @@
             gpsDetect: '&#x62C;&#x627;&#x631; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639;...',
             gpsErr: '&#x26A0;&#xFE0F; &#x641;&#x634;&#x644; &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x648;&#x642;&#x639; - &#x64A;&#x631;&#x62C;&#x649; &#x62A;&#x641;&#x639;&#x64A;&#x644; GPS',            gpsNotSupported: 'GPS &#x63A;&#x64A;&#x631; &#x645;&#x62A;&#x627;&#x62D;',
             checkin: '&#x2705; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;',
+            mission: '&#x1F697; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x62D;&#x636;&#x648;&#x631; &#x645;&#x623;&#x645;&#x648;&#x631;&#x64A;&#x629;',
             checkout: '&#x1F3C1; &#x62A;&#x633;&#x62C;&#x64A;&#x644; &#x627;&#x644;&#x627;&#x646;&#x635;&#x631;&#x627;&#x641;',
             processing: '&#x62C;&#x627;&#x631; &#x627;&#x644;&#x645;&#x639;&#x627;&#x644;&#x62C;&#x629;...',
             in: '&#x1F7E2; &#x645;&#x633;&#x62C;&#x651;&#x644; &#x627;&#x644;&#x62D;&#x636;&#x648;&#x631;',
@@ -188,6 +192,7 @@
             gpsErr: 'Location failed - Please enable GPS and try again',
             gpsNotSupported: 'GPS not supported',
             checkin: '&#x2705; Check In',
+            mission: '&#x1F697; Mission Check In',
             checkout: '&#x1F3C1; Check Out',
             processing: 'Processing...',
             in: '&#x1F7E2; Checked In',
@@ -212,8 +217,9 @@
           document.getElementById('lblStatus').innerHTML  = t('status');
           document.getElementById('lblCiSince').innerHTML = t('ciSince');
           document.getElementById('gpsTxt').innerHTML     = t('gpsDetect');
-          document.getElementById('btnInText').innerHTML  = t('checkin');
-          document.getElementById('btnOutText').innerHTML = t('checkout');
+          document.getElementById('btnInText').innerHTML      = t('checkin');
+          document.getElementById('btnMissionText').innerHTML = t('mission');
+          document.getElementById('btnOutText').innerHTML     = t('checkout');
           document.getElementById('mapsTxt').innerHTML    = t('mapsLink');
           document.getElementById('logoutTxt').innerHTML  = t('logout');
           document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
@@ -245,6 +251,7 @@
         var gpsRow      = document.getElementById('gpsRow');
         var btnIn       = document.getElementById('btnIn');
         var btnOut      = document.getElementById('btnOut');
+        var btnMission  = document.getElementById('btnMission');
         var result      = document.getElementById('result');
         var rIcon       = document.getElementById('rIcon');
         var rMsg        = document.getElementById('rMsg');
@@ -316,13 +323,15 @@
                 ciVal.textContent   = res.check_in_full;
                 ciRow.style.display = 'block';
               }
-              btnOut.style.display = 'block';
-              btnIn.style.display  = 'none';
+              btnOut.style.display     = 'block';
+              btnIn.style.display      = 'none';
+              btnMission.style.display = 'none';
             } else {
               statusVal.textContent = t('out');
               statusVal.className   = 'status-val out';
-              btnIn.style.display   = 'block';
-              btnOut.style.display  = 'none';
+              btnIn.style.display      = 'block';
+              btnMission.style.display = 'block';
+              btnOut.style.display     = 'none';
             }
           });
         }
@@ -347,11 +356,12 @@
           gpsRow.innerHTML = txt;
         }
 
-        btnIn.addEventListener('click',  function() { doAction('checkin');  });
-        btnOut.addEventListener('click', function() { doAction('checkout'); });
+        btnIn.addEventListener('click',      function() { doAction('checkin', false); });
+        btnMission.addEventListener('click', function() { doAction('checkin', true);  });
+        btnOut.addEventListener('click',     function() { doAction('checkout', false); });
 
-        function doAction(action) {
-          var btn = action === 'checkin' ? btnIn : btnOut;
+        function doAction(action, isMission) {
+          var btn = action === 'checkin' ? (isMission ? btnMission : btnIn) : btnOut;
           btn.disabled  = true;
           btn.innerHTML = '<span class="spinner"></span> ' + t('gpsDetect');
           result.style.display = 'none';
@@ -360,7 +370,7 @@
             if (!gpsSuccess) {
               btn.disabled  = false;
               btn.textContent = action === 'checkin'
-                ? t('checkin')
+                ? (isMission ? t('mission') : t('checkin'))
                 : t('checkout');
               showResult('err',
                 lang === 'ar'
@@ -369,7 +379,7 @@
                 '', '&#x26A0;&#xFE0F;');
               return;
             }
-            sendAction(action, btn);
+            sendAction(action, btn, isMission);
           });
         }
 
@@ -395,7 +405,7 @@
           );
         }
 
-        function sendAction(action, btn) {
+        function sendAction(action, btn, isMission) {
           var now = new Date();
           var pad = function(n) { return String(n).padStart(2,'0'); };
           var dt  = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+
@@ -409,7 +419,8 @@
             location_label : gps ? gps.lat.toFixed(7)+','+gps.lng.toFixed(7) : '',
             local_datetime : dt,
             tz_name        : getTz(),
-            tz_offset      : -now.getTimezoneOffset()
+            tz_offset      : -now.getTimezoneOffset(),
+            is_mission     : isMission ? 1 : 0
           }, function(res) {
             btn.disabled = false;
             btn.innerHTML = action === 'checkin'
@@ -434,9 +445,10 @@
             var icon = action === 'checkin' ? '&#x1F7E2;' : '&#x1F3C1;';
             showResult('ok', res.message, rows, icon);
 
-            btnIn.style.display  = 'none';
-            btnOut.style.display = 'none';
-            ciRow.style.display  = 'none';
+            btnIn.style.display      = 'none';
+            btnMission.style.display = 'none';
+            btnOut.style.display     = 'none';
+            ciRow.style.display      = 'none';
 
             if (action === 'checkin') {
               statusVal.textContent = t('in');

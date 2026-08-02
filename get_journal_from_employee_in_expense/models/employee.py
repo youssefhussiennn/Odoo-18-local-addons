@@ -1,9 +1,15 @@
-# -*- coding: utf-8 -*-
+# models/hr_employee.py
 
-from odoo import models, fields, api
+from odoo import models, fields
 
 
-class HrEmployee(models.AbstractModel):
-    _inherit = 'hr.employee.base'
+class HrEmployee(models.Model):
+    _inherit = "hr.employee"
+   # _inherit = "account.payment.method.line"
 
-    journal_id = fields.Many2one('account.journal', string="Journal")
+    
+
+    payment_method_line_id = fields.Many2one(
+        'account.payment.method.line',
+        string="Payment Method"
+    )

@@ -13,8 +13,8 @@
     'website': "https://www.roayadm.com",
     'category': 'Hr',
     'license': 'OPL-1',
-    'version': '18.0',
-    'depends': ['hr', 'hr_expense'],
+    'version': '18.2',
+    'depends': ['hr', 'hr_expense','account_payment', 'account'],
 
     'data': [
         'views/views.xml',
