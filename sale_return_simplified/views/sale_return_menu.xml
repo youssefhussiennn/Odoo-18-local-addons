@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Under Sales top menu -->
+    <menuitem id="menu_sale_return_root"
+              name="Sales Returns"
+              parent="sale.sale_menu_root"
+              sequence="25"/>
+
+    <menuitem id="menu_sale_return_list"
+              name="Returns"
+              parent="menu_sale_return_root"
+              action="action_sale_return"
+              sequence="1"/>
+
+</odoo>

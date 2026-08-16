@@ -39,8 +39,14 @@ class PurchaseOrderProductProduct(models.Model):
                 ])
                 if purchase_order_line:
                     for pol in purchase_order_line:
-                        product.purchase_order_qty += (pol.product_qty - pol.qty_received)
+                        weight = pol.x_studio_product_weight if pol.x_studio_product_weight != 0 else 1
+                        remaining_units = pol.product_qty - pol.qty_received
 
+                        if weight > 1:
+                            product.purchase_order_qty += remaining_units * weight
+                        else:
+                            product.purchase_order_qty += remaining_units / weight
+                                            
     def display_pending_purchase_order_qty(self):
         if self.id:
             template_id = self.env.ref('abs_pending_po_qty.purchase_order_line_tree_custom_view').id

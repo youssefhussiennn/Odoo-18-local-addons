@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Sequence ────────────────────────────────────────────────────────── -->
+    <record id="seq_sale_return" model="ir.sequence">
+        <field name="name">Sales Return</field>
+        <field name="code">sale.return</field>
+        <field name="prefix">SRET/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- ── Form View ──────────────────────────────────────────────────────── -->
+    <record id="view_sale_return_form" model="ir.ui.view">
+        <field name="name">sale.return.form</field>
+        <field name="model">sale.return</field>
+        <field name="arch" type="xml">
+            <form string="Sales Return">
+
+                <header>
+                    <button name="action_confirm"
+                            string="Confirm Return"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            confirm="This will create a stock transfer and credit note(s) automatically. Continue?"/>
+                    <button name="action_cancel"
+                            string="Cancel"
+                            type="object"
+                            invisible="state != 'draft'"/>
+                    <button name="action_reset_draft"
+                            string="Reset to Draft"
+                            type="object"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,done,cancelled"/>
+                </header>
+
+                <sheet>
+
+                    <!-- Smart buttons -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_picking"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-truck"
+                                invisible="not picking_id">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Return Transfer</span>
+                            </div>
+                        </button>
+                        <button name="action_view_credit_notes"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o"
+                                invisible="credit_note_count == 0">
+                            <field name="credit_note_count" widget="statinfo"
+                                   string="Credit Notes"/>
+                        </button>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+
+                    <!-- Header fields -->
+                    <group>
+                        <group string="Return Details">
+                            <field name="partner_id"
+                                   options="{'no_create': True}"
+                                   readonly="state == 'done'"/>
+                            <field name="return_date"
+                                   readonly="state == 'done'"/>
+                            <field name="warehouse_id"
+                                   options="{'no_create': True}"
+                                   readonly="state == 'done'"/>
+                        </group>
+                        <group string="Other Info">
+                            <field name="reason" readonly="state == 'done'"/>
+                            <field name="company_id" readonly="1"
+                                   groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+
+                        <!-- Tab 1: Products to return (user fills) -->
+                        <page string="Products to Return" name="products">
+                            <field name="product_line_ids"
+                                   readonly="state == 'done'"
+                                   optional="show">
+                                <list editable="bottom">
+                                    <field name="product_id"
+                                           options="{'no_create': True}"/>
+                                    <field name="uom_id" readonly="1"/>
+                                    <field name="return_qty"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- Tab 2: Invoice breakdown (auto, read-only) -->
+                        <page string="Invoices Used" name="invoices"
+                              invisible="state != 'done'">
+                            <field name="invoice_line_ids" readonly="1">
+                                <list>
+                                    <field name="product_id"/>
+                                    <field name="invoice_id"/>
+                                    <field name="invoice_date"/>
+                                    <field name="return_qty"/>
+                                    <field name="price_unit"/>
+                                    <field name="subtotal" sum="Total"/>
+                                    <field name="credit_note_id"/>
+                                </list>
+                            </field>
+                        </page>
+
+                    </notebook>
+
+                </sheet>
+
+                <chatter/>
+
+            </form>
+        </field>
+    </record>
+
+    <!-- ── List View ──────────────────────────────────────────────────────── -->
+    <record id="view_sale_return_list" model="ir.ui.view">
+        <field name="name">sale.return.list</field>
+        <field name="model">sale.return</field>
+        <field name="arch" type="xml">
+            <list string="Sales Returns"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="return_date"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-warning="state == 'draft'"
+                       decoration-danger="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ── Search View ────────────────────────────────────────────────────── -->
+    <record id="view_sale_return_search" model="ir.ui.view">
+        <field name="name">sale.return.search</field>
+        <field name="model">sale.return</field>
+        <field name="arch" type="xml">
+            <search string="Sales Returns">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <filter string="Draft"     name="draft"
+                        domain="[('state','=','draft')]"/>
+                <filter string="Done"      name="done"
+                        domain="[('state','=','done')]"/>
+                <filter string="Cancelled" name="cancelled"
+                        domain="[('state','=','cancelled')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Customer" name="group_partner"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter string="Status"   name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Month"    name="group_month"
+                            context="{'group_by': 'return_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ── Action ─────────────────────────────────────────────────────────── -->
+    <record id="action_sale_return" model="ir.actions.act_window">
+        <field name="name">Sales Returns</field>
+        <field name="res_model">sale.return</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_sale_return_search"/>
+        <field name="context">{'search_default_draft': 1}</field>
+    </record>
+
+</odoo>

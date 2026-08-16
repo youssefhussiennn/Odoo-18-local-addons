@@ -1,0 +1,23 @@
+<odoo>
+    <record id="view_purchase_order_form_inherit_excel_import" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.excel.import</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Import button in the header, next to Confirm Order / Send by Email.
+                 Deliberately NOT touching the order_line columns here: on this
+                 database x_purchase_qty, x_studio_purchase_unit, and x_punite_price
+                 are Studio fields, and Studio's own inherited view already renders
+                 them as columns. Adding them again here would duplicate columns. -->
+            <xpath expr="//header" position="inside">
+                <button name="%(action_purchase_order_import_wizard)d"
+                        type="action"
+                        string="Import from Excel"
+                        class="btn-secondary"
+                        invisible="state not in ('draft', 'sent')"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

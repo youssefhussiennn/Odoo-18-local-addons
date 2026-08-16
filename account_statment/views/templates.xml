@@ -124,7 +124,7 @@
                                     <!-- Opening Balance Row -->
                                     <tr>
                                         <td colspan="8"><span style="float:right">رصيد افتتاحي</span></td>
-                                        <t t-set="total_initial_balance" t-value="total_initial_balance + abs(sum(data.filtered(lambda x: x.move_id.is_opening_balance == True).mapped(lambda x: x.debit - x.credit)))"/>
+                                        <t t-set="total_initial_balance" t-value="total_initial_balance + abs(sum(data.filtered(lambda x: x.move_id.is_opening_balance == True).mapped('amount_currency')))"/>
                                         <t t-set="balance"               t-value="total_initial_balance"/>
                                         <t t-set="total_initial_balance" t-value="round((total_initial_balance), 2)"/>
                                         <td>
@@ -140,7 +140,7 @@
 
                                         <!-- Safety Cheque -->
                                         <t t-if="line.account_id.is_safty_account == True">
-                                            <t t-set="line_safty_amount" t-value="round(abs(line.debit - line.credit), 2)"/>
+                                            <t t-set="line_safty_amount" t-value="round(abs(line.amount_currency), 2)"/>
                                             <t t-set="total_safty_checks" t-value="round((total_safty_checks + line_safty_amount), 2)"/>
                                             <tr>
                                                 <td class="text-right"><span style="float:right" t-field="line.date"/></td>
@@ -162,7 +162,7 @@
 
                                         <!-- Collection Cheque -->
                                         <t t-elif="line.account_id.is_collection_account == True">
-                                            <t t-set="line_collection_amount" t-value="round(abs(line.debit - line.credit), 2)"/>
+                                            <t t-set="line_collection_amount" t-value="round(abs(line.amount_currency), 2)"/>
                                             <t t-set="total_collection_checks" t-value="round((total_collection_checks + line_collection_amount), 2)"/>
                                             <tr>
                                                 <td class="text-right"><span style="float:right" t-field="line.date"/></td>
@@ -184,7 +184,7 @@
 
                                         <!-- Customer Allowed Discount -->
                                         <t t-elif="line.account_id.customer_allowed_discount == True">
-                                            <t t-set="total_customer_allowed_discount" t-value="round((total_customer_allowed_discount - line.credit + line.debit), 2)"/>
+                                            <t t-set="total_customer_allowed_discount" t-value="round((total_customer_allowed_discount + line.amount_currency), 2)"/>
                                         </t>
 
                                         <!-- Journal Entry (payment) -->
@@ -207,22 +207,24 @@
                                                     <td class="text-right"><span style="float:right" t-field="line.name"/></td>
                                                     <td class="text-right"><span style="float:right">0</span></td>
                                                     <td class="text-right"><span style="float:right">0</span></td>
+                                                    <t t-set="line_debit_cur"  t-value="round(line.amount_currency, 2) if line.amount_currency > 0 else 0"/>
+                                                    <t t-set="line_credit_cur" t-value="round(-line.amount_currency, 2) if line.amount_currency &lt; 0 else 0"/>
                                                     <td class="text-right">
-                                                        <t t-if="line.debit != 0">
-                                                            <span style="float:right" t-esc="line.debit" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                                        <t t-if="line_debit_cur != 0">
+                                                            <span style="float:right" t-esc="line_debit_cur" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                                         </t>
                                                     </td>
                                                     <td class="text-right">
-                                                        <t t-if="line.credit != 0">
-                                                            <span style="float:right" t-esc="line.credit" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
+                                                        <t t-if="line_credit_cur != 0">
+                                                            <span style="float:right" t-esc="line_credit_cur" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>
                                                         </t>
                                                     </td>
                                                     <td class="text-right">
                                                         <t t-if="line.journal_id.type != 'general'">
-                                                            <t t-set="total_payment" t-value="round((total_payment + (line.credit - line.debit)), 2)"/>
+                                                            <t t-set="total_payment" t-value="round((total_payment + (line_credit_cur - line_debit_cur)), 2)"/>
                                                         </t>
-                                                        <t t-set="balance"      t-value="round((balance - line.credit + line.debit), 2)"/>
-                                                        <t t-set="total_credit" t-value="round((total_credit + line.credit), 2)"/>
+                                                        <t t-set="balance"      t-value="round((balance - line_credit_cur + line_debit_cur), 2)"/>
+                                                        <t t-set="total_credit" t-value="round((total_credit + line_credit_cur), 2)"/>
                                                         <t t-set="x_studio_taxed_amount_total" t-value="0"/>
                                                         <t t-set="balance_with_tax" t-value="balance + x_studio_taxed_amount_total"/>
                                                         <span style="float:right" t-esc="balance_with_tax" t-options="{'widget': 'monetary', 'display_currency': line.currency_id}"/>

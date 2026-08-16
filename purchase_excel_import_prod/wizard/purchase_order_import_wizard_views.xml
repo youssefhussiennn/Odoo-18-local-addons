@@ -1,0 +1,37 @@
+<odoo>
+    <record id="view_purchase_order_import_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.order.import.wizard.form</field>
+        <field name="model">purchase.order.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import RFQ Lines from Excel">
+                <group>
+                    <field name="order_id" invisible="1"/>
+                    <field name="filename" invisible="1"/>
+                    <field name="excel_file" filename="filename" required="1"/>
+                </group>
+                <p class="text-muted">
+                    Expected columns in row 1 (exact spelling):<br/>
+                    Product | Variant | Quantity | Qty Per Punit | Purchase Unit | Unit Price | Punit Price<br/>
+                    Product is the base product name (required, exact match).<br/>
+                    Variant is the size/attribute value, e.g. "250ml", "1L", "20gm" - leave blank
+                    if the product has no variants. If a product has multiple variants and Variant
+                    is left blank, the import will stop and tell you which row needs it.<br/>
+                    All other columns can be left blank. If Purchase Unit is filled in,
+                    it must be exactly "Liter" or "KG".<br/>
+                    This will replace any existing lines on this RFQ.
+                </p>
+                <footer>
+                    <button name="action_import" type="object" string="Import" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_purchase_order_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import from Excel</field>
+        <field name="res_model">purchase.order.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

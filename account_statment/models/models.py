@@ -80,6 +80,12 @@ class AccountMove(models.Model):
     is_opening_balance = fields.Boolean(string="Opening Balance")
     is_customer_discount = fields.Boolean(string="Customer Discount")
 
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    def _check_payable_receivable(self):
+        # Do nothing – effectively disabling the constraint
+        pass
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
