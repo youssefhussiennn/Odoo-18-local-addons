@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Inheriting helpdesk ticket form for adding a button to send the
+    ticket details to the customer via WhatsApp.
+
+    NOTE: This inherits the Odoo Enterprise "Helpdesk" app view
+    (helpdesk.helpdesk_ticket_view_form). If you are instead using the
+    OCA community module (technical name "helpdesk_mgmt"), change the
+    'inherit_id' below to "helpdesk_mgmt.helpdesk_ticket_view_form" and
+    adjust the field names used in model/helpdesk_ticket.py if needed
+    (e.g. partner_phone may not exist there). -->
+    <record id="helpdesk_ticket_view_form_inherit_whatsapp" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.view.form.inherit.whatsapp.mail.messaging</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button type="object"
+                        name="action_send_whatsapp"
+                        string="Send by WhatsApp"
+                        icon="fa-whatsapp"
+                        class="btn-success"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

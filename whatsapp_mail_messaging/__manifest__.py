@@ -1,0 +1,23 @@
+{
+    'name': 'Odoo Whatsapp Connector',
+    'version': '18.0.1.2.0',
+    'category': 'Extra Tools',
+    'summary': """Odoo18 Whatsapp, Whatsapp Odoo Integration, Odoo Whatsapp Connector, 
+     Odoo Whatsapp, Whatsapp Connector, Whatsapp Integration, Odoo18, Whatsapp,
+     Odoo Apps""",
+    'description': """Added options for sending Whatsapp messages in helpdesk tickets.""",
+    'author': 'Ashraf Eesa and Cybrosys Techno Solutions',
+    'depends': ['helpdesk'],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/helpdesk_ticket_views.xml',
+        'views/selection_message_views.xml',
+        'views/res_config_settings_views.xml',
+        'wizard/whatsapp_send_message_views.xml',
+    ],
+    'assets': {},
+    'license': 'LGPL-3',
+    'installable': True,
+    'auto_install': False,
+    'application': False,
+}
