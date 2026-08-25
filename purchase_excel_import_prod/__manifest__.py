@@ -16,6 +16,8 @@ This module only adds:
 - A transient wizard (purchase.order.import.wizard) that reads an
   uploaded .xlsx and creates purchase.order.line records.
 - An "Import from Excel" button in the RFQ form header (draft/sent only).
+- An "Export to Excel" button that downloads the current RFQ lines
+  as a spreadsheet (visible whenever the RFQ has lines).
 
 Expected Excel columns (row 1 headers, exact text):
     Product | Quantity | Qty Per Punit | Purchase Unit | Unit Price | Punit Price

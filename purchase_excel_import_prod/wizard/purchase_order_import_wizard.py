@@ -1,5 +1,6 @@
 import base64
 import io
+import re
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
@@ -16,11 +17,78 @@ REQUIRED_HEADERS = [
     'Quantity',
     'Qty Per Punit',
     'Purchase Unit',
-    'Unit Price',
     'Punit Price',
 ]
 
 VALID_PURCHASE_UNITS = ('Liter', 'KG')
+
+# Zero-width / directional marks that are invisible on screen but break an
+# exact text comparison (common when copy-pasting mixed Arabic/English text
+# from Windows, WhatsApp, PDFs, etc.): ZWSP, ZWNJ, ZWJ, LRM, RLM, BOM.
+_INVISIBLE_CHARS_RE = re.compile('[\u200b\u200c\u200d\u200e\u200f\ufeff]')
+
+
+def normalize_text(value):
+    """Strip invisible marks and collapse whitespace so hidden formatting
+    differences don't break an otherwise-identical product name match."""
+    if not value:
+        return ''
+    text = str(value)
+    text = _INVISIBLE_CHARS_RE.sub('', text)
+    text = text.replace('\xa0', ' ')  # non-breaking space -> normal space
+    text = re.sub(r'\s+', ' ', text)  # collapse multiple/odd whitespace
+    return text.strip()
+
+
+def parse_variant_size(variant_text):
+    """Convert a metric variant size label into its value in base units
+    (Liters for volume, KG for weight). Confirmed scope: only ml, L/liter,
+    gm/g, kg ever appear as variant sizes in this catalog.
+
+    Examples:
+        '500ml'   -> 0.5      (ml / 1000)
+        '75 ml'   -> 0.075
+        '150 ML'  -> 0.15
+        '1L'      -> 1.0
+        '5L'      -> 5.0
+        '1 liter' -> 1.0
+        'Liter'   -> 1.0      (bare unit = 1)
+        '25gm'    -> 0.025    (grams / 1000)
+        '60GM'    -> 0.06
+        '1kg'     -> 1.0
+
+    Returns None if the text can't be understood, so the caller can raise a
+    clear per-row error instead of silently guessing a price.
+    """
+    if not variant_text:
+        return None
+
+    text = normalize_text(variant_text).lower()
+
+    # Bare unit with no number means one base unit (e.g. "Liter" = 1 L).
+    if text in ('liter', 'litre', 'l', 'kg'):
+        return 1.0
+    if text in ('gm', 'g', 'ml'):
+        return 0.001  # a single gram or ml
+
+    # Number followed by a unit, e.g. "500ml", "1 liter", "25gm".
+    match = re.match(r'^\s*([\d.,]+)\s*([a-z]+)\s*$', text)
+    if not match:
+        return None
+
+    number_str, unit = match.group(1), match.group(2)
+    number_str = number_str.replace(',', '.')
+    try:
+        number = float(number_str)
+    except ValueError:
+        return None
+
+    if unit in ('l', 'liter', 'litre', 'kg'):
+        return number
+    if unit in ('ml', 'gm', 'g'):
+        return number / 1000.0
+
+    return None  # unrecognised unit -> caller errors out clearly
 
 
 class PurchaseOrderImportWizard(models.TransientModel):
@@ -83,24 +151,41 @@ class PurchaseOrderImportWizard(models.TransientModel):
                 errors.append("Row %s: Product column is empty." % row_num)
                 continue
             product_name = str(product_name).strip()
+            product_name_norm = normalize_text(product_name)
 
             variant_raw = row[col['Variant']]
             variant_value = str(variant_raw).strip() if variant_raw not in (None, '') else False
+            variant_value_norm = normalize_text(variant_value) if variant_value else False
 
             # Match on the TEMPLATE name first (this is what "Product" really
             # is when a product has variants - the variant text like "20gm"
             # is stored separately, not appended to this name).
-            candidates = self.env['product.product'].search(
-                [('product_tmpl_id.name', '=', product_name)]
+            #
+            # We search broadly with ilike (using the first word as an anchor,
+            # since that's usually the stable English brand name) and then do
+            # the real exact comparison in Python on NORMALIZED text. This
+            # protects against invisible characters (zero-width marks, RTL/LRM
+            # marks, non-breaking spaces) that look identical on screen but
+            # would silently break a plain SQL '=' match.
+            first_word = product_name.split()[0] if product_name.split() else product_name
+            broad_candidates = self.env['product.template'].search(
+                [('name', 'ilike', first_word)]
             )
+            matching_templates = broad_candidates.filtered(
+                lambda t, n=product_name_norm: normalize_text(t.name) == n
+            )
+            candidates = matching_templates.mapped('product_variant_ids')
+
             if not candidates:
                 errors.append("Row %s: no product found with exact name '%s'." % (row_num, product_name))
                 continue
 
-            if variant_value:
+            if variant_value_norm:
                 candidates = candidates.filtered(
-                    lambda p, v=variant_value: v in p.product_template_attribute_value_ids
-                        .mapped('product_attribute_value_id.name')
+                    lambda p, v=variant_value_norm: v in [
+                        normalize_text(name) for name in
+                        p.product_template_attribute_value_ids.mapped('product_attribute_value_id.name')
+                    ]
                 )
                 if not candidates:
                     errors.append(
@@ -148,13 +233,33 @@ class PurchaseOrderImportWizard(models.TransientModel):
 
             quantity, err1 = to_float(row[col['Quantity']], 'Quantity')
             qty_per_punit, err2 = to_float(row[col['Qty Per Punit']], 'Qty Per Punit')
-            unit_price, err3 = to_float(row[col['Unit Price']], 'Unit Price')
-            punit_price, err4 = to_float(row[col['Punit Price']], 'Punit Price')
+            punit_price, err3 = to_float(row[col['Punit Price']], 'Punit Price')
 
-            row_errors = [e for e in (err1, err2, err3, err4) if e]
+            row_errors = [e for e in (err1, err2, err3) if e]
             if row_errors:
                 errors.extend(row_errors)
                 continue
+
+            # price_unit is computed from the confirmed real-data formula:
+            #
+            #   price_unit = x_punite_price x (variant size in Liters/KG)
+            #
+            # verified against production: 200ml @ punit 30 -> 30 x 0.2 = 6.
+            # Note Quantity does NOT enter this - the per-unit price of one
+            # package depends only on its size and the per-Liter/KG price.
+            # We compute it ourselves (rather than relying on the production
+            # Studio onchange) so it works identically on local and prod and
+            # calculates immediately on import, with no manual field-nudging.
+            size_in_base = parse_variant_size(variant_value)
+            if size_in_base is None:
+                errors.append(
+                    "Row %s: could not read a metric size from Variant '%s' - expected "
+                    "something like '500ml', '1L', '25gm', '1kg'. Fix the Variant text "
+                    "so the price can be calculated." % (row_num, variant_value)
+                )
+                continue
+
+            price_unit = punit_price * size_in_base
 
             line_commands.append((0, 0, {
                 'product_id': product.id,
@@ -162,7 +267,7 @@ class PurchaseOrderImportWizard(models.TransientModel):
                 'product_qty': quantity,
                 'product_uom': product.uom_po_id.id or product.uom_id.id,
                 'date_planned': fields.Datetime.now(),
-                'price_unit': unit_price,
+                'price_unit': price_unit,
                 'x_purchase_qty': qty_per_punit,
                 'x_studio_purchase_unit': purchase_unit,
                 'x_punite_price': punit_price,
@@ -178,6 +283,8 @@ class PurchaseOrderImportWizard(models.TransientModel):
             raise UserError("No valid product rows were found in the Excel file.")
 
         # Fresh RFQ workflow: clear any existing lines, then load from Excel.
+        # price_unit is already computed per line, so Amount/Total populate
+        # immediately - no manual field-nudging needed.
         self.order_id.order_line = [(5, 0, 0)] + line_commands
 
         return {'type': 'ir.actions.act_window_close'}

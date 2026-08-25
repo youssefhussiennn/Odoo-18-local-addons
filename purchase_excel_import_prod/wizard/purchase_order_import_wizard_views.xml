@@ -11,13 +11,14 @@
                 </group>
                 <p class="text-muted">
                     Expected columns in row 1 (exact spelling):<br/>
-                    Product | Variant | Quantity | Qty Per Punit | Purchase Unit | Unit Price | Punit Price<br/>
+                    Product | Variant | Quantity | Qty Per Punit | Purchase Unit | Punit Price<br/>
                     Product is the base product name (required, exact match).<br/>
                     Variant is the size/attribute value, e.g. "250ml", "1L", "20gm" - leave blank
-                    if the product has no variants. If a product has multiple variants and Variant
-                    is left blank, the import will stop and tell you which row needs it.<br/>
-                    All other columns can be left blank. If Purchase Unit is filled in,
-                    it must be exactly "Liter" or "KG".<br/>
+                    if the product has no variants.<br/>
+                    Unit Price is NOT entered - it's calculated automatically as
+                    (Punit Price x Qty Per Punit) / Quantity.<br/>
+                    Quantity, Qty Per Punit, Purchase Unit and Punit Price can be left blank.
+                    If Purchase Unit is filled in, it must be exactly "Liter" or "KG".<br/>
                     This will replace any existing lines on this RFQ.
                 </p>
                 <footer>

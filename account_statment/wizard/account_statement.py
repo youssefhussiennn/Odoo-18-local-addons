@@ -290,9 +290,9 @@ class AccountStatementWizard(models.TransientModel):
                                     (total_payment_sales_person + (line.credit - line.debit)), 2)
                             else:
                                 total_payment = round(
-                                    (total_payment + abs(line.amount_currency)), 2)
+                                    (total_payment + (-line.amount_currency)), 2)
                                 total_payment_sales_person = round(
-                                    (total_payment_sales_person + abs(line.amount_currency)), 2)
+                                    (total_payment_sales_person + (-line.amount_currency)), 2)
                         elif line.move_id.is_opening_balance == True:
                             total_initial_balance = total_initial_balance + \
                                 (line.debit - line.credit)
@@ -388,7 +388,7 @@ class AccountStatementWizard(models.TransientModel):
                     'total_collection_checks_sales_person': total_collection_checks_sales_person,
                     'total_safty_checks_sales_person': total_safty_checks_sales_person,
                     'total_purchase_sales_person': total_purchase_sales_person,
-                    'currency_id': account.currency_id.id,
+                    'currency_id': self.currency_id.id if self.currency_id else account.currency_id.id,
                     'total_discount': total_discount,
                     'discount': discount,
                     'total_discount_sales_person': total_discount_sales_person,
@@ -607,11 +607,6 @@ class AccountStatementWizard(models.TransientModel):
                                 else:
                                     amount = round(abs(line.amount_currency), 2)
 
-                                total_payment = round(
-                                    (total_payment + amount), 2)
-                                total_payment_sales_person = round(
-                                    (total_payment_sales_person + amount), 2)
-
                                 if journal_type == 'bank':
                                     total_payment_bank = round(
                                         (total_payment_bank + amount), 2)
@@ -622,9 +617,10 @@ class AccountStatementWizard(models.TransientModel):
                                         (total_payment_cash + amount), 2)
                                     total_payment_cash_sales_person = round(
                                         (total_payment_cash_sales_person + amount), 2)
-                                # journal types other than bank/cash (e.g. 'general')
-                                # still count toward total_payment above but are
-                                # not split into either bank or cash column
+                                # journal types other than bank/cash (e.g. 'general',
+                                # exchange-difference entries) are excluded from
+                                # total_payment entirely, so total_payment always
+                                # equals total_payment_bank + total_payment_cash
                             elif line.move_id.is_opening_balance == True:
                                 total_initial_balance = total_initial_balance + \
                                     (line.debit - line.credit)
@@ -685,6 +681,11 @@ class AccountStatementWizard(models.TransientModel):
                                     total_sales_after_discount_sales_person = round(
                                         (total_sales_after_discount_sales_person + inv.price_subtotal), 2)
 
+                    total_payment = round(
+                        (total_payment_bank + total_payment_cash), 2)
+                    total_payment_sales_person = round(
+                        (total_payment_bank_sales_person + total_payment_cash_sales_person), 2)
+
                     computed_balance = balance + x_studio_taxed_amount_invoice + x_studio_taxed_amount_refund + total_customer_allowed_discount
                     if self.hide_zero_balance and computed_balance == 0:
                         continue
@@ -721,7 +722,7 @@ class AccountStatementWizard(models.TransientModel):
                         'total_collection_checks_sales_person': total_collection_checks_sales_person,
                         'total_safty_checks_sales_person': total_safty_checks_sales_person,
                         'total_purchase_sales_person': total_purchase_sales_person,
-                        'currency_id': account.currency_id.id,
+                        'currency_id': self.currency_id.id if self.currency_id else account.currency_id.id,
                         'total_discount': total_discount,
                         'discount': discount,
                         'total_discount_sales_person': total_discount_sales_person,

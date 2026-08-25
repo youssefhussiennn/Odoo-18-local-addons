@@ -16,6 +16,11 @@
                         string="Import from Excel"
                         class="btn-secondary"
                         invisible="state not in ('draft', 'sent')"/>
+                <button name="action_export_lines_excel"
+                        type="object"
+                        string="Export to Excel"
+                        class="btn-secondary"
+                        invisible="not order_line"/>
             </xpath>
 
         </field>
