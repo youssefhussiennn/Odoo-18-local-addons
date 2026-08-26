@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-inherit="account_reports.AgedPartnerBalanceFilters" t-inherit-mode="extension">
+        <xpath expr="//div[@id='filter_aging_interval']" position="after">
+            <div id="filter_custom_periods">
+                <button class="btn btn-secondary"
+                        t-att-class="{ 'active': controller.options.custom_periods_enabled }"
+                        t-on-click="() => this.filterClicked({ optionKey: 'custom_periods_enabled', optionValue: !controller.options.custom_periods_enabled, reload: true })">
+                    <i class="fa fa-clock-o me-1"/>
+                    Custom Periods:
+                    <t t-if="controller.options.custom_periods_enabled">On</t>
+                    <t t-else="">Off</t>
+                </button>
+            </div>
+        </xpath>
+    </t>
+</templates>
