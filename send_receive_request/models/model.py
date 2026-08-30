@@ -14,6 +14,22 @@ class StockPayment(models.Model):
 
     is_document = fields.Boolean()
 
+    salesperson_id = fields.Many2one(
+        comodel_name="res.users",
+        string="Salesperson",
+        default=lambda self: self.env.user,
+        domain=lambda self: [
+            ('id', 'in', self.env['crm.team.member'].search([]).user_id.ids)
+        ],
+        tracking=True,
+    )
+
+    technical_support_id = fields.Many2one(
+        comodel_name='technical.support',
+        string="Technical Support",
+        tracking=True,
+    )
+
     partner_id = fields.Many2one(
         comodel_name='res.partner',
         string="Customer/Vendor",
@@ -177,6 +193,8 @@ class StockPayment(models.Model):
                     'credit': -liquidity_balance if liquidity_balance < 0.0 else 0.0,
                     'partner_id': self.partner_id.id,
                     'account_id': self.outstanding_account_id.id,
+                    'salesperson_id': self.salesperson_id.id,
+                    'technical_support_id': self.technical_support_id.id,
                 },
                 # Counterpart line
                 {
@@ -189,6 +207,8 @@ class StockPayment(models.Model):
                     'credit': -counterpart_balance if counterpart_balance < 0.0 else 0.0,
                     'partner_id': self.partner_id.id,
                     'account_id': self.destination_account_id.id,
+                    'salesperson_id': self.salesperson_id.id,
+                    'technical_support_id': self.technical_support_id.id,
                 },
             ]
         else:  # multi
@@ -202,6 +222,8 @@ class StockPayment(models.Model):
                     'credit': -liquidity_balance if liquidity_balance < 0.0 else 0.0,
                     'partner_id': self.partner_id.id,
                     'account_id': self.outstanding_account_id.id,
+                    'salesperson_id': self.salesperson_id.id,
+                    'technical_support_id': self.technical_support_id.id,
                 }
             ]
             for account_line in self.writeoff_multi_acc_ids:
@@ -216,6 +238,8 @@ class StockPayment(models.Model):
                     'account_id': account_line.writeoff_account_id.id,
                     'analytic_distribution': account_line.analytic_distribution,
                     'analytic_tag_ids': [(4, tag, None) for tag in account_line.analytic_tag_ids.ids],
+                    'salesperson_id': self.salesperson_id.id,
+                    'technical_support_id': self.technical_support_id.id,
                 })
 
         # Write-off line
@@ -228,6 +252,8 @@ class StockPayment(models.Model):
                 'credit': -write_off_balance if write_off_balance < 0.0 else 0.0,
                 'partner_id': self.partner_id.id,
                 'account_id': write_off_line_vals.get('account_id'),
+                'salesperson_id': self.salesperson_id.id,
+                'technical_support_id': self.technical_support_id.id,
             })
 
         return line_vals_list
@@ -508,3 +534,25 @@ class AccountAccount(models.Model):
 
     is_customer = fields.Boolean('Customer')
     is_vendor = fields.Boolean('Vendor')
+
+
+class TechnicalSupport(models.Model):
+    _name = 'technical.support'
+    _description = 'Technical Support'
+    _order = 'name'
+
+    name = fields.Char(string="Name", required=True)
+    active = fields.Boolean(default=True)
+
+
+class AccountMoveLine(models.Model):
+    _inherit = 'account.move.line'
+
+    salesperson_id = fields.Many2one(
+        comodel_name='res.users',
+        string="Salesperson",
+    )
+    technical_support_id = fields.Many2one(
+        comodel_name='technical.support',
+        string="Technical Support",
+    )

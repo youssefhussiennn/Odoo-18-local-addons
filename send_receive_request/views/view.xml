@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <record id="view_acount_journal_form_inherit" model="ir.ui.view">
-        <field name="name">Journal Form Inheri</field>
-        <field name="model">account.journal</field>
-        <field name="type">form</field>
-        <field name="inherit_id" ref="account.view_account_journal_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='country_code']" position="after">
-                <field name="pay_type" modifiers="{'invisible': [('type', 'not in', ('cash', 'bank'))]}"/>
-            </xpath>
-        </field>
-    </record>
+<!--    <record id="view_acount_journal_form_inherit" model="ir.ui.view">-->
+<!--        <field name="name">Journal Form Inheri</field>-->
+<!--        <field name="model">account.journal</field>-->
+<!--        <field name="type">form</field>-->
+<!--        <field name="inherit_id" ref="account.view_account_journal_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//field[@name='country_code']" position="after">-->
+<!--                <field name="pay_type" modifiers="{'invisible': [('type', 'not in', ('cash', 'bank'))]}"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
 
     <record id="action_account_document_out_payment" model="ir.actions.act_window">
         <!-- <field name="type">ir.actions.act_window</field> -->
@@ -115,13 +115,13 @@
         <field name="mode">primary</field>
         <field name="priority">30</field>
         <field name="arch" type="xml">
-            
+
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="destination_account_id" 
-                    options="{'no_create': True}"  
+                <field name="destination_account_id"
+                    options="{'no_create': True}"
                     modifiers="{
-                        'required': [('post_type', '=', 'single')], 
-                        'invisible': [('post_type', '!=', 'single')], 
+                        'required': [('post_type', '=', 'single')],
+                        'invisible': [('post_type', '!=', 'single')],
                         'readonly': ['|', ('state', '!=', 'draft'), ('payment_type', '=', 'transfer')]
                     }"/>
                 <!-- <attribute name="attrs">{'required': [('post_type', '=', 'single')],'invisible': [('post_type','!=','single')]}</attribute> -->
@@ -154,8 +154,8 @@
                 <field name="partne_required" modifiers="{'invisible': True}"/>
                 <field name="post_type" modifiers="{'invisible': [('payment_type', '=', 'inbound')], 'readonly': [('state', '!=', 'draft')]}"/>
                 <field name="partner_id" modifiers="{
-                    'invisible': [('post_type', '!=', 'single')], 
-                    'readonly': [('state', '!=', 'draft')], 
+                    'invisible': [('post_type', '!=', 'single')],
+                    'readonly': [('state', '!=', 'draft')],
                     'required': [('partne_required', '=', True), ('post_type', '=', 'single')]
                 }"/>
                 <field name="is_document" modifiers="{'invisible': True}"/>
@@ -164,9 +164,9 @@
 
             <xpath expr="//group[@name='group2']" position="after">
                 <group colspan='12'>
-                    <field name="writeoff_multi_acc_ids" 
+                    <field name="writeoff_multi_acc_ids"
                         modifiers="{
-                            'invisible': [('post_type', '=', 'single')], 
+                            'invisible': [('post_type', '=', 'single')],
                             'readonly': [('state', '!=', 'draft')]
                         }">
                         <list editable="bottom">
@@ -192,14 +192,14 @@
 
 
             <xpath expr="//field[@name='journal_id']" position="replace">
-                
+
                 <field name="journal" invisible='1'/>
                 <field name="journal_id"
                     widget="selection"
                     domain="[('type', 'in', ('cash', 'bank'))]"
                     modifiers="{'readonly': [('state', '!=', 'draft')]}"/>
             </xpath>
-            
+
         </field>
     </record>
 
@@ -215,6 +215,89 @@
         </field>
     </record>
 
+    <record id="view_account_payment_form_salesperson" model="ir.ui.view">
+        <field name="name">account.payment.form.salesperson</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="salesperson_id"/>
+                <field name="technical_support_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_move_form_salesperson" model="ir.ui.view">
+        <field name="name">account.move.form.salesperson</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='line_ids']/list/field[@name='partner_id']" position="after">
+                <field name="salesperson_id" optional="show"/>
+                <field name="technical_support_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Payment list: show salesperson + technical support columns -->
+    <record id="view_account_payment_tree_salesperson" model="ir.ui.view">
+        <field name="name">account.payment.list.salesperson</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="salesperson_id" optional="show"/>
+                <field name="technical_support_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Payment search: search box + group-by for salesperson + technical support -->
+    <record id="view_account_payment_search_salesperson" model="ir.ui.view">
+        <field name="name">account.payment.search.salesperson</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="salesperson_id"/>
+                <field name="technical_support_id"/>
+            </xpath>
+            <xpath expr="//search" position="inside">
+                <group string="Group By">
+                    <filter string="Salesperson" name="group_salesperson" context="{'group_by': 'salesperson_id'}"/>
+                    <filter string="Technical Support" name="group_technical_support" context="{'group_by': 'technical_support_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_move_line_tree_salesperson" model="ir.ui.view">
+        <field name="name">account.move.line.list.salesperson</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="salesperson_id" optional="show"/>
+                <field name="technical_support_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_move_line_search_salesperson" model="ir.ui.view">
+        <field name="name">account.move.line.search.salesperson</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_account_move_line_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="technical_support_id"/>
+            </xpath>
+            <xpath expr="//search" position="inside">
+                <group string="Group By">
+                    <filter string="Technical Support" name="group_ml_technical_support" context="{'group_by': 'technical_support_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
     <record model="ir.ui.view" id="account_payment_document_in_inherited_view">
         <field name="name">account.payment.document.in.inherited.view</field>
         <field name="model">account.payment</field>
@@ -222,14 +305,14 @@
         <field name="mode">primary</field>
         <field name="priority">30</field>
         <field name="arch" type="xml">
-            
+
 
             <xpath expr="//field[@name='partner_id']" position="after">
-            <field name="destination_account_id" 
-                options="{'no_create': True}" 
+            <field name="destination_account_id"
+                options="{'no_create': True}"
                 modifiers="{
-                    'required': [('post_type', '=', 'single')], 
-                    'invisible': [('post_type', '!=', 'single')], 
+                    'required': [('post_type', '=', 'single')],
+                    'invisible': [('post_type', '!=', 'single')],
                     'readonly': ['|', ('state', '!=', 'draft'), ('payment_type', '=', 'transfer')]
                 }"/>
 
@@ -260,11 +343,11 @@
            <xpath expr="//field[@name='destination_account_id']" position="after">
                 <field name="partne_required" modifiers="{'invisible': True}"/>
                 <field name="post_type" modifiers="{
-                    'invisible': [('payment_type', '=', 'inbound')], 
+                    'invisible': [('payment_type', '=', 'inbound')],
                     'readonly': [('state', '!=', 'draft')]
                 }"/>
                 <field name="partner_id" modifiers="{
-                    'readonly': [('state', '!=', 'draft')], 
+                    'readonly': [('state', '!=', 'draft')],
                     'required': [('partne_required', '=', True), ('post_type', '=', 'single')]
                 }"/>
                 <field name="is_document" modifiers="{'invisible': True}"/>
@@ -273,11 +356,11 @@
 
             <xpath expr="//group[@name='group2']" position="after">
                 <group colspan='12'>
-                    <field name="writeoff_multi_acc_ids" 
+                    <field name="writeoff_multi_acc_ids"
                         modifiers="{
-                            'invisible': [('post_type', '=', 'single')], 
+                            'invisible': [('post_type', '=', 'single')],
                             'readonly': [('state', '!=', 'draft')]
-                        }">                        
+                        }">
                         <list editable="bottom">
                             <field name='writeoff_account_id'/>
                             <field name="partne_required" invisible="1"/>
@@ -308,7 +391,7 @@
                     modifiers="{'readonly': [('state', '!=', 'draft')]}"/>
             </xpath>
 
-            
+
         </field>
     </record>
 
@@ -319,12 +402,12 @@
         <field name="mode">primary</field>
         <field name="priority">30</field>
         <field name="arch" type="xml">
-            
+
 
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="destination_account_id" 
-                    options="{'no_create': True}" 
-                    required="1" 
+                <field name="destination_account_id"
+                    options="{'no_create': True}"
+                    required="1"
                     modifiers="{'readonly': ['|', ('state', '!=', 'draft'), ('payment_type', '=', 'transfer')]}"/>
             </xpath>
 
@@ -349,9 +432,9 @@
 
             <xpath expr="//field[@name='destination_account_id']" position="after">
                 <field name="partne_required" modifiers="{'invisible': True}"/>
-                <field name="partner_id" 
+                <field name="partner_id"
                     modifiers="{
-                        'readonly': [('state', '!=', 'draft')], 
+                        'readonly': [('state', '!=', 'draft')],
                         'required': [('partne_required', '=', True)]
                     }"/>
                 <field name="is_document" modifiers="{'invisible': True}"/>
@@ -368,17 +451,17 @@
                     modifiers="{'readonly': [('state', '!=', 'draft')]}"/>
             </xpath>
 
-            
+
         </field>
     </record>
 
-    
+
     <record model="ir.actions.act_window.view" id="action_document_out_payment_tree">
         <field name="sequence" eval="1"/>
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_account_payment_document_out_tree"/>
         <field name="act_window_id" ref="action_account_document_out_payment"/>
-    </record> 
+    </record>
     <record model="ir.actions.act_window.view" id="action_document_in_payment_tree">
         <field name="sequence" eval="1"/>
         <field name="view_mode">list</field>
@@ -428,7 +511,7 @@
             sequence="26"
             parent="account.menu_finance_receivables"/>
 
-    
+
 
     <menuitem
             id="menu_in_out_payment"
@@ -440,7 +523,7 @@
             name="Cash In"
             action="action_account_document_in_payment"
             sequence="1"
-            parent="send_receive_request.menu_in_out_payment"/>    
+            parent="send_receive_request.menu_in_out_payment"/>
     <menuitem
             id="main_action_account_document_out_payment"
             name="Cash Out"
@@ -452,17 +535,57 @@
             name="Internal Transfer"
             action="action_account_document_internal_payment"
             sequence="3"
-            parent="send_receive_request.menu_in_out_payment"/>   
+            parent="send_receive_request.menu_in_out_payment"/>
 
-    
-    <report
-            id="payment_statment_report_pdf"
-            model="account.payment"
-            report_type="qweb-pdf"
-            string="Payment Statment"
-            name="send_receive_request.print_payment_statment_report"
-            file="send_receive_request.print_payment_statment_report"
-    />
+
+    <!-- Technical Support: list + form + action + menu -->
+    <record id="view_technical_support_tree" model="ir.ui.view">
+        <field name="name">technical.support.list</field>
+        <field name="model">technical.support</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_technical_support_form" model="ir.ui.view">
+        <field name="name">technical.support.form</field>
+        <field name="model">technical.support</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_technical_support" model="ir.actions.act_window">
+        <field name="name">Technical Support</field>
+        <field name="res_model">technical.support</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+            id="menu_technical_support"
+            name="Technical Support"
+            action="action_technical_support"
+            parent="account.menu_finance_receivables"
+            sequence="100"/>
+
+
+    <record id="payment_statment_report_pdf" model="ir.actions.report">
+        <field name="name">Payment Statment</field>
+        <field name="model">account.payment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">send_receive_request.print_payment_statment_report</field>
+        <field name="report_file">send_receive_request.print_payment_statment_report</field>
+        <field name="binding_model_id" ref="account.model_account_payment"/>
+        <field name="binding_type">report</field>
+    </record>
 
     <template id="custom_external_layout_header_statment_payment">
        <t t-if="not o" t-set="o" t-value="doc"/>
@@ -480,7 +603,7 @@
             </t>
         </t>
         <div class="header" style="margin-bottom:0px;margin-top:0px;padding:0px">
-            
+
             <img t-if="company.logo" class=" text-center"
                                     t-att-src="image_data_uri(company.logo)"
                                     style="max-height: 100px;max-width: 100;float:left;padding:0px;margin:0px" alt="Logo"/>
@@ -506,7 +629,7 @@
             </t>
         </t>
         <div class="footer" style="border-top: 1px solid black;">
-            <div> 
+            <div>
                 <h5 style="float:center">
                 <span t-field="company.name"/><t t-if="company.name">-</t>
                 <span t-field="company.partner_id.street"/><t t-if="company.partner_id.street">-</t>
@@ -520,12 +643,12 @@
                 <span t-field="company.partner_id.mobile"/><span class="fa fa-phone"></span></h5>
             </div>
         </div>
-        
-        
+
+
     </template>
 
     <template id="custom_external_layout_payment_statment">
-        
+
         <t t-call="send_receive_request.custom_external_layout_header_statment_payment">
             <t t-raw="0"/>
         </t>
@@ -545,19 +668,19 @@
                     <t t-foreach="docs" t-as="doc">
                         <div class="col-md-6" style="border:0px solid black;">
                             <br/>
-                            
+
                             <table class="table table-condensed"
                                     style="width:100%;border: 0px solid black;border-collapse: collapse;">
                                 <tr>
                                     <td>
                                         <br/>
                                             <t t-if="doc.payment_type == 'outbound'">
-                                                <t t-if="not doc.journal_id.type == 'bank'">    
+                                                <t t-if="not doc.journal_id.type == 'bank'">
                                                     <h3 class="text-center" style="font-size: 25px;">
                                                         <strong><u>إيصال صرف نقدي</u> <br/> <u>Cash Payable Voucher</u></strong>
                                                     </h3>
                                                 </t>
-                                                <t t-if="doc.journal_id.type == 'bank'">    
+                                                <t t-if="doc.journal_id.type == 'bank'">
                                                     <h3 class="text-center" style="font-size: 25px;">
                                                         <strong><u>ايصال صرف شيك / تحويل بنكى</u> <br/> <u>Cash Payable Voucher</u></strong>
                                                     </h3>
@@ -570,12 +693,12 @@
                                                     </h3>
                                                 </t>
                                                 <t t-else="">
-                                                    <t t-if="not doc.journal_id.type == 'bank'">    
+                                                    <t t-if="not doc.journal_id.type == 'bank'">
                                                         <h3 class="text-center" style="font-size: 25px;">
                                                             <strong><u>إيصال إستلام نقدي</u> <br/> <u>Cash Receivable Voucher</u></strong>
                                                         </h3>
                                                     </t>
-                                                    <t t-if="doc.journal_id.type == 'bank'">    
+                                                    <t t-if="doc.journal_id.type == 'bank'">
                                                         <h3 class="text-center" style="font-size: 25px;">
                                                             <strong><u>ايصال استلام شيك / تحويل بنكى</u> <br/> <u>Cash Receivable Voucher</u></strong>
                                                         </h3>
@@ -685,7 +808,7 @@
 
                                 </table>
 
-                                   
+
                                 <center><span t-field="doc.numinwords"/></center>
                             </t>
                             <br/>
