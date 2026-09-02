@@ -794,12 +794,32 @@ class AccountStatementWizard(models.TransientModel):
             ('شيكات ضمان', 15, 'char', 'char'),
             ('شيكات تحت التحصيل', 15, 'char', 'char'),
             ('رصيد غير مغطي', 15, 'char', 'char'),
+            ('Taxes refund', 15, 'char', 'char'),
+            ('Taxes invoice', 15, 'char', 'char'),
         ]
 
         fp = BytesIO()
         workbook = xlsxwriter.Workbook(fp)
         wbf, workbook = self.add_workbook_format(workbook)
         worksheet = workbook.add_worksheet(report_name)
+
+        # Currency-aware helpers, matching the PDF report's convention:
+        # for EGP (or no currency chosen) use company-currency debit/credit,
+        # otherwise use amount_currency, which mirrors the (debit - credit)
+        # sign convention. Wherever a total is wrapped in abs() the sign
+        # doesn't matter, but using amount_currency consistently is what
+        # makes these numbers match the PDF report for non-EGP statements.
+        def _bal_amt(rec):
+            # debit - credit direction (opening balance, checks, discount)
+            if not self.currency_id or self.currency_id.name == 'EGP':
+                return rec.debit - rec.credit
+            return rec.amount_currency
+
+        def _pay_amt(rec):
+            # credit - debit direction (payments)
+            if not self.currency_id or self.currency_id.name == 'EGP':
+                return rec.credit - rec.debit
+            return -rec.amount_currency
 
 
         
@@ -813,13 +833,13 @@ class AccountStatementWizard(models.TransientModel):
             raise UserError("Please At least choose sales team.")
         
         if self.team_id and not self.user_ids:
-            moves = self.env['account.move.line'].search([('partner_id.team_id','=',self.team_id.id),'|','|','|',('account_id.account_type','in',('liability_payable', 'asset_receivable')), ('account_id.is_safty_account','=', True), ('account_id.is_collection_account','=', True), ('account_id.customer_allowed_discount','=', True), ('parent_state', '=', 'posted')] + self._date_domain())
-            old_invoices = self.env['account.move.line'].search([('date', '<', self.date_start),('partner_id.team_id','=',self.team_id.id),('account_id.account_type','in',('liability_payable', 'asset_receivable')), ('parent_state', '=', 'posted')])
+            moves = self.env['account.move.line'].search([('partner_id.team_id','=',self.team_id.id),'|','|','|',('account_id.account_type','in',('liability_payable', 'asset_receivable')), ('account_id.is_safty_account','=', True), ('account_id.is_collection_account','=', True), ('account_id.customer_allowed_discount','=', True), ('parent_state', '=', 'posted'), ('partner_id.property_purchase_currency_id', '=', self.currency_id.id)] + self._date_domain())
+            old_invoices = self.env['account.move.line'].search([('date', '<', self.date_start),('partner_id.team_id','=',self.team_id.id),('account_id.account_type','in',('liability_payable', 'asset_receivable')), ('parent_state', '=', 'posted'), ('partner_id.property_purchase_currency_id', '=', self.currency_id.id)])
 
 
         else:
-            moves = self.env['account.move.line'].search([('partner_id.user_id.id','in',self.user_ids.ids),'|','|','|',('account_id.account_type','in',('liability_payable', 'asset_receivable')), ('account_id.is_safty_account','=', True), ('account_id.is_collection_account','=', True), ('account_id.customer_allowed_discount','=', True), ('parent_state', '=', 'posted')] + self._date_domain())
-            old_invoices = self.env['account.move.line'].search([('date', '<', self.date_start),('partner_id.user_id.id','in',self.user_ids.ids),('account_id.account_type','in',('liability_payable', 'asset_receivable')), ('parent_state', '=', 'posted')])
+            moves = self.env['account.move.line'].search([('partner_id.user_id.id','in',self.user_ids.ids),'|','|','|',('account_id.account_type','in',('liability_payable', 'asset_receivable')), ('account_id.is_safty_account','=', True), ('account_id.is_collection_account','=', True), ('account_id.customer_allowed_discount','=', True), ('parent_state', '=', 'posted'), ('partner_id.property_purchase_currency_id', '=', self.currency_id.id)] + self._date_domain())
+            old_invoices = self.env['account.move.line'].search([('date', '<', self.date_start),('partner_id.user_id.id','in',self.user_ids.ids),('account_id.account_type','in',('liability_payable', 'asset_receivable')), ('parent_state', '=', 'posted'), ('partner_id.property_purchase_currency_id', '=', self.currency_id.id)])
 
 
         if self.date_start and not self.date_end:
@@ -858,19 +878,23 @@ class AccountStatementWizard(models.TransientModel):
 
                 all_record_of_salesperson = all_record.filtered(lambda x:x.partner_id.user_id == sales_person)
                 # total customer allowed discount for sales person
-                salesperson_total_customer_allowed_discount = sum(all_record_of_salesperson.filtered(lambda x:x.account_id.customer_allowed_discount == True).mapped(lambda x:x.debit - x.credit))
+                salesperson_total_customer_allowed_discount = sum(all_record_of_salesperson.filtered(lambda x:x.account_id.customer_allowed_discount == True).mapped(_bal_amt))
                 # total safty check for sales person
-                salesperson_total_safty_check = abs(sum(all_record_of_salesperson.filtered(lambda x:x.account_id.is_safty_account == True).mapped(lambda x:x.debit - x.credit)))
+                salesperson_total_safty_check = abs(sum(all_record_of_salesperson.filtered(lambda x:x.account_id.is_safty_account == True).mapped(_bal_amt)))
                 # total collection checks for sales person
-                salesperson_total_collection_check = abs(sum(all_record_of_salesperson.filtered(lambda x:x.account_id.is_collection_account == True).mapped(lambda x:x.debit - x.credit)))
+                salesperson_total_collection_check = abs(sum(all_record_of_salesperson.filtered(lambda x:x.account_id.is_collection_account == True).mapped(_bal_amt)))
                 # all records without safty checks and collection checks and customer allowed discount
                 records_without_checks_and_allowed_discount = all_record_of_salesperson.filtered(lambda x:x.account_id.customer_allowed_discount == False and x.account_id.is_safty_account == False and x.account_id.is_collection_account == False and x.move_id.is_customer_discount == False)
 
                 # get total refund for sales person
-                salesperson_total_refund = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['out_refund', 'in_refund']).mapped(lambda x:x.price_subtotal)))
+                salesperson_total_refund = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['out_refund', 'in_refund']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.price_subtotal)))
                 
                 # total purchase for sales person
-                salesperson_total_purchase = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['in_invoice']).mapped(lambda x:x.price_subtotal)))
+                salesperson_total_purchase = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['in_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.price_subtotal)))
+
+                # tax on invoices / refunds for sales person, same concept as the PDF report's x_studio_taxed_amount
+                salesperson_tax_invoice = sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['out_invoice', 'in_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.x_studio_taxed_amount))
+                salesperson_tax_refund = sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['out_refund', 'in_refund']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.x_studio_taxed_amount))
 
                 # total sales before discount salesperson
                 salesperson_total_sales_before_dis = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['out_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:(x.quantity * x.price_unit))))
@@ -881,13 +905,15 @@ class AccountStatementWizard(models.TransientModel):
                 salesperson_total_over_due_amount = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['out_invoice','in_refund'] and x.move_id.payment_state in ['not_paid', 'partial', 'in_payment'] and str(x.move_id.invoice_date_due) < datetime.datetime.today().strftime('%Y-%m-%d')).mapped(lambda x:x.move_id.amount_residual)))
                 # salesperson_total_over_due_amount = self._get_total_due_currency(sales_person)
                 salesperson_total_discount = salesperson_total_sales_before_dis - salesperson_total_sales_after_dis
+                # net sales after discount for sales person, same concept as the PDF report's Total_sales_updated
+                salesperson_net_sales_after_discount = salesperson_total_sales_after_dis - salesperson_total_refund - salesperson_total_discount - salesperson_total_customer_allowed_discount
 
                 # total payments for sales person
-                salesperson_total_payment = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['entry'] and x.move_id.is_opening_balance == False).mapped(lambda x:x.credit - x.debit)))
+                salesperson_total_payment = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['entry'] and x.move_id.is_opening_balance == False).mapped(_pay_amt)))
                 partners = all_record_of_salesperson.mapped(lambda x:x.partner_id)
-                salesperson_total_initial_balance = abs(sum(old_invoices.filtered(lambda x:x.partner_id.user_id == sales_person and x.partner_id in partners).mapped(lambda x:x.credit - x.debit)))
-                salesperson_total_initial_balance = salesperson_total_initial_balance + abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.is_opening_balance == True).mapped(lambda x:x.debit - x.credit)))
-                salesperson_total_balance = salesperson_total_initial_balance + salesperson_total_sales_after_dis - salesperson_total_refund - salesperson_total_payment - salesperson_total_purchase - salesperson_total_customer_allowed_discount
+                salesperson_total_initial_balance = abs(sum(old_invoices.filtered(lambda x:x.partner_id.user_id == sales_person and x.partner_id in partners).mapped(_bal_amt)))
+                salesperson_total_initial_balance = salesperson_total_initial_balance + abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.is_opening_balance == True).mapped(_bal_amt)))
+                salesperson_total_balance = salesperson_total_initial_balance + salesperson_total_sales_after_dis - salesperson_total_refund - salesperson_total_payment - salesperson_total_purchase - salesperson_total_customer_allowed_discount + salesperson_tax_invoice - salesperson_tax_refund
                 # salesperson_total_balance = salesperson_total_initial_balance + sum(records_without_checks_and_allowed_discount.mapped(lambda x:x.debit - x.credit))
 
 
@@ -900,26 +926,32 @@ class AccountStatementWizard(models.TransientModel):
                     # wbf_value = wbf['content']
                     worksheet.write(row - 1, 0, partner.name or '0', wbf['content'])
                     # total customer allowed discount for partner
-                    total_customer_allowed_discount = sum(all_record_of_salesperson.filtered(lambda x:x.partner_id == partner and x.account_id.customer_allowed_discount == True).mapped(lambda x:x.debit - x.credit))
+                    total_customer_allowed_discount = sum(all_record_of_salesperson.filtered(lambda x:x.partner_id == partner and x.account_id.customer_allowed_discount == True).mapped(_bal_amt))
                     worksheet.write(row - 1, 6, total_customer_allowed_discount, wbf['content'])
                     
                     # total safty checks for partner
-                    total_safty_check = abs(sum(all_record_of_salesperson.filtered(lambda x:x.partner_id == partner and x.account_id.is_safty_account == True).mapped(lambda x:x.debit - x.credit)))
+                    total_safty_check = abs(sum(all_record_of_salesperson.filtered(lambda x:x.partner_id == partner and x.account_id.is_safty_account == True).mapped(_bal_amt)))
                     worksheet.write(row - 1, 11, total_safty_check, wbf['content'])
 
                     #total collection checks for partner
                     total_collection_check = abs(sum(all_record_of_salesperson.filtered(
                         lambda x: x.partner_id == partner and x.account_id.is_collection_account == True).mapped(
-                        lambda x: x.debit - x.credit)))
+                        _bal_amt)))
                     worksheet.write(row - 1, 12, total_collection_check, wbf['content'])
 
                     # total refund for each partner
-                    total_refund = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_refund', 'in_refund']).mapped(lambda x:x.price_subtotal)))
+                    total_refund = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_refund', 'in_refund']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.price_subtotal)))
                     worksheet.write(row - 1, 5, total_refund, wbf['content'])
                     
                     # total purchase for each partner
-                    total_purchase = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['in_invoice']).mapped(lambda x:x.price_subtotal)))
+                    total_purchase = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['in_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.price_subtotal)))
                     worksheet.write(row - 1, 8, total_purchase, wbf['content'])
+
+                    # tax on invoices / refunds for each partner, same concept as the PDF report's x_studio_taxed_amount
+                    tax_invoice = sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_invoice', 'in_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.x_studio_taxed_amount))
+                    tax_refund = sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_refund', 'in_refund']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.x_studio_taxed_amount))
+                    worksheet.write(row - 1, 14, abs(tax_refund), wbf['content'])
+                    worksheet.write(row - 1, 15, abs(tax_invoice + tax_refund), wbf['content'])
 
                     # total sales before discount
                     total_sales_before_dis = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.quantity * x.price_unit)))
@@ -927,22 +959,27 @@ class AccountStatementWizard(models.TransientModel):
                     
                     # total sales after discount
                     total_sales_after_dis = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.quantity * x.price_unit * (1-x.discount / 100))))
-                    worksheet.write(row - 1, 4, total_sales_after_dis, wbf['content'])
                     
                     total_discount = total_sales_before_dis - total_sales_after_dis
                     worksheet.write(row - 1, 3, total_discount, wbf['content'])
 
+                    # net sales after discount, same concept as the PDF report's Total_sales_updated:
+                    # also nets out refunds and other/allowed discounts (خصومات اخري), not just the
+                    # per-line invoice discount
+                    net_sales_after_discount = total_sales_after_dis - total_refund - total_discount - total_customer_allowed_discount
+                    worksheet.write(row - 1, 4, net_sales_after_discount, wbf['content'])
+
                     # total payment for each partner
-                    total_payment = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['entry'] and x.move_id.is_opening_balance == False).mapped(lambda x:x.credit - x.debit)))
+                    total_payment = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['entry'] and x.move_id.is_opening_balance == False).mapped(_pay_amt)))
                     worksheet.write(row - 1, 7, total_payment, wbf['content'])
                     
-                    total_initial_balance = abs(sum(old_invoices.filtered(lambda x:x.partner_id == partner).mapped(lambda x:x.debit - x.credit)))
-                    total_initial_balance = total_initial_balance + abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['entry'] and x.move_id.is_opening_balance == True).mapped(lambda x:x.debit - x.credit)))
+                    total_initial_balance = abs(sum(old_invoices.filtered(lambda x:x.partner_id == partner).mapped(_bal_amt)))
+                    total_initial_balance = total_initial_balance + abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['entry'] and x.move_id.is_opening_balance == True).mapped(_bal_amt)))
 
                     # salesperson_total_initial_balance += total_initial_balance
                     worksheet.write(row - 1, 1, total_initial_balance or '0', wbf['content'])
                     
-                    total_balance = total_initial_balance + total_sales_after_dis - total_refund - total_payment - total_purchase - total_customer_allowed_discount
+                    total_balance = total_initial_balance + total_sales_after_dis - total_refund - total_payment - total_purchase - total_customer_allowed_discount + tax_invoice - tax_refund
                     # total_balance = total_initial_balance + sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner).mapped(lambda x:x.debit - x.credit))
                     worksheet.write(row - 1, 9, total_balance, wbf['content'])
 
@@ -991,7 +1028,7 @@ class AccountStatementWizard(models.TransientModel):
                 row += 1
 
                 worksheet.write(row - 1, 0, 'اجمالي صافي البيع بعد الخصم', wbf['header_orange'])
-                worksheet.write(row - 1, 1, salesperson_total_sales_after_dis, wbf['content'])
+                worksheet.write(row - 1, 1, salesperson_net_sales_after_discount, wbf['content'])
                 row += 1
 
                 worksheet.write(row - 1, 0, 'اجمالي سداد', wbf['header_orange'])
@@ -1037,6 +1074,14 @@ class AccountStatementWizard(models.TransientModel):
                             salesperson_total_safty_check + salesperson_total_collection_check)
                 worksheet.write(row - 1, 0, 'رصيد غير مغطي', wbf['header_orange'])
                 worksheet.write(row - 1, 1, salesperson_uncovered_balance, wbf['content'])
+                row += 1
+
+                worksheet.write(row - 1, 0, 'اجمالي ضريبة المرتجعات', wbf['header_orange'])
+                worksheet.write(row - 1, 1, abs(salesperson_tax_refund), wbf['content'])
+                row += 1
+
+                worksheet.write(row - 1, 0, 'اجمالي ضريبة الفواتير', wbf['header_orange'])
+                worksheet.write(row - 1, 1, abs(salesperson_tax_invoice + salesperson_tax_refund), wbf['content'])
                 row += 5
 
                 

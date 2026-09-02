@@ -43,9 +43,9 @@ class PurchaseOrderProductProduct(models.Model):
                         remaining_units = pol.product_qty - pol.qty_received
 
                         if weight > 1:
-                            product.purchase_order_qty += remaining_units * weight
-                        else:
                             product.purchase_order_qty += remaining_units / weight
+                        else:
+                            product.purchase_order_qty += remaining_units * weight
                                             
     def display_pending_purchase_order_qty(self):
         if self.id:
