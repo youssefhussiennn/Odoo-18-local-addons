@@ -913,7 +913,7 @@ class AccountStatementWizard(models.TransientModel):
                 partners = all_record_of_salesperson.mapped(lambda x:x.partner_id)
                 salesperson_total_initial_balance = abs(sum(old_invoices.filtered(lambda x:x.partner_id.user_id == sales_person and x.partner_id in partners).mapped(_bal_amt)))
                 salesperson_total_initial_balance = salesperson_total_initial_balance + abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.is_opening_balance == True).mapped(_bal_amt)))
-                salesperson_total_balance = salesperson_total_initial_balance + salesperson_total_sales_after_dis - salesperson_total_refund - salesperson_total_payment - salesperson_total_purchase - salesperson_total_customer_allowed_discount + salesperson_tax_invoice - salesperson_tax_refund
+                salesperson_total_balance = salesperson_total_initial_balance + salesperson_total_sales_after_dis - salesperson_total_refund - salesperson_total_payment - salesperson_total_purchase + salesperson_tax_invoice - salesperson_tax_refund
                 # salesperson_total_balance = salesperson_total_initial_balance + sum(records_without_checks_and_allowed_discount.mapped(lambda x:x.debit - x.credit))
 
 
@@ -979,7 +979,7 @@ class AccountStatementWizard(models.TransientModel):
                     # salesperson_total_initial_balance += total_initial_balance
                     worksheet.write(row - 1, 1, total_initial_balance or '0', wbf['content'])
                     
-                    total_balance = total_initial_balance + total_sales_after_dis - total_refund - total_payment - total_purchase - total_customer_allowed_discount + tax_invoice - tax_refund
+                    total_balance = total_initial_balance + total_sales_after_dis - total_refund - total_payment - total_purchase + tax_invoice - tax_refund
                     # total_balance = total_initial_balance + sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner).mapped(lambda x:x.debit - x.credit))
                     worksheet.write(row - 1, 9, total_balance, wbf['content'])
 
