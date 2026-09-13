@@ -38,7 +38,15 @@ class StockReport(models.TransientModel):
     _name = "wizard.stock.history"
     _description = "Current Stock History"
 
-    warehouse = fields.Many2many('stock.warehouse', 'wh_wiz_rel', 'wh', 'wiz', string='Warehouse', required=True)
+    warehouse = fields.Many2many(
+    'stock.warehouse',
+    'wh_wiz_rel',
+    'wh',
+    'wiz',
+    string='Warehouse',
+    required=True,
+    domain=[('lot_stock_id.usage', '=', 'internal')]
+)
     category = fields.Many2many('product.category', 'categ_wiz_rel', 'categ', 'wiz', string='Category')
 
     # date_start = fields.Date(string="Start Date", required=True, default=fields.Date.context_today)
@@ -71,54 +79,124 @@ class StockReport(models.TransientModel):
             l2.append(j.id)
         return l1, l2
 
-    def get_lines(self, data, warehouse):
+    def get_lines(self, data, warehouse_id):
         lines = []
+
         categ_id = data.mapped('id')
+
         if categ_id:
-            categ_products = self.env['product.product'].search([('categ_id', 'in', categ_id)])
+            categ_products = self.env['product.product'].search([
+                ('categ_id', 'in', categ_id)
+            ])
         else:
             categ_products = self.env['product.product'].search([])
-        product_ids = tuple([pro_id.id for pro_id in categ_products])
+
+        warehouse = self.env['stock.warehouse'].browse(warehouse_id)
+        location = warehouse.lot_stock_id
+
+        product_ids = tuple(product.id for product in categ_products)
+
         sale_query = """
-               SELECT sum(s_o_l.product_uom_qty) AS product_uom_qty, s_o_l.product_id FROM sale_order_line AS s_o_l
-               JOIN sale_order AS s_o ON s_o_l.order_id = s_o.id
-               WHERE s_o.state IN ('sale','done')
-               AND s_o.warehouse_id = %s
-               AND s_o_l.product_id in %s group by s_o_l.product_id"""
+            SELECT
+                SUM(s_o_l.product_uom_qty) AS product_uom_qty,
+                s_o_l.product_id
+            FROM sale_order_line AS s_o_l
+            JOIN sale_order AS s_o
+                ON s_o_l.order_id = s_o.id
+            WHERE s_o.state IN ('sale', 'done')
+                AND s_o.warehouse_id = %s
+                AND s_o_l.product_id IN %s
+            GROUP BY s_o_l.product_id
+        """
+
         purchase_query = """
-               SELECT sum(p_o_l.product_qty) AS product_qty, p_o_l.product_id FROM purchase_order_line AS p_o_l
-               JOIN purchase_order AS p_o ON p_o_l.order_id = p_o.id
-               INNER JOIN stock_picking_type AS s_p_t ON p_o.picking_type_id = s_p_t.id
-               WHERE p_o.state IN ('purchase','done')
-               AND s_p_t.warehouse_id = %s AND p_o_l.product_id in %s group by p_o_l.product_id"""
-        params = warehouse, product_ids if product_ids else (0, 0)
+            SELECT
+                SUM(p_o_l.product_qty) AS product_qty,
+                p_o_l.product_id
+            FROM purchase_order_line AS p_o_l
+            JOIN purchase_order AS p_o
+                ON p_o_l.order_id = p_o.id
+            INNER JOIN stock_picking_type AS s_p_t
+                ON p_o.picking_type_id = s_p_t.id
+            WHERE p_o.state IN ('purchase', 'done')
+                AND s_p_t.warehouse_id = %s
+                AND p_o_l.product_id IN %s
+            GROUP BY p_o_l.product_id
+        """
+
+        params = (
+            warehouse_id,
+            product_ids if product_ids else (0, 0)
+        )
+
         self._cr.execute(sale_query, params)
         sol_query_obj = self._cr.dictfetchall()
+
         self._cr.execute(purchase_query, params)
         pol_query_obj = self._cr.dictfetchall()
+
         for obj in categ_products:
-            sale_value = next((sol['product_uom_qty'] for sol in sol_query_obj if sol['product_id'] == obj.id), 0)
-            purchase_value = next((pol['product_qty'] for pol in pol_query_obj if pol['product_id'] == obj.id), 0)
-            virtual_available = obj.with_context({'warehouse': warehouse}).virtual_available
-            outgoing_qty = obj.with_context({'warehouse': warehouse}).outgoing_qty
-            incoming_qty = obj.with_context({'warehouse': warehouse}).incoming_qty
-            available_qty = virtual_available + outgoing_qty - incoming_qty
-            
+
+            sale_value = next(
+                (
+                    sol['product_uom_qty']
+                    for sol in sol_query_obj
+                    if sol['product_id'] == obj.id
+                ),
+                0
+            )
+
+            purchase_value = next(
+                (
+                    pol['product_qty']
+                    for pol in pol_query_obj
+                    if pol['product_id'] == obj.id
+                ),
+                0
+            )
+
+            # Get stock specifically from this warehouse's stock location
+            virtual_available = obj.with_context(
+                location=location.id
+            ).virtual_available
+
+            outgoing_qty = obj.with_context(
+                location=location.id
+            ).outgoing_qty
+
+            incoming_qty = obj.with_context(
+                location=location.id
+            ).incoming_qty
+
+            available_qty = (
+                virtual_available
+                + outgoing_qty
+                - incoming_qty
+            )
+
             vals = {
-                'product_id': obj.id, 
+                'product_id': obj.id,
                 'sku': obj.default_code,
                 'name': obj.name,
-                'variant_values': ', '.join(obj.product_template_attribute_value_ids.mapped('name')),
+                'variant_values': ', '.join(
+                    obj.product_template_attribute_value_ids.mapped('name')
+                ),
                 'usage_rate': obj.usage_rate,
                 'composition': obj.composition,
                 'category': obj.categ_id.name,
-                'parent_category': obj.categ_id.parent_id.name if obj.categ_id.parent_id else '',
+                'parent_category': (
+                    obj.categ_id.parent_id.name
+                    if obj.categ_id.parent_id
+                    else ''
+                ),
                 'available': available_qty,
                 'virtual': virtual_available,
                 'ordered_qty': obj.purchase_order_qty,
                 'weight': obj.weight,
             }
+
             lines.append(vals)
+
         return lines
 
     def get_xlsx_report(self, data, response):

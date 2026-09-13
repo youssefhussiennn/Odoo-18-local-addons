@@ -983,7 +983,7 @@ class AccountStatementWizard(models.TransientModel):
                     # salesperson_total_initial_balance += total_initial_balance
                     worksheet.write(row - 1, 1, total_initial_balance or '0', wbf['content'])
                     
-                    total_balance = total_initial_balance + total_sales_after_dis - total_refund - total_payment - total_purchase - total_customer_allowed_discount + tax_invoice - tax_refund
+                    total_balance = total_initial_balance + total_sales_after_dis - total_refund - total_payment - total_purchase - total_customer_allowed_discount - tax_refund
                     # total_balance = total_initial_balance + sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner).mapped(lambda x:x.debit - x.credit))
                     worksheet.write(row - 1, 9, total_balance, wbf['content'])
 
@@ -1649,13 +1649,13 @@ class AccountStatementWizard(models.TransientModel):
 
                         if line.move_id.move_type not in ('out_refund', 'in_invoice'):
                             balance = round(balance + inv.price_subtotal, 2)
-                            total_debit = round(total_debit + inv.price_subtotal, 2)
+                            total_debit = round(total_debit + inv.price_subtotal + tax_total, 2)
                         else:
                             balance = round(balance - inv.price_subtotal, 2)
-                            total_credit = round(total_credit + inv.price_subtotal, 2)
+                            total_credit = round(total_credit + inv.price_subtotal + tax_total, 2)
 
                         if line.move_id.move_type == 'out_refund':
-                            total_refund = round(total_refund + inv.price_subtotal, 2)
+                            total_refund = round(total_refund + inv.price_subtotal + tax_total, 2)
                         if line.move_id.move_type == 'out_invoice':
                             total_sales_after_discount = round(total_sales_after_discount + inv.price_subtotal, 2)
                             total_sales_before_discount = round(

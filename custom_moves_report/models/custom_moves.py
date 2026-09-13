@@ -55,7 +55,7 @@ class movesReport(models.AbstractModel):
             
         all_moves = self.env['stock.move.line'].search(domain, order='date')
         prods = self.env['product.product'].search([('id', 'in', products)])
-        prods = [prod.name_get()[0][1] for prod in prods]
+        prods = [prod.display_name for prod in prods]
         return{
             'products': prods,
             'data': list(self._process_moves(products, all_moves, date_start, location))
