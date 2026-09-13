@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST VIEW -->
+    <record id="view_legal_investigation_list" model="ir.ui.view">
+        <field name="name">legal.investigation.list</field>
+        <field name="model">legal.investigation</field>
+        <field name="arch" type="xml">
+            <list string="Investigations">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="investigation_date"/>
+                <field name="has_penalty"/>
+                <field name="penalty_type"/>
+                <field name="state"/>
+                <field name="hr_notified"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_legal_investigation_form" model="ir.ui.view">
+        <field name="name">legal.investigation.form</field>
+        <field name="model">legal.investigation</field>
+        <field name="arch" type="xml">
+            <form string="Investigation">
+                <header>
+                    <button name="action_start" string="Start Investigation"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_close" string="Close &amp; Apply Penalty"
+                            type="object" class="btn-success"
+                            invisible="state != 'in_progress'"
+                            groups="legal_affairs.group_legal_manager"/>
+                    <button name="action_reset_draft" string="Reset to Draft"
+                            type="object"
+                            invisible="state == 'draft'"
+                            groups="legal_affairs.group_legal_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,in_progress,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Employee Information">
+                            <field name="employee_id"/>
+                            <field name="department_id"/>
+                            <field name="investigation_date"/>
+                        </group>
+                        <group string="Status">
+                            <field name="hr_notified" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Investigation Details">
+                            <field name="description"
+                                   placeholder="Describe the investigation details..."/>
+                        </page>
+                        <page string="Penalty" invisible="not has_penalty">
+                            <group>
+                                <field name="has_penalty"/>
+                                <field name="penalty_type"
+                                       invisible="not has_penalty"/>
+                                <field name="penalty_days"
+                                       invisible="penalty_type != 'deduction'"/>
+                                <field name="penalty_description"
+                                       invisible="not has_penalty"/>
+                                <field name="payslip_input_id"
+                                       readonly="1"
+                                       invisible="not payslip_input_id"/>
+                            </group>
+                        </page>
+                        <page string="Penalty" invisible="has_penalty">
+                            <group>
+                                <field name="has_penalty"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <record id="view_legal_investigation_search" model="ir.ui.view">
+        <field name="name">legal.investigation.search</field>
+        <field name="model">legal.investigation</field>
+        <field name="arch" type="xml">
+            <search string="Search Investigations">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <filter string="Draft" name="draft"
+                        domain="[('state','=','draft')]"/>
+                <filter string="In Progress" name="in_progress"
+                        domain="[('state','=','in_progress')]"/>
+                <filter string="Closed" name="closed"
+                        domain="[('state','=','closed')]"/>
+                <separator/>
+                <filter string="Has Penalty" name="has_penalty"
+                        domain="[('has_penalty','=',True)]"/>
+                <filter string="Warning" name="warning"
+                        domain="[('penalty_type','=','warning')]"/>
+                <filter string="Deduction" name="deduction"
+                        domain="[('penalty_type','=','deduction')]"/>
+                <filter string="Termination" name="termination"
+                        domain="[('penalty_type','=','termination')]"/>
+                <filter string="HR Notified" name="hr_notified"
+                        domain="[('hr_notified','=',True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee"
+                            context="{'group_by': 'employee_id'}"/>
+                    <filter string="Department" name="group_dept"
+                            context="{'group_by': 'department_id'}"/>
+                    <filter string="Penalty Type" name="group_penalty"
+                            context="{'group_by': 'penalty_type'}"/>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_legal_investigation" model="ir.actions.act_window">
+        <field name="name">Investigations</field>
+        <field name="res_model">legal.investigation</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_legal_investigation_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No investigations found. Create your first one.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -37,7 +37,7 @@ class movesDetails(models.TransientModel):
             'product_ids': self.product_ids.mapped('id'),
             'location_id': self.location_id.id,
             'to_collapse': self.to_collapse,
-            'report_head': f'Movement Report in {self.location_id.name_get()[0][1]}'
+            'report_head': f'Movement Report in {self.location_id.display_name}'
         }
         return self.env.ref('custom_moves_report.moves_report').report_action([], data=data)
     
@@ -48,6 +48,6 @@ class movesDetails(models.TransientModel):
             'product_ids': self.product_ids.mapped('id'),
             'location_id': self.location_id.id,
             'to_collapse': self.to_collapse,
-            'report_head': f'Movement Report in {self.location_id.name_get()[0][1]}',
+            'report_head': f'Movement Report in {self.location_id.display_name}'
         }
         return self.env.ref('custom_moves_report.moves_report_excel').report_action([], data=data)

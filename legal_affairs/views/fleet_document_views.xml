@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST VIEW -->
+    <record id="view_fleet_vehicle_document_list" model="ir.ui.view">
+        <field name="name">fleet.vehicle.document.list</field>
+        <field name="model">fleet.vehicle.document</field>
+        <field name="arch" type="xml">
+            <list string="Vehicle Documents" decoration-muted="state=='archived'"
+                  decoration-danger="state=='expired'">
+                <field name="vehicle_id"/>
+                <field name="title"/>
+                <field name="document_type"/>
+                <field name="issue_date"/>
+                <field name="expiry_date"/>
+                <field name="attachment_count" string="Files"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_fleet_vehicle_document_form" model="ir.ui.view">
+        <field name="name">fleet.vehicle.document.form</field>
+        <field name="model">fleet.vehicle.document</field>
+        <field name="arch" type="xml">
+            <form string="Vehicle Document">
+                <header>
+                    <button name="action_set_active" string="Set Active"
+                            type="object" class="btn-primary"
+                            invisible="state == 'active'"/>
+                    <button name="action_archive_document" string="Archive"
+                            type="object"
+                            invisible="state == 'archived'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="active,expired,archived"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="title"/>
+                        <h1>
+                            <field name="title" placeholder="Document title..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Document Info">
+                            <field name="vehicle_id"/>
+                            <field name="document_type"/>
+                            <field name="issue_date"/>
+                            <field name="expiry_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Attachments">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"
+                                   placeholder="Add any notes or remarks..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <record id="view_fleet_vehicle_document_search" model="ir.ui.view">
+        <field name="name">fleet.vehicle.document.search</field>
+        <field name="model">fleet.vehicle.document</field>
+        <field name="arch" type="xml">
+            <search string="Search Vehicle Documents">
+                <field name="title"/>
+                <field name="vehicle_id"/>
+                <filter string="Active" name="active"
+                        domain="[('state','=','active')]"/>
+                <filter string="Expired" name="expired"
+                        domain="[('state','=','expired')]"/>
+                <filter string="Archived" name="archived"
+                        domain="[('state','=','archived')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Vehicle" name="group_vehicle"
+                            context="{'group_by': 'vehicle_id'}"/>
+                    <filter string="Document Type" name="group_type"
+                            context="{'group_by': 'document_type'}"/>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_fleet_vehicle_document" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">fleet.vehicle.document</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_fleet_vehicle_document_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No documents found. Attach your first vehicle document.
+            </p>
+        </field>
+    </record>
+
+    <!-- MENU: under Fleet's own root menu -->
+    <menuitem id="menu_fleet_vehicle_documents"
+              name="Documents"
+              parent="fleet.fleet_vehicles"
+              action="action_fleet_vehicle_document"
+              sequence="15"/>
+
+</odoo>

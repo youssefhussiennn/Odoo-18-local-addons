@@ -1,0 +1,22 @@
+{
+    'name': 'Legal Affairs',
+    'version': '18.0.1.0.0',
+    'category': 'Human Resources',
+    'summary': 'Manage employee investigations, penalties, and company legal documents',
+    'depends': ['base', 'hr', 'hr_payroll', 'mail', 'fleet'],
+    'data': [
+        'security/groups.xml',
+        'security/ir.model.access.csv',
+        'data/sequences.xml',
+        'data/payroll_input_type.xml',
+        'views/investigation_views.xml',
+        'views/document_views.xml',
+        'views/hr_employee_views.xml',
+        'views/fleet_document_views.xml',
+        'views/fleet_vehicle_views.xml',
+        'views/menu.xml',
+    ],
+    'installable': True,
+    'application': True,
+    'license': 'LGPL-3',
+}

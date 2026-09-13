@@ -58,7 +58,7 @@ class AccountStatementWizard(models.TransientModel):
             total_due = 0
             total_overdue = 0
             for aml in record.unreconciled_aml_ids:
-                if aml.company_id == self.env.company :
+                if aml.company_id == self.env.company and aml.account_id.account_type == 'asset_receivable':
                     amount = aml.amount_residual
                     amount = self.env.company.currency_id._convert(
                         amount, self.currency_id, aml.company_id, aml.date or fields.Date.today())
@@ -247,7 +247,7 @@ class AccountStatementWizard(models.TransientModel):
                 total_customer_allowed_discount = 0
                 total_discount = 0
                 purchase_total_discount = 0
-                old_invoices = 'moves:'
+                old_invoices = []
                 # total_due_amount = 0
                 # <t t-set="final_lines_checks" t-value="request.env['account.move.line'].sudo().search([('partner_id','=',account.id),('move_id.move_type','=','entry'),'|',('account_id.is_collection_account','=',True),('account_id.is_safty_account','=',True)])"/>
                 final_lines_checks = self.env['account.move.line'].sudo().search(
@@ -316,7 +316,7 @@ class AccountStatementWizard(models.TransientModel):
                                 (x_studio_taxed_amount_invoice + invoice_line.x_studio_taxed_amount), 2)
                             
                     if line.move_id.invoice_line_ids and line.move_id.move_type in ['out_refund', 'in_refund', 'out_invoice', 'in_invoice'] and line.account_id.is_safty_account == False and line.account_id.is_collection_account == False and line.account_id.customer_allowed_discount == False and line.move_id.name not in old_invoices and line.move_id.is_customer_discount == False:
-                        old_invoices = old_invoices + ' , ' + line.move_id.name
+                        old_invoices.append(line.move_id.name)
 
                         for inv in line.move_id.invoice_line_ids:
                             if inv.discount > 0 and line.move_id.move_type in ['out_invoice']:
@@ -369,7 +369,7 @@ class AccountStatementWizard(models.TransientModel):
                     'total_initial_balance': total_initial_balance,
                     'total_sales_before_discount': total_sales_before_discount,
                     'total_refund': total_refund,
-                    'Total_sales_updated': total_sales_after_discount - total_refund - total_discount - total_customer_allowed_discount,
+                    'Total_sales_updated': total_sales_after_discount - total_refund - total_customer_allowed_discount,
                     'total_payment': total_payment,
                     'x_studio_taxed_amount': x_studio_taxed_amount,
                     'x_studio_taxed_amount_refund': x_studio_taxed_amount_refund,
@@ -565,7 +565,7 @@ class AccountStatementWizard(models.TransientModel):
                     total_customer_allowed_discount = 0
                     total_discount = 0
                     purchase_total_discount = 0
-                    old_invoices = 'moves:'
+                    old_invoices = []
 
                     final_lines_checks = self.env['account.move.line'].sudo().search(
                         [('partner_id', '=', account.id), ('move_id.move_type', '=', 'entry'), '|', ('account_id.is_collection_account', '=', True), ('account_id.is_safty_account', '=', True)])
@@ -640,7 +640,7 @@ class AccountStatementWizard(models.TransientModel):
                                     (x_studio_taxed_amount_invoice + invoice_line.x_studio_taxed_amount), 2)
 
                         if line.move_id.invoice_line_ids and line.move_id.move_type in ['out_refund', 'in_refund', 'out_invoice', 'in_invoice'] and line.account_id.is_safty_account == False and line.account_id.is_collection_account == False and line.account_id.customer_allowed_discount == False and line.move_id.name not in old_invoices and line.move_id.is_customer_discount == False:
-                            old_invoices = old_invoices + ' , ' + line.move_id.name
+                            old_invoices.append(line.move_id.name)
 
                             for inv in line.move_id.invoice_line_ids:
                                 if inv.discount > 0 and line.move_id.move_type in ['out_invoice']:
@@ -699,7 +699,7 @@ class AccountStatementWizard(models.TransientModel):
                         'total_initial_balance': total_initial_balance,
                         'total_sales_before_discount': total_sales_before_discount,
                         'total_refund': total_refund,
-                        'Total_sales_updated': total_sales_after_discount - total_refund - total_discount - total_customer_allowed_discount,
+                        'Total_sales_updated': total_sales_after_discount - total_refund - total_customer_allowed_discount,
                         'total_payment': total_payment,
                         'total_payment_bank': total_payment_bank,
                         'total_payment_cash': total_payment_cash,
@@ -901,19 +901,23 @@ class AccountStatementWizard(models.TransientModel):
                 
                 # total sales after discount salesperson
                 salesperson_total_sales_after_dis = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['out_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.quantity * x.price_unit * ( 1 - x.discount / 100))))
-                # total_over due amount
-                salesperson_total_over_due_amount = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['out_invoice','in_refund'] and x.move_id.payment_state in ['not_paid', 'partial', 'in_payment'] and str(x.move_id.invoice_date_due) < datetime.datetime.today().strftime('%Y-%m-%d')).mapped(lambda x:x.move_id.amount_residual)))
-                # salesperson_total_over_due_amount = self._get_total_due_currency(sales_person)
+                # total_over due amount - same concept/source as the PDF report (as-of-today AR overdue,
+                # not bound by the wizard's date range, since overdue debt isn't limited to a reporting period)
+                salesperson_partners = all_record_of_salesperson.mapped('partner_id')
+                if not self.currency_id or self.currency_id.name == 'EGP':
+                    salesperson_total_over_due_amount = sum(salesperson_partners.mapped('total_overdue'))
+                else:
+                    salesperson_total_over_due_amount = sum(self._get_total_due_currency(p) or 0 for p in salesperson_partners)
                 salesperson_total_discount = salesperson_total_sales_before_dis - salesperson_total_sales_after_dis
                 # net sales after discount for sales person, same concept as the PDF report's Total_sales_updated
-                salesperson_net_sales_after_discount = salesperson_total_sales_after_dis - salesperson_total_refund - salesperson_total_discount - salesperson_total_customer_allowed_discount
+                salesperson_net_sales_after_discount = salesperson_total_sales_after_dis - salesperson_total_refund - salesperson_total_customer_allowed_discount
 
                 # total payments for sales person
                 salesperson_total_payment = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.move_type in ['entry'] and x.move_id.is_opening_balance == False).mapped(_pay_amt)))
                 partners = all_record_of_salesperson.mapped(lambda x:x.partner_id)
                 salesperson_total_initial_balance = abs(sum(old_invoices.filtered(lambda x:x.partner_id.user_id == sales_person and x.partner_id in partners).mapped(_bal_amt)))
                 salesperson_total_initial_balance = salesperson_total_initial_balance + abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.move_id.is_opening_balance == True).mapped(_bal_amt)))
-                salesperson_total_balance = salesperson_total_initial_balance + salesperson_total_sales_after_dis - salesperson_total_refund - salesperson_total_payment - salesperson_total_purchase + salesperson_tax_invoice - salesperson_tax_refund
+                salesperson_total_balance = salesperson_total_initial_balance + salesperson_total_sales_after_dis - salesperson_total_refund - salesperson_total_payment - salesperson_total_purchase - salesperson_total_customer_allowed_discount + salesperson_tax_invoice - salesperson_tax_refund
                 # salesperson_total_balance = salesperson_total_initial_balance + sum(records_without_checks_and_allowed_discount.mapped(lambda x:x.debit - x.credit))
 
 
@@ -951,7 +955,7 @@ class AccountStatementWizard(models.TransientModel):
                     tax_invoice = sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_invoice', 'in_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.x_studio_taxed_amount))
                     tax_refund = sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_refund', 'in_refund']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.x_studio_taxed_amount))
                     worksheet.write(row - 1, 14, abs(tax_refund), wbf['content'])
-                    worksheet.write(row - 1, 15, abs(tax_invoice + tax_refund), wbf['content'])
+                    worksheet.write(row - 1, 15, abs(tax_invoice), wbf['content'])
 
                     # total sales before discount
                     total_sales_before_dis = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_invoice']).mapped(lambda x:x.move_id.invoice_line_ids).mapped(lambda x:x.quantity * x.price_unit)))
@@ -966,7 +970,7 @@ class AccountStatementWizard(models.TransientModel):
                     # net sales after discount, same concept as the PDF report's Total_sales_updated:
                     # also nets out refunds and other/allowed discounts (خصومات اخري), not just the
                     # per-line invoice discount
-                    net_sales_after_discount = total_sales_after_dis - total_refund - total_discount - total_customer_allowed_discount
+                    net_sales_after_discount = total_sales_after_dis - total_refund - total_customer_allowed_discount
                     worksheet.write(row - 1, 4, net_sales_after_discount, wbf['content'])
 
                     # total payment for each partner
@@ -979,13 +983,17 @@ class AccountStatementWizard(models.TransientModel):
                     # salesperson_total_initial_balance += total_initial_balance
                     worksheet.write(row - 1, 1, total_initial_balance or '0', wbf['content'])
                     
-                    total_balance = total_initial_balance + total_sales_after_dis - total_refund - total_payment - total_purchase + tax_invoice - tax_refund
+                    total_balance = total_initial_balance + total_sales_after_dis - total_refund - total_payment - total_purchase - total_customer_allowed_discount + tax_invoice - tax_refund
                     # total_balance = total_initial_balance + sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner).mapped(lambda x:x.debit - x.credit))
                     worksheet.write(row - 1, 9, total_balance, wbf['content'])
 
 
-                    # total over due amout
-                    total_over_due_amount = abs(sum(records_without_checks_and_allowed_discount.filtered(lambda x:x.partner_id == partner and x.move_id.move_type in ['out_invoice', 'in_refund'] and x.move_id.payment_state in ['not_paid', 'partial', 'in_payment'] and str(x.move_id.invoice_date_due) < datetime.datetime.today().strftime('%Y-%m-%d')).mapped(lambda x:x.move_id.amount_residual)))
+                    # total over due amount - same concept/source as the PDF report (as-of-today AR overdue,
+                    # not bound by the wizard's date range)
+                    if not self.currency_id or self.currency_id.name == 'EGP':
+                        total_over_due_amount = partner.total_overdue
+                    else:
+                        total_over_due_amount = self._get_total_due_currency(partner) or 0
                     worksheet.write(row - 1, 10, total_over_due_amount, wbf['content'])
 
                     # رصيد غير مغطي = صافي رصيد العميل - (شيكات ضمان + شيكات تحت التحصيل)
@@ -1081,7 +1089,7 @@ class AccountStatementWizard(models.TransientModel):
                 row += 1
 
                 worksheet.write(row - 1, 0, 'اجمالي ضريبة الفواتير', wbf['header_orange'])
-                worksheet.write(row - 1, 1, abs(salesperson_tax_invoice + salesperson_tax_refund), wbf['content'])
+                worksheet.write(row - 1, 1, abs(salesperson_tax_invoice), wbf['content'])
                 row += 5
 
                 
@@ -1640,14 +1648,14 @@ class AccountStatementWizard(models.TransientModel):
                             disp_credit = round(inv.price_subtotal + tax_total, 2)
 
                         if line.move_id.move_type not in ('out_refund', 'in_invoice'):
-                            balance = round(balance + inv.price_subtotal + tax_total, 2)
-                            total_debit = round(total_debit + inv.price_subtotal + tax_total, 2)
+                            balance = round(balance + inv.price_subtotal, 2)
+                            total_debit = round(total_debit + inv.price_subtotal, 2)
                         else:
-                            balance = round(balance - inv.price_subtotal - tax_total, 2)
-                            total_credit = round(total_credit + inv.price_subtotal + tax_total, 2)
+                            balance = round(balance - inv.price_subtotal, 2)
+                            total_credit = round(total_credit + inv.price_subtotal, 2)
 
                         if line.move_id.move_type == 'out_refund':
-                            total_refund = round(total_refund + inv.price_subtotal + tax_total, 2)
+                            total_refund = round(total_refund + inv.price_subtotal, 2)
                         if line.move_id.move_type == 'out_invoice':
                             total_sales_after_discount = round(total_sales_after_discount + inv.price_subtotal, 2)
                             total_sales_before_discount = round(

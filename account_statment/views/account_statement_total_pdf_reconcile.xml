@@ -123,7 +123,7 @@
                                             </td>
 
                                             <td class="text-right">
-                                                <t t-set="balance_with_tax" t-value="line['balance'] + line['x_studio_taxed_amount_invoice'] + line['x_studio_taxed_amount_refund'] + line['total_customer_allowed_discount']"/>
+                                                <t t-set="balance_with_tax" t-value="line['balance'] + line['x_studio_taxed_amount_invoice'] + line['x_studio_taxed_amount_refund']"/>
                                                
                                                 <!-- Display the calculated balance with tax -->
                                                 <span t-esc="balance_with_tax" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>

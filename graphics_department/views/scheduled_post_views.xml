@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_scheduled_post_list" model="ir.ui.view">
+        <field name="name">graphics.scheduled.post.list</field>
+        <field name="model">graphics.scheduled.post</field>
+        <field name="arch" type="xml">
+            <list string="Scheduled Posts" decoration-muted="state=='cancelled'"
+                  decoration-success="state=='posted'">
+                <field name="title"/>
+                <field name="scheduled_datetime"/>
+                <field name="attachment_count" string="Files"/>
+                <field name="state" widget="badge"
+                       decoration-success="state=='posted'"
+                       decoration-info="state=='draft'"
+                       decoration-danger="state=='cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_scheduled_post_form" model="ir.ui.view">
+        <field name="name">graphics.scheduled.post.form</field>
+        <field name="model">graphics.scheduled.post</field>
+        <field name="arch" type="xml">
+            <form string="Scheduled Post">
+                <header>
+                    <button name="action_mark_posted" string="Mark as Posted"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel"
+                            type="object" class="btn-danger"
+                            invisible="state != 'draft'"/>
+                    <button name="action_reset_draft" string="Reschedule"
+                            type="object"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,posted,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="title"/>
+                        <h1>
+                            <field name="title" placeholder="Post title..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="scheduled_datetime"/>
+                    </group>
+                    <notebook>
+                        <page string="Attachments">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                        <page string="Caption / Content">
+                            <field name="content" placeholder="Post caption or content..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_scheduled_post_search" model="ir.ui.view">
+        <field name="name">graphics.scheduled.post.search</field>
+        <field name="model">graphics.scheduled.post</field>
+        <field name="arch" type="xml">
+            <search string="Search Scheduled Posts">
+                <field name="title"/>
+                <filter string="Scheduled" name="draft"
+                        domain="[('state','=','draft')]"/>
+                <filter string="Posted" name="posted"
+                        domain="[('state','=','posted')]"/>
+                <filter string="Cancelled" name="cancelled"
+                        domain="[('state','=','cancelled')]"/>
+                <separator/>
+                <filter string="Upcoming" name="upcoming"
+                        domain="[('scheduled_datetime','&gt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Scheduled Date" name="group_date"
+                            context="{'group_by': 'scheduled_datetime:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_scheduled_post" model="ir.actions.act_window">
+        <field name="name">Scheduled Posts</field>
+        <field name="res_model">graphics.scheduled.post</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_scheduled_post_search"/>
+        <field name="context">{'search_default_upcoming': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Schedule your first post
+            </p>
+        </field>
+    </record>
+
+</odoo>

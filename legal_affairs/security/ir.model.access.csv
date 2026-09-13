@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_legal_investigation_user,legal.investigation.user,model_legal_investigation,legal_affairs.group_legal_user,1,1,1,0
+access_legal_investigation_manager,legal.investigation.manager,model_legal_investigation,legal_affairs.group_legal_manager,1,1,1,1
+access_legal_document_user,legal.document.user,model_legal_document,legal_affairs.group_legal_user,1,1,1,0
+access_legal_document_manager,legal.document.manager,model_legal_document,legal_affairs.group_legal_manager,1,1,1,1
+access_fleet_vehicle_document_user,fleet.vehicle.document.user,model_fleet_vehicle_document,fleet.fleet_group_user,1,1,1,0
+access_fleet_vehicle_document_manager,fleet.vehicle.document.manager,model_fleet_vehicle_document,fleet.fleet_group_manager,1,1,1,1

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_legal_investigation" model="ir.sequence">
+        <field name="name">Legal Investigation</field>
+        <field name="code">legal.investigation</field>
+        <field name="prefix">INV/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+    </record>
+
+    <record id="seq_legal_document" model="ir.sequence">
+        <field name="name">Legal Document</field>
+        <field name="code">legal.document</field>
+        <field name="prefix">DOC/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+    </record>
+</odoo>

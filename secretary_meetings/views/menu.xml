@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ROOT MENU -->
+    <menuitem id="menu_secretary_root"
+              name="Secretary"
+              sequence="50"
+              groups="secretary_meetings.group_secretary,secretary_meetings.group_meeting_owner"
+              web_icon="secretary_meetings,static/description/icon.png"/>
+
+    <!-- MEETINGS MENU -->
+    <menuitem id="menu_owner_meetings"
+              name="Meetings"
+              parent="menu_secretary_root"
+              action="action_owner_meeting"
+              sequence="10"
+              groups="secretary_meetings.group_secretary,secretary_meetings.group_meeting_owner"/>
+
+    <!-- TRAVELS MENU -->
+    <menuitem id="menu_owner_travels"
+              name="Travels"
+              parent="menu_secretary_root"
+              action="action_owner_travel"
+              sequence="20"
+              groups="secretary_meetings.group_secretary,secretary_meetings.group_meeting_owner"/>
+
+    <!-- CONFERENCES MENU -->
+    <menuitem id="menu_owner_conferences"
+              name="مؤتمرات"
+              parent="menu_secretary_root"
+              action="action_owner_conference"
+              sequence="30"
+              groups="secretary_meetings.group_secretary,secretary_meetings.group_meeting_owner"/>
+
+    <!-- PRINT TIMETABLE MENU -->
+    <menuitem id="menu_print_timetable"
+              name="Print Timetable"
+              parent="menu_secretary_root"
+              action="action_timetable_wizard"
+              sequence="40"
+              groups="secretary_meetings.group_secretary,secretary_meetings.group_meeting_owner"/>
+
+</odoo>

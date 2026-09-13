@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST VIEW -->
+    <record id="view_owner_conference_list" model="ir.ui.view">
+        <field name="name">owner.conference.list</field>
+        <field name="model">owner.conference</field>
+        <field name="arch" type="xml">
+            <list string="Conferences" decoration-muted="state=='cancelled'"
+                  decoration-success="state=='done'">
+                <field name="title"/>
+                <field name="start_datetime"/>
+                <field name="stop_datetime"/>
+                <field name="duration" string="Duration (hrs)" widget="float_time"/>
+                <field name="location"/>
+                <field name="attendee_ids" widget="many2many_tags"/>
+                <field name="state" widget="badge"
+                       decoration-success="state=='done'"
+                       decoration-warning="state=='draft'"
+                       decoration-danger="state=='cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_owner_conference_form" model="ir.ui.view">
+        <field name="name">owner.conference.form</field>
+        <field name="model">owner.conference</field>
+        <field name="arch" type="xml">
+            <form string="Conference">
+                <header>
+                    <button name="action_mark_done" string="Mark as Done"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel Conference"
+                            type="object" class="btn-danger"
+                            invisible="state != 'draft'"/>
+                    <button name="action_reset_draft" string="Reschedule"
+                            type="object"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,done,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="title"/>
+                        <h1>
+                            <field name="title" placeholder="Conference title..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Schedule">
+                            <field name="start_datetime"/>
+                            <field name="stop_datetime"/>
+                            <field name="duration" widget="float_time"/>
+                            <field name="location"/>
+                        </group>
+                        <group string="Details">
+                            <field name="secretary_id"/>
+                            <field name="attendee_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="description"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <record id="view_owner_conference_search" model="ir.ui.view">
+        <field name="name">owner.conference.search</field>
+        <field name="model">owner.conference</field>
+        <field name="arch" type="xml">
+            <search string="Search Conferences">
+                <field name="title"/>
+                <field name="location"/>
+                <field name="attendee_ids"/>
+                <filter string="Scheduled" name="draft"
+                        domain="[('state','=','draft')]"/>
+                <filter string="Done" name="done"
+                        domain="[('state','=','done')]"/>
+                <filter string="Cancelled" name="cancelled"
+                        domain="[('state','=','cancelled')]"/>
+                <separator/>
+                <filter string="Upcoming" name="upcoming"
+                        domain="[('start_datetime','&gt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_owner_conference" model="ir.actions.act_window">
+        <field name="name">مؤتمرات</field>
+        <field name="res_model">owner.conference</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_owner_conference_search"/>
+        <field name="context">{'search_default_upcoming': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Schedule your first conference
+            </p>
+        </field>
+    </record>
+
+</odoo>

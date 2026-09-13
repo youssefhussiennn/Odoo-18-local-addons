@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_post_schedule_wizard_form" model="ir.ui.view">
+        <field name="name">graphics.post.schedule.wizard.form</field>
+        <field name="model">graphics.post.schedule.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Print Scheduled Posts">
+                <group>
+                    <field name="period" widget="radio"/>
+                    <field name="date_ref"/>
+                </group>
+                <footer>
+                    <button name="action_print" string="Print" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_post_schedule_wizard" model="ir.actions.act_window">
+        <field name="name">Print Schedule</field>
+        <field name="res_model">graphics.post.schedule.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

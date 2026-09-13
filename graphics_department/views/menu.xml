@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- GRAPHICS ROOT -->
+    <menuitem id="menu_graphics_root"
+              name="Graphics"
+              sequence="55"
+              groups="graphics_department.group_graphics_user,graphics_department.group_graphics_manager"/>
+
+    <menuitem id="menu_graphics_events"
+              name="Events"
+              parent="menu_graphics_root"
+              action="action_graphics_event"
+              sequence="10"/>
+
+    <menuitem id="menu_graphics_scheduled_posts"
+              name="Scheduled Posts"
+              parent="menu_graphics_root"
+              action="action_scheduled_post"
+              sequence="20"/>
+
+    <menuitem id="menu_graphics_print_schedule"
+              name="Print Schedule"
+              parent="menu_graphics_root"
+              action="action_post_schedule_wizard"
+              sequence="30"/>
+
+    <!-- CRM: CLIENTS / POTENTIAL CLIENTS -->
+    <menuitem id="menu_crm_clients"
+              name="Clients"
+              parent="crm.crm_menu_root"
+              action="action_crm_client"
+              sequence="15"/>
+
+    <menuitem id="menu_crm_potential_clients"
+              name="Potential Clients"
+              parent="crm.crm_menu_root"
+              action="action_crm_potential_client"
+              sequence="16"/>
+
+</odoo>

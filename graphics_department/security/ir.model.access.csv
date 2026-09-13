@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_graphics_event_user,graphics.event.user,model_graphics_event,group_graphics_user,1,1,1,0
+access_graphics_event_manager,graphics.event.manager,model_graphics_event,group_graphics_manager,1,1,1,1
+access_scheduled_post_user,graphics.scheduled.post.user,model_graphics_scheduled_post,group_graphics_user,1,1,1,0
+access_scheduled_post_manager,graphics.scheduled.post.manager,model_graphics_scheduled_post,group_graphics_manager,1,1,1,1
+access_post_schedule_wizard_user,graphics.post.schedule.wizard.user,model_graphics_post_schedule_wizard,group_graphics_user,1,1,1,1
+access_post_schedule_wizard_manager,graphics.post.schedule.wizard.manager,model_graphics_post_schedule_wizard,group_graphics_manager,1,1,1,1
+access_crm_client_record_salesman,crm.client.record.salesman,model_crm_client_record,sales_team.group_sale_salesman,1,1,1,0
+access_crm_client_record_manager,crm.client.record.manager,model_crm_client_record,sales_team.group_sale_manager,1,1,1,1

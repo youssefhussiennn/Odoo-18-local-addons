@@ -169,7 +169,7 @@
                                             <!-- 8 -->
                                              <td class="text-right">
                                                 <!-- Calculate the balance including the taxed amount -->
-                                                <t t-set="balance_with_tax" t-value="line['balance'] + line['x_studio_taxed_amount_invoice'] + line['x_studio_taxed_amount_refund'] + line['total_customer_allowed_discount']"/>
+                                                <t t-set="balance_with_tax" t-value="line['balance'] + line['x_studio_taxed_amount_invoice'] + line['x_studio_taxed_amount_refund']"/>
                                                
                                                 <!-- Display the calculated balance with tax -->
                                                 <span t-esc="balance_with_tax" t-options="{'widget': 'monetary', 'display_currency': line['currency_id']}"/>
@@ -204,7 +204,7 @@
                                             </td>
                                             <!-- 14 -->
                                             <td class="text-right">
-                                                <span t-esc="abs(line['x_studio_taxed_amount_invoice'] + line['x_studio_taxed_amount_refund']) "/>
+                                                <span t-esc="abs(line['x_studio_taxed_amount_invoice'])"/>
                                             </td>
                                             <t t-set="total_purchase_agg" t-value="total_purchase_agg + line['total_purchase_sales_person']"/>
 

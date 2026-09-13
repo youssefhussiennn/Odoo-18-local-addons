@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_timetable" model="ir.actions.report">
+        <field name="name">Secretary Timetable</field>
+        <field name="model">secretary.timetable.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">secretary_meetings.timetable_pdf</field>
+        <field name="report_file">secretary_meetings.timetable_pdf</field>
+        <field name="binding_model_id" ref="model_secretary_timetable_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

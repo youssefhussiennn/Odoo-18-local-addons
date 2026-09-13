@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_owner_meeting_secretary,owner.meeting.secretary,model_owner_meeting,group_secretary,1,1,1,1
+access_owner_meeting_owner,owner.meeting.owner,model_owner_meeting,group_meeting_owner,1,0,0,0
+access_owner_travel_secretary,owner.travel.secretary,model_owner_travel,group_secretary,1,1,1,1
+access_owner_travel_owner,owner.travel.owner,model_owner_travel,group_meeting_owner,1,0,0,0
+access_owner_conference_secretary,owner.conference.secretary,model_owner_conference,group_secretary,1,1,1,1
+access_owner_conference_owner,owner.conference.owner,model_owner_conference,group_meeting_owner,1,0,0,0
+access_secretary_timetable_wizard_secretary,secretary.timetable.wizard.secretary,model_secretary_timetable_wizard,group_secretary,1,1,1,1
+access_secretary_timetable_wizard_owner,secretary.timetable.wizard.owner,model_secretary_timetable_wizard,group_meeting_owner,1,1,1,1

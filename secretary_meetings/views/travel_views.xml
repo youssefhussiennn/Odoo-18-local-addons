@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LIST VIEW -->
+    <record id="view_owner_travel_list" model="ir.ui.view">
+        <field name="name">owner.travel.list</field>
+        <field name="model">owner.travel</field>
+        <field name="arch" type="xml">
+            <list string="Travels" decoration-muted="state=='cancelled'"
+                  decoration-success="state=='done'">
+                <field name="title"/>
+                <field name="destination"/>
+                <field name="start_datetime"/>
+                <field name="stop_datetime"/>
+                <field name="duration" string="Duration (hrs)" widget="float_time"/>
+                <field name="transportation"/>
+                <field name="state" widget="badge"
+                       decoration-success="state=='done'"
+                       decoration-warning="state=='draft'"
+                       decoration-danger="state=='cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM VIEW -->
+    <record id="view_owner_travel_form" model="ir.ui.view">
+        <field name="name">owner.travel.form</field>
+        <field name="model">owner.travel</field>
+        <field name="arch" type="xml">
+            <form string="Travel">
+                <header>
+                    <button name="action_mark_done" string="Mark as Done"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel Travel"
+                            type="object" class="btn-danger"
+                            invisible="state != 'draft'"/>
+                    <button name="action_reset_draft" string="Reschedule"
+                            type="object"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,done,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="title"/>
+                        <h1>
+                            <field name="title" placeholder="Travel title..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Schedule">
+                            <field name="start_datetime"/>
+                            <field name="stop_datetime"/>
+                            <field name="duration" widget="float_time"/>
+                        </group>
+                        <group string="Details">
+                            <field name="destination"/>
+                            <field name="transportation"/>
+                            <field name="secretary_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="description"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <record id="view_owner_travel_search" model="ir.ui.view">
+        <field name="name">owner.travel.search</field>
+        <field name="model">owner.travel</field>
+        <field name="arch" type="xml">
+            <search string="Search Travels">
+                <field name="title"/>
+                <field name="destination"/>
+                <filter string="Scheduled" name="draft"
+                        domain="[('state','=','draft')]"/>
+                <filter string="Done" name="done"
+                        domain="[('state','=','done')]"/>
+                <filter string="Cancelled" name="cancelled"
+                        domain="[('state','=','cancelled')]"/>
+                <separator/>
+                <filter string="Upcoming" name="upcoming"
+                        domain="[('start_datetime','&gt;=', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Destination" name="group_destination"
+                            context="{'group_by': 'destination'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_owner_travel" model="ir.actions.act_window">
+        <field name="name">Travels</field>
+        <field name="res_model">owner.travel</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_owner_travel_search"/>
+        <field name="context">{'search_default_upcoming': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Schedule your first travel
+            </p>
+        </field>
+    </record>
+
+</odoo>

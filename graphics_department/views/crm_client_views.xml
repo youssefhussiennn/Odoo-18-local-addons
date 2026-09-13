@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_crm_client_record_list" model="ir.ui.view">
+        <field name="name">crm.client.record.list</field>
+        <field name="model">crm.client.record</field>
+        <field name="arch" type="xml">
+            <list string="Clients">
+                <field name="name"/>
+                <field name="whatsapp"/>
+                <field name="phone"/>
+                <field name="email"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_crm_client_record_form" model="ir.ui.view">
+        <field name="name">crm.client.record.form</field>
+        <field name="model">crm.client.record</field>
+        <field name="arch" type="xml">
+            <form string="Client">
+                <header>
+                    <button name="action_convert_to_client" string="Convert to Client"
+                            type="object" class="btn-primary"
+                            invisible="client_type == 'client'"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Full name..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Contact Info">
+                            <field name="whatsapp"/>
+                            <field name="phone"/>
+                            <field name="email"/>
+                        </group>
+                        <group string="Details">
+                            <field name="client_type" invisible="1"/>
+                            <field name="converted_date" invisible="client_type == 'potential'"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="address" placeholder="Address..."/>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_crm_client_record_search" model="ir.ui.view">
+        <field name="name">crm.client.record.search</field>
+        <field name="model">crm.client.record</field>
+        <field name="arch" type="xml">
+            <search string="Search Clients">
+                <field name="name"/>
+                <field name="whatsapp"/>
+                <field name="email"/>
+                <field name="phone"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- CLIENTS -->
+    <record id="action_crm_client" model="ir.actions.act_window">
+        <field name="name">Clients</field>
+        <field name="res_model">crm.client.record</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('client_type', '=', 'client')]</field>
+        <field name="context">{'default_client_type': 'client'}</field>
+        <field name="search_view_id" ref="view_crm_client_record_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No clients yet
+            </p>
+        </field>
+    </record>
+
+    <!-- POTENTIAL CLIENTS -->
+    <record id="action_crm_potential_client" model="ir.actions.act_window">
+        <field name="name">Potential Clients</field>
+        <field name="res_model">crm.client.record</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('client_type', '=', 'potential')]</field>
+        <field name="context">{'default_client_type': 'potential'}</field>
+        <field name="search_view_id" ref="view_crm_client_record_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No potential clients yet
+            </p>
+        </field>
+    </record>
+
+</odoo>

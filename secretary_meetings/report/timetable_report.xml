@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_timetable" model="ir.actions.report">
+        <field name="name">Secretary Timetable</field>
+        <field name="model">secretary.timetable.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">secretary_meetings.report_timetable_template</field>
+        <field name="report_file">secretary_meetings.report_timetable_template</field>
+        <field name="binding_model_id" ref="model_secretary_timetable_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_timetable_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="wizard">
+                <div class="page" style="font-family: 'Noto Sans Arabic','Arial',sans-serif; padding: 0;">
+
+                    <!-- HEADER -->
+                    <div style="background: linear-gradient(135deg,#1e3a5f,#2563eb); color:#fff; padding: 22px 28px; border-radius: 0 0 14px 14px; margin-bottom: 22px;">
+                        <table style="width:100%; border:none;">
+                            <tr>
+                                <td style="border:none; text-align:left; vertical-align:middle;">
+                                    <div style="font-size:22px; font-weight:bold;" t-esc="period_label_en"/>
+                                    <div style="font-size:12px; opacity:0.85;">
+                                        <span t-esc="date_start"/> &#8594; <span t-esc="date_end"/>
+                                    </div>
+                                </td>
+                                <td style="border:none; text-align:right; vertical-align:middle; direction:rtl;">
+                                    <div style="font-size:22px; font-weight:bold;" t-esc="period_label_ar"/>
+                                    <div style="font-size:12px; opacity:0.85;">
+                                        &#x62c;&#x62f;&#x648;&#x644; &#x627;&#x644;&#x645;&#x648;&#x627;&#x639;&#x64a;&#x62f;
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- LEGEND -->
+                    <div style="margin: 0 28px 18px 28px; font-size:11px;">
+                        <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#2563eb; margin-inline-end:4px;"/>
+                        Meeting / &#x627;&#x62c;&#x62a;&#x645;&#x627;&#x639;
+                        <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#16a34a; margin:0 4px 0 14px;"/>
+                        Travel / &#x633;&#x641;&#x631;
+                        <span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#9333ea; margin:0 4px 0 14px;"/>
+                        Conference / &#x645;&#x624;&#x62a;&#x645;&#x631;
+                    </div>
+
+                    <div style="padding: 0 28px;">
+                        <t t-if="not days">
+                            <div style="text-align:center; padding: 60px 0; color:#888;">
+                                <div style="font-size:16px;">No events scheduled in this period</div>
+                                <div style="font-size:14px; direction:rtl;">&#x644;&#x627; &#x62a;&#x648;&#x62c;&#x62f; &#x645;&#x648;&#x627;&#x639;&#x64a;&#x62f; &#x62e;&#x644;&#x627;&#x644; &#x647;&#x630;&#x647; &#x627;&#x644;&#x641;&#x62a;&#x631;&#x629;</div>
+                            </div>
+                        </t>
+
+                        <t t-foreach="days" t-as="day">
+                            <t t-set="lbl" t-value="day_labels[day]"/>
+
+                            <!-- DAY HEADER -->
+                            <table style="width:100%; border:none; margin-top:18px; margin-bottom:8px;
+                                          border-bottom: 2px solid #1e3a5f; padding-bottom:4px;">
+                                <tr>
+                                    <td style="border:none; text-align:left; vertical-align:bottom;">
+                                        <span style="font-size:15px; font-weight:bold; color:#1e3a5f;" t-esc="lbl['weekday_en']"/>
+                                        <span style="font-size:11px; color:#666;"> &#x2014; <t t-esc="lbl['date_en']"/></span>
+                                    </td>
+                                    <td style="border:none; text-align:right; vertical-align:bottom; direction:rtl;">
+                                        <span style="font-size:15px; font-weight:bold; color:#1e3a5f;" t-esc="lbl['weekday_ar']"/>
+                                        <span style="font-size:11px; color:#666;"> &#x2014; <t t-esc="lbl['date_ar']"/></span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- EVENT CARDS -->
+                            <t t-foreach="by_day[day]" t-as="event">
+                                <table style="width:100%; border:none; margin-bottom:8px;">
+                                    <tr>
+                                        <td t-attf-style="border:none; border-left: 4px solid {{event['color']}};
+                                                          background:#f8f9fb; border-radius:6px; padding:10px 14px;">
+                                            <table style="width:100%; border:none;">
+                                                <tr>
+                                                    <td style="border:none; width:100px; vertical-align:top;">
+                                                        <div style="font-size:13px; font-weight:bold; color:#1e3a5f;">
+                                                            <t t-esc="event['start'].strftime('%H:%M')"/> - <t t-esc="event['stop'].strftime('%H:%M')"/>
+                                                        </div>
+                                                    </td>
+                                                    <td style="border:none; vertical-align:top;">
+                                                        <table style="width:100%; border:none;">
+                                                            <tr>
+                                                                <td style="border:none; text-align:left; vertical-align:top;">
+                                                                    <span t-attf-style="display:inline-block; font-size:9px; font-weight:bold; color:#fff;
+                                                                                         background:{{event['color']}}; border-radius:3px; padding:1px 6px; margin-bottom:3px;"
+                                                                          t-esc="event['type']"/>
+                                                                    <div style="font-size:13px; font-weight:bold;" t-esc="event['title']"/>
+                                                                    <div t-if="event['place']" style="font-size:11px; color:#666;">
+                                                                        &#x1f4cd; <t t-esc="event['place']"/>
+                                                                    </div>
+                                                                </td>
+                                                                <td style="border:none; text-align:right; vertical-align:top; direction:rtl;">
+                                                                    <span t-attf-style="display:inline-block; font-size:9px; font-weight:bold; color:#fff;
+                                                                                         background:{{event['color']}}; border-radius:3px; padding:1px 6px; margin-bottom:3px;"
+                                                                          t-esc="event['type_ar']"/>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

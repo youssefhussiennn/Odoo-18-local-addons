@@ -93,11 +93,13 @@ class AccountMoveLine(models.Model):
     x_studio_tax_value = fields.Float(string="Tax Value", related='tax_ids.amount')
     x_studio_taxed_amount = fields.Monetary(string="Taxed Amount", compute="_compute_x_studio_taxed_amount")
 
-    @api.depends('quantity', 'x_studio_tax_value', 'price_unit')
+    @api.depends('price_total', 'price_subtotal')
     def _compute_x_studio_taxed_amount(self):
         for record in self:
-            record.x_studio_taxed_amount = (record.quantity / 1.14) * \
-                record.price_unit * record.x_studio_tax_value / 100.0
+            # Same tax amount shown on the invoice line itself: the
+            # difference between the tax-included and untaxed totals,
+            # both already computed by Odoo's own tax engine.
+            record.x_studio_taxed_amount = record.price_total - record.price_subtotal
     # account_type = fields.Many2one(string="Account Type", related='account_id.user_type_id', readonly=True, store=True)
     # balance = fields.Monetary(string="Balance", related='partner_id.total_due')
     # move_type = fields.Selection(string="Move Type", related='move_id.move_type')
