@@ -20,6 +20,7 @@
 #
 ###############################################################################
 from odoo import fields, models, tools
+from .location_stock_sql import VARIANT_LOCATION_SQL
 
 
 class ProductPivotReport(models.Model):
@@ -33,13 +34,13 @@ class ProductPivotReport(models.Model):
                                  help='Name of the product')
     location_id = fields.Many2one('stock.location', string='Location',
                                   help='Choose the location')
-    on_hand_qty = fields.Integer(string='On Hand Quantity',
+    on_hand_qty = fields.Float(string='On Hand Quantity',
                                  help='On hand quantity of the product')
-    qty_incoming = fields.Integer(string='Incoming Quantity',
+    qty_incoming = fields.Float(string='Incoming Quantity',
                                   help='Incoming quantity of the product')
-    qty_outgoing = fields.Integer(string='Outgoing Quantity',
+    qty_outgoing = fields.Float(string='Outgoing Quantity',
                                   help='Outgoing quantity of the product')
-    forecast_qty = fields.Integer(string='Forecast Quantity',
+    forecast_qty = fields.Float(string='Forecast Quantity',
                                   help='Forecasted quantity of the product')
 
     def init(self):
@@ -47,19 +48,6 @@ class ProductPivotReport(models.Model):
         creates a new view with the following columns for the Product variant
         model"""
         tools.drop_view_if_exists(self._cr, self._table)
-        self._cr.execute(''' CREATE OR REPLACE VIEW %s AS (
-        select row_number() OVER () as id, 
-        stock_quant.product_id, 
-        stock_quant.location_id, 
-        stock_quant.quantity on_hand_qty, 
-        (stock_quant.quantity + 
-         product_product.qty_incoming - product_product.qty_outgoing) 
-         AS forecast_qty, 
-        product_product.qty_incoming,
-        product_product.qty_outgoing from product_product 
-        inner JOIN stock_quant on stock_quant.product_id = product_product.id
-        inner join product_template on 
-        product_product.product_tmpl_id = product_template.id
-        inner join stock_location on 
-        stock_quant.location_id = stock_location.id
-        where stock_location.usage = 'internal')''' % (self._table,))
+        self._cr.execute("""CREATE OR REPLACE VIEW %s AS (
+        SELECT row_number() OVER () AS id, base.*
+          FROM (%s) base)""" % (self._table, VARIANT_LOCATION_SQL))

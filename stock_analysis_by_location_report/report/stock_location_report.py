@@ -21,6 +21,7 @@
 ###############################################################################
 from odoo import api, models
 from odoo.tools import groupby
+from ..models.location_stock_sql import VARIANT_LOCATION_SQL
 
 
 class StockLocationReport(models.AbstractModel):
@@ -43,65 +44,30 @@ class StockLocationReport(models.AbstractModel):
 
     def query_data(self, report_type, product_id, product_variant_id):
         """ To fetch values from database using query """
+        name = """COALESCE(pt.name->>%(lang)s, pt.name->>'en_US')"""
+        params = {'lang': self.env.lang or 'en_US'}
+        where = ""
         if report_type == 'product':
-            query = """SELECT row_number() OVER () AS id,
-            product_template.name AS product,
-            stock_location.complete_name AS location,
-            SUM(stock_quant.quantity) AS on_hand_qty,
-            SUM(stock_quant.quantity + 
-             product_template.qty_incoming - product_template.qty_outgoing) 
-             AS forecast_qty,
-            SUM(product_template.qty_incoming) AS qty_incoming,
-            SUM(product_template.qty_outgoing) AS qty_outgoing
-            FROM product_template 
-            INNER JOIN product_product ON 
-             product_product.product_tmpl_id = product_template.id
-            INNER JOIN stock_quant ON 
-             stock_quant.product_id = product_product.id
-            INNER JOIN stock_location ON
-             stock_quant.location_id = stock_location.id
-            WHERE stock_location.usage = 'internal'
-            GROUP BY product_template.id, stock_location.id"""
             if product_id:
-                query = """SELECT row_number() OVER () AS id,
-                product_template.name AS product,
-                stock_location.complete_name AS location,
-                SUM(stock_quant.quantity) AS on_hand_qty,
-                SUM(stock_quant.quantity +
-                 product_template.qty_incoming - product_template.qty_outgoing)
-                 AS forecast_qty,
-                SUM(product_template.qty_incoming) AS qty_incoming,
-                SUM(product_template.qty_outgoing) AS qty_outgoing
-                FROM product_template 
-                INNER JOIN product_product ON
-                 product_product.product_tmpl_id = product_template.id
-                INNER JOIN stock_quant ON
-                 stock_quant.product_id = product_product.id
-                INNER JOIN stock_location ON
-                 stock_quant.location_id = stock_location.id
-                WHERE stock_location.usage = 'internal' 
-                and product_template.id=%(product_id)s
-                GROUP BY product_template.id, stock_location.id"""
-        else:
-            query = """select product_template.name as Product,
-            stock_location.complete_name as Location,
-            stock_quant.quantity on_hand_qty, 
-            (stock_quant.quantity + 
-            product_product.qty_incoming - product_product.qty_outgoing)  
-             AS forecast_qty,  product_product.qty_incoming,
-            product_product.qty_outgoing from product_product 
-            inner JOIN stock_quant on 
-             stock_quant.product_id = product_product.id 
-            inner join product_template 
-             on product_product.product_tmpl_id = product_template.id
-            inner join stock_location on
-             stock_quant.location_id = stock_location.id
-            where stock_location.usage = 'internal'"""
-            if product_variant_id:
-                query += """ and product_id=%(product_variant_id)s"""
-        self.env.cr.execute(query,
-                            {'report_type': report_type,
-                             'product_id': product_id,
-                             'product_variant_id': product_variant_id,
-                             })
+                where = "WHERE pt.id = %(product_id)s"
+                params['product_id'] = product_id
+        elif product_variant_id:
+            where = "WHERE pp.id = %(product_variant_id)s"
+            params['product_variant_id'] = product_variant_id
+        query = """
+            SELECT %s AS product,
+                   sl.complete_name AS location,
+                   SUM(base.on_hand_qty) AS on_hand_qty,
+                   SUM(base.qty_incoming) AS qty_incoming,
+                   SUM(base.qty_outgoing) AS qty_outgoing,
+                   SUM(base.forecast_qty) AS forecast_qty
+              FROM (%s) base
+              JOIN product_product pp ON pp.id = base.product_id
+              JOIN product_template pt ON pt.id = pp.product_tmpl_id
+              JOIN stock_location sl ON sl.id = base.location_id
+              %s
+             GROUP BY pt.id, sl.id
+             ORDER BY product, location
+        """ % (name, VARIANT_LOCATION_SQL, where)
+        self.env.cr.execute(query, params)
         return self.env.cr.dictfetchall()

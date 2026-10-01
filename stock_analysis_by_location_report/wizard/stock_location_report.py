@@ -22,8 +22,8 @@
 import io
 import json
 from odoo import fields, models, _
-from odoo.tools import date_utils, groupby
-
+from odoo.tools import  groupby
+from odoo.tools.json import json_default
 try:
     from odoo.tools.misc import xlsxwriter
 except ImportError:
@@ -76,12 +76,11 @@ class StockLocation(models.TransientModel):
         return {
             'type': 'ir.actions.report',
             'data': {'model': 'stock.location.report',
-                     'options': json.dumps(data,
-                                           default=date_utils.json_default),
+                     'options': json.dumps(data, default=json_default),
                      'output_format': 'xlsx',
                      'report_name': 'Stock Location Report',
                      },
-            'report_type': 'xlsx',
+            'report_type': 'stock_location_xlsx',
         }
 
     def get_xlsx_report(self, data, response):
@@ -97,9 +96,9 @@ class StockLocation(models.TransientModel):
         grey_cell_format = workbook.add_format(
             {'bold': True, 'bg_color': '#D3D3D3'})
         head = workbook.add_format(
-            {'align': 'center', 'bold': True, 'font_size': '20px',
+            {'align': 'center', 'bold': True, 'font_size': 20,
              'bg_color': 'gray'})
-        txt_head = workbook.add_format({'font_size': '10px', 'align': 'left',
+        txt_head = workbook.add_format({'font_size': 10, 'align': 'left',
                                         'bold': True})
         sheet.set_column(0, 0, 20)
         sheet.set_column(1, 1, 10)

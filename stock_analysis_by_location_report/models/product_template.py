@@ -28,16 +28,16 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     qty_incoming = fields.Float(string='Incoming Qty',
-                                compute='_compute_quantities', store=True,
+                                compute='_compute_quantities',
                                 help='Incoming quantity of the product')
     qty_outgoing = fields.Float(string='Outgoing Qty',
-                                compute='_compute_quantities', store=True,
+                                compute='_compute_quantities',
                                 help='Outgoing quantity of the product')
     qty_avail = fields.Float(string='Available Qty',
-                             compute='_compute_quantities', store=True,
+                             compute='_compute_quantities',
                              help='Available quantity of the product')
     qty_virtual = fields.Float(string='Virtual Qty',
-                               compute='_compute_quantities', store=True,
+                               compute='_compute_quantities',
                                help='Virtual quantity of the product')
 
     def _compute_quantities(self):
@@ -58,13 +58,13 @@ class ProductProduct(models.Model):
     _inherit = 'product.product'
 
     qty_incoming = fields.Float(string='Incoming Qty',
-                                compute='_compute_quantities', store=True)
+                                compute='_compute_quantities')
     qty_outgoing = fields.Float(string='Outgoing Qty',
-                                compute='_compute_quantities', store=True)
+                                compute='_compute_quantities')
     qty_avail = fields.Float(string='Available Qty',
-                             compute='_compute_quantities', store=True)
+                             compute='_compute_quantities')
     qty_virtual = fields.Float(string='Virtual Qty',
-                               compute='_compute_quantities', store=True)
+                               compute='_compute_quantities')
 
     def _compute_quantities_dict(self, lot_id, owner_id, package_id,
                                  from_date=False, to_date=False):

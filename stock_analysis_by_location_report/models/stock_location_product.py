@@ -20,6 +20,7 @@
 #
 ###############################################################################
 from odoo import fields, models, tools
+from .location_stock_sql import VARIANT_LOCATION_SQL
 
 
 class ProductPivotReport(models.Model):
@@ -32,34 +33,28 @@ class ProductPivotReport(models.Model):
                                  help='Name of the product')
     location_id = fields.Many2one('stock.location', string='Location',
                                   help='Choose the location')
-    on_hand_qty = fields.Integer(string='On Hand Quantity',
+    on_hand_qty = fields.Float(string='On Hand Quantity',
                                  help='On hand quantity of the product')
-    qty_incoming = fields.Integer(string='Incoming Quantity',
+    qty_incoming = fields.Float(string='Incoming Quantity',
                                   help='Incoming quantity of the product')
-    qty_outgoing = fields.Integer(string='Outgoing Quantity',
+    qty_outgoing = fields.Float(string='Outgoing Quantity',
                                   help='Outgoing quantity of the product')
-    forecast_qty = fields.Integer(string='Forecast Quantity',
+    forecast_qty = fields.Float(string='Forecast Quantity',
                                   help='Forecasted quantity of the product')
 
     def init(self):
         """Initialize the view. Drops the existing view if it exists and
         creates a new view with the following columns for the Product model"""
         tools.drop_view_if_exists(self._cr, self._table)
-        self._cr.execute(''' CREATE OR REPLACE VIEW %s AS (
+        self._cr.execute("""CREATE OR REPLACE VIEW %s AS (
         SELECT row_number() OVER () AS id,
-        product_template.id AS product_id,
-        stock_location.id AS location_id,
-        SUM(stock_quant.quantity) AS on_hand_qty,
-        SUM(stock_quant.quantity + 
-         product_template.qty_incoming - product_template.qty_outgoing)
-         AS forecast_qty,
-        SUM(product_template.qty_incoming) AS qty_incoming,
-        SUM(product_template.qty_outgoing) AS qty_outgoing
-        FROM product_template
-        INNER JOIN product_product ON 
-        product_product.product_tmpl_id = product_template.id
-        INNER JOIN stock_quant ON stock_quant.product_id = product_product.id
-        INNER JOIN stock_location ON
-         stock_quant.location_id = stock_location.id
-        WHERE stock_location.usage = 'internal'
-        GROUP BY product_template.id, stock_location.id)''' % (self._table,))
+               pp.product_tmpl_id AS product_id,
+               base.location_id,
+               SUM(base.on_hand_qty) AS on_hand_qty,
+               SUM(base.qty_incoming) AS qty_incoming,
+               SUM(base.qty_outgoing) AS qty_outgoing,
+               SUM(base.forecast_qty) AS forecast_qty
+          FROM (%s) base
+          JOIN product_product pp ON pp.id = base.product_id
+         GROUP BY pp.product_tmpl_id, base.location_id)"""
+                         % (self._table, VARIANT_LOCATION_SQL))
