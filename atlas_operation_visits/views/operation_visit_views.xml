@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List -->
+    <record id="operation_visit_view_list" model="ir.ui.view">
+        <field name="name">operation.visit.list</field>
+        <field name="model">operation.visit</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="visit_date"/>
+                <field name="visit_type" widget="badge"
+                       decoration-info="visit_type == 'follow_up'"
+                       decoration-warning="visit_type == 'return'"
+                       decoration-success="visit_type == 'collection'"/>
+                <field name="partner_id"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="partner_balance" optional="show"/>
+                <field name="collected_money" optional="show"/>
+                <field name="location" optional="hide"/>
+                <field name="start_datetime" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'scheduled'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form -->
+    <record id="operation_visit_view_form" model="ir.ui.view">
+        <field name="name">operation.visit.form</field>
+        <field name="model">operation.visit</field>
+        <field name="arch" type="xml">
+            <form string="Visit">
+                <header>
+                    <button name="action_done" string="Mark as Done" type="object"
+                            class="oe_highlight" invisible="state != 'in_progress'"/>
+                    <button name="action_reset_scheduled" string="Reset to Scheduled" type="object"
+                            invisible="state == 'scheduled'"
+                            groups="atlas_operation_visits.group_visit_manager"
+                            confirm="This will clear the captured location. Continue?"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="scheduled,in_progress,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_expenses" type="object"
+                                class="oe_stat_button" icon="fa-money">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="expense_total" widget="monetary"/>
+                                </span>
+                                <span class="o_stat_text">
+                                    <field name="expense_count"/> Expenses
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="visit_start_button" invisible="state != 'scheduled' or not id"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="state != 'scheduled'"
+                                   placeholder="e.g. Monthly collection - Acme"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="visit_date" readonly="state != 'scheduled'"/>
+                            <field name="visit_type" widget="radio"
+                                   options="{'horizontal': true}"
+                                   readonly="state != 'scheduled'"/>
+                            <field name="partner_id" readonly="state != 'scheduled'"
+                                   options="{'no_create': True}"/>
+                            <field name="employee_id" widget="many2one_avatar_employee"
+                                   readonly="state != 'scheduled'"
+                                   options="{'no_create': True}"/>
+                            <field name="user_id" widget="many2one_avatar_user"
+                                   readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="partner_balance" invisible="not partner_id"
+                                   decoration-danger="partner_balance &gt; 0"
+                                   decoration-success="partner_balance &lt;= 0"/>
+                            <field name="balance_at_visit" invisible="state != 'done'"/>
+                            <field name="collected_money"
+                                   invisible="visit_type != 'collection'"
+                                   readonly="state == 'done'"
+                                   placeholder="e.g. 15,000 EGP cash / cheque no. 1234"/>
+                            <field name="company_id" groups="base.group_multi_company"
+                                   readonly="state != 'scheduled'"/>
+                        </group>
+                    </group>
+                    <group string="Visit Location" invisible="not location">
+                        <group>
+                            <field name="location"/>
+                            <field name="location_url" widget="url" text="Open in Google Maps"/>
+                            <field name="location_accuracy"/>
+                        </group>
+                        <group>
+                            <field name="start_datetime"/>
+                            <field name="done_datetime" invisible="not done_datetime"/>
+                            <field name="latitude" groups="atlas_operation_visits.group_visit_manager"/>
+                            <field name="longitude" groups="atlas_operation_visits.group_visit_manager"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Visit Report" name="employee_report">
+                            <field name="employee_notes" readonly="state == 'done'"
+                                   placeholder="What happened during the visit (filled by the employee, also from the portal)..."/>
+                        </page>
+                        <page string="Manager Notes" name="notes">
+                            <field name="notes" readonly="state == 'done'"
+                                   placeholder="Instructions for the employee (shown on the portal)..."/>
+                        </page>
+                        <page string="Attachments" name="attachments">
+                            <field name="attachment_ids" widget="many2many_binary"
+                                   string="Attach files" readonly="state == 'done'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Calendar -->
+    <record id="operation_visit_view_calendar" model="ir.ui.view">
+        <field name="name">operation.visit.calendar</field>
+        <field name="model">operation.visit</field>
+        <field name="arch" type="xml">
+            <calendar string="Visits" date_start="visit_date" color="employee_id"
+                      mode="month" quick_create="0" event_open_popup="0">
+                <field name="partner_id"/>
+                <field name="visit_type"/>
+                <field name="state"/>
+                <field name="employee_id" filters="1"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Search -->
+    <record id="operation_visit_view_search" model="ir.ui.view">
+        <field name="name">operation.visit.search</field>
+        <field name="model">operation.visit</field>
+        <field name="arch" type="xml">
+            <search string="Visits">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="employee_id"/>
+                <field name="user_id"/>
+                <filter string="My Visits" name="my_visits" domain="[('employee_user_id', '=', uid)]"/>
+                <filter string="Assigned by Me" name="assigned_by_me" domain="[('user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="Follow Up" name="type_follow_up" domain="[('visit_type', '=', 'follow_up')]"/>
+                <filter string="Return" name="type_return" domain="[('visit_type', '=', 'return')]"/>
+                <filter string="Collection" name="type_collection" domain="[('visit_type', '=', 'collection')]"/>
+                <separator/>
+                <filter string="Scheduled" name="scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Visit Date" name="filter_visit_date" date="visit_date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Visit Type" name="group_type" context="{'group_by': 'visit_type'}"/>
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Assigned By" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Visit Date" name="group_date" context="{'group_by': 'visit_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_operation_visit" model="ir.actions.act_window">
+        <field name="name">Visits</field>
+        <field name="res_model">operation.visit</field>
+        <field name="view_mode">list,form,calendar</field>
+        <field name="search_view_id" ref="operation_visit_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first visit</p>
+            <p>Plan follow up, return and collection visits and check the customer balance before going.</p>
+        </field>
+    </record>
+</odoo>

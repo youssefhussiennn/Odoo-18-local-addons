@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ═══════════ Attendance portal: "My Visits" button for operations staff ═══════════ -->
+  <template id="attendance_portal_visits_button" inherit_id="hr_attendance_portal.portal_main"
+            name="Attendance Portal: My Visits button">
+    <xpath expr="//button[@id='logoutBtn']" position="before">
+      <a href="/drivers/visits" id="atlasVisitsBtn" class="btn-action"
+         style="display:none;text-align:center;text-decoration:none;background:linear-gradient(135deg,#2a8ab5,#1b5e80);box-shadow:0 4px 16px rgba(42,138,181,0.30);">
+        &#x1F4CB; زياراتي · My Visits
+      </a>
+    </xpath>
+    <xpath expr="//script" position="after">
+      <script type="text/javascript">
+        (function () {
+          var btn = document.getElementById('atlasVisitsBtn');
+          var origAjax = window.ajax;
+          if (!btn || typeof origAjax !== 'function') { return; }
+          // Show the button when the login response says this employee has visits access.
+          window.ajax = function (url, params, cb) {
+            return origAjax(url, params, function (res) {
+              if (url === '/drivers/attendance/login') {
+                btn.style.display = (res &amp;&amp; res.visits_url) ? 'block' : 'none';
+              }
+              cb(res);
+            });
+          };
+          var logoutBtn = document.getElementById('logoutBtn');
+          if (logoutBtn) {
+            logoutBtn.addEventListener('click', function () {
+              btn.style.display = 'none';
+              try { navigator.sendBeacon('/drivers/visits/logout'); } catch (e) {}
+            });
+          }
+        })();
+      </script>
+    </xpath>
+  </template>
+
+  <!-- ═══════════ Layout ═══════════ -->
+  <template id="portal_visits_layout" name="Operation Visits Portal Layout">
+    <t t-call="web.layout">
+      <t t-set="head">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title t-out="page_title or 'My Visits'"/>
+        <style>
+          *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+          body{background:#f4f6f9;min-height:100vh;font-family:'Segoe UI',Tahoma,sans-serif;display:flex;justify-content:center;padding:24px 16px 60px;color:#1a1a1a;}
+          .card{width:100%;max-width:480px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.10);border:1px solid #e8ecf0;}
+          .hdr{padding:20px 20px 14px;text-align:center;border-bottom:3px solid #4a7c3f;}
+          .hdr img{width:120px;margin:0 auto 10px;display:block;}
+          .hdr-title{font-size:17px;font-weight:700;}
+          .hdr-sub{font-size:12px;color:#4a7c3f;font-weight:600;margin-top:3px;}
+          .bdy{padding:18px 16px;}
+          .ftr{padding:12px;text-align:center;font-size:11px;color:#aaa;border-top:1px solid #f0f2f5;letter-spacing:0.5px;}
+          .flash{padding:11px 14px;border-radius:10px;font-size:14px;margin-bottom:14px;text-align:center;font-weight:600;}
+          .flash-ok{background:#f4faf3;border:1.5px solid #c8e6c9;color:#2e7d32;}
+          .flash-err{background:#fff5f5;border:1.5px solid #ffcdd2;color:#c62828;}
+          .sec-title{font-size:13px;font-weight:700;color:#4a7c3f;margin:18px 0 8px;}
+          .sec-title:first-child{margin-top:0;}
+          .vcard{display:block;text-decoration:none;color:inherit;background:#fff;border:1.5px solid #e8ecf0;border-radius:14px;padding:13px 14px;margin-bottom:10px;}
+          .vcard:active{background:#f8f9fb;}
+          .vcard.st-in_progress{border-color:#f0c36d;background:#fffcf3;}
+          .vcard-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+          .vname{font-weight:700;font-size:15px;}
+          .vcust{font-size:14px;color:#444;margin-top:4px;}
+          .vmeta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:12px;color:#888;}
+          .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+          .type-follow_up{background:#e3f2fd;color:#1565c0;}
+          .type-return{background:#fff3e0;color:#e65100;}
+          .type-collection{background:#e8f5e9;color:#2e7d32;}
+          .st-b-scheduled{background:#eef1f5;color:#555;}
+          .st-b-in_progress{background:#fff3cd;color:#8a6d00;}
+          .st-b-done{background:#e8f5e9;color:#2e7d32;}
+          .overdue{background:#ffebee;color:#c62828;}
+          .exp-draft{background:#fff3cd;color:#8a6d00;}
+          .exp-approved{background:#e8f5e9;color:#2e7d32;}
+          .empty{text-align:center;color:#888;padding:30px 10px;font-size:15px;line-height:1.8;}
+          .box{border:1.5px solid #e8ecf0;border-radius:14px;padding:14px;margin-bottom:14px;}
+          .box h3{font-size:14px;color:#4a7c3f;margin-bottom:10px;}
+          .row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:14px;border-bottom:1px solid #f0f2f5;}
+          .row:last-child{border-bottom:none;}
+          .row .lbl{color:#888;flex-shrink:0;}
+          .row .val{font-weight:600;text-align:left;word-break:break-word;}
+          .neg{color:#c62828;}
+          .pos{color:#2e7d32;}
+          .mgr-notes{font-size:14px;line-height:1.7;background:#f8f9fb;border-radius:10px;padding:10px 12px;}
+          .mgr-notes p{margin-bottom:6px;}
+          label.fl{display:block;font-size:13px;font-weight:600;color:#666;margin:10px 0 6px;}
+          textarea,input[type=text],input[type=number],select{width:100%;padding:12px;border:1.5px solid #dde1e7;border-radius:10px;font-size:16px;font-family:inherit;background:#fff;}
+          textarea{min-height:110px;resize:vertical;}
+          input[type=file]{width:100%;font-size:14px;padding:10px;border:1.5px dashed #c8d0da;border-radius:10px;background:#fafbfc;}
+          .btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;margin-top:12px;font-family:inherit;}
+          .btn:disabled{opacity:0.55;}
+          .btn-green{background:linear-gradient(135deg,#4a7c3f,#2d5a1f);color:#fff;box-shadow:0 4px 16px rgba(74,124,63,0.30);}
+          .btn-blue{background:linear-gradient(135deg,#2a8ab5,#1b5e80);color:#fff;}
+          .btn-red{background:linear-gradient(135deg,#e53935,#b71c1c);color:#fff;box-shadow:0 4px 16px rgba(229,57,53,0.25);}
+          .btn-light{background:#f4f6f9;border:1.5px solid #dde1e7;color:#555;font-size:14px;padding:11px;}
+          .btn-map{background:#e3f2fd;border:1.5px solid #90caf9;color:#1565c0;font-size:14px;padding:10px;}
+          .btn-sm-del{background:none;border:none;color:#c62828;font-size:13px;font-weight:700;cursor:pointer;padding:4px 0;font-family:inherit;}
+          .back{display:inline-block;margin-bottom:12px;color:#4a7c3f;font-weight:700;text-decoration:none;font-size:14px;}
+          .hint{font-size:12px;color:#888;margin-top:6px;}
+          .gps-msg{display:none;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px;background:#fff5f5;border:1px solid #ffcdd2;color:#c62828;}
+          .exp-line{padding:10px 0;border-bottom:1px solid #f0f2f5;font-size:14px;}
+          .exp-line:last-child{border-bottom:none;}
+          .exp-top{display:flex;justify-content:space-between;gap:8px;font-weight:700;}
+          .exp-sub{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px;font-size:12px;color:#888;}
+          .att{font-size:13px;padding:5px 0;color:#444;}
+          .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-left:6px;}
+          @keyframes spin{to{transform:rotate(360deg);}}
+          @media(max-width:500px){body{padding:0;}.card{border-radius:0;min-height:100vh;}}
+        </style>
+      </t>
+      <div class="card" dir="rtl">
+        <div class="hdr">
+          <img src="/hr_attendance_portal/static/img/atlas_logo.png" alt="Atlas"/>
+          <div class="hdr-title" t-out="page_title"/>
+          <div class="hdr-sub" t-if="employee">&#x1F464; <t t-out="employee.name"/></div>
+        </div>
+        <div class="bdy">
+          <div t-if="flash" t-attf-class="flash flash-#{flash[0]}" t-out="flash[1]"/>
+          <t t-out="0"/>
+        </div>
+        <div class="ftr">ATLAS FOR AGRICULTURAL DEVELOPMENT</div>
+      </div>
+      <script type="text/javascript">
+        // Avoid double submits; delay so the clicked button's value is still sent.
+        document.querySelectorAll('form.once').forEach(function (f) {
+          f.addEventListener('submit', function () {
+            setTimeout(function () {
+              f.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+            }, 0);
+          });
+        });
+      </script>
+    </t>
+  </template>
+
+  <!-- ═══════════ Visit card (list) ═══════════ -->
+  <template id="portal_visit_card" name="Operation Visit Card">
+    <a t-attf-class="vcard st-#{visit.state}" t-attf-href="/drivers/visits/#{visit.id}">
+      <div class="vcard-top">
+        <span class="vname" t-out="visit.name"/>
+        <span t-attf-class="badge type-#{visit.visit_type}" t-out="type_labels.get(visit.visit_type)"/>
+      </div>
+      <div class="vcust">&#x1F3E2; <t t-out="visit.partner_id.display_name"/></div>
+      <div class="vmeta">
+        <span>&#x1F4C5; <t t-out="fmt_date(visit.visit_date)"/></span>
+        <span t-if="visit.state == 'scheduled' and visit.visit_date &lt; today" class="badge overdue">متأخرة · Overdue</span>
+        <span t-if="visit.state == 'scheduled' and visit.visit_date == today" class="badge st-b-in_progress">اليوم · Today</span>
+        <span t-if="visit.state != 'scheduled'" t-attf-class="badge st-b-#{visit.state}" t-out="state_labels.get(visit.state)"/>
+      </div>
+    </a>
+  </template>
+
+  <!-- ═══════════ List page ═══════════ -->
+  <template id="portal_visits_list" name="Operation Visits Portal: My Visits">
+    <t t-call="atlas_operation_visits.portal_visits_layout">
+      <t t-if="not in_progress and not scheduled and not done_recent">
+        <div class="empty">&#x1F4ED; لا توجد زيارات مخصصة لك حالياً<br/><small>No visits assigned to you right now</small></div>
+      </t>
+      <t t-if="in_progress">
+        <div class="sec-title">&#x1F7E1; جارية الآن · In Progress</div>
+        <t t-foreach="in_progress" t-as="visit"><t t-call="atlas_operation_visits.portal_visit_card"/></t>
+      </t>
+      <t t-if="scheduled">
+        <div class="sec-title">&#x1F4C5; مجدولة · Scheduled</div>
+        <t t-foreach="scheduled" t-as="visit"><t t-call="atlas_operation_visits.portal_visit_card"/></t>
+      </t>
+      <t t-if="done_recent">
+        <div class="sec-title">&#x2705; منتهية (آخر ٧ أيام) · Done (last 7 days)</div>
+        <t t-foreach="done_recent" t-as="visit"><t t-call="atlas_operation_visits.portal_visit_card"/></t>
+      </t>
+      <a class="btn btn-light" href="/drivers/visits">&#x1F504; تحديث · Refresh</a>
+      <a class="btn btn-light" href="/drivers/attendance">&#x1F552; تسجيل الحضور · Attendance</a>
+      <a class="btn btn-light" href="/drivers/visits/logout">&#x2190; تسجيل الخروج · Logout</a>
+    </t>
+  </template>
+
+  <!-- ═══════════ Detail page ═══════════ -->
+  <template id="portal_visit_detail" name="Operation Visits Portal: Visit">
+    <t t-call="atlas_operation_visits.portal_visits_layout">
+      <a class="back" href="/drivers/visits">&#x2192; كل الزيارات · All visits</a>
+
+      <!-- Visit info -->
+      <div class="box">
+        <div class="row">
+          <span class="lbl">الحالة · Status</span>
+          <span class="val"><span t-attf-class="badge st-b-#{visit.state}" t-out="state_labels.get(visit.state)"/></span>
+        </div>
+        <div class="row">
+          <span class="lbl">النوع · Type</span>
+          <span class="val"><span t-attf-class="badge type-#{visit.visit_type}" t-out="type_labels.get(visit.visit_type)"/></span>
+        </div>
+        <div class="row">
+          <span class="lbl">التاريخ · Date</span>
+          <span class="val">
+            <t t-out="fmt_date(visit.visit_date)"/>
+            <span t-if="visit.state == 'scheduled' and visit.visit_date &lt; today" class="badge overdue">متأخرة · Overdue</span>
+          </span>
+        </div>
+        <div class="row" t-if="visit.start_datetime">
+          <span class="lbl">بدأت · Started</span>
+          <span class="val" t-out="fmt_dt(visit.start_datetime)"/>
+        </div>
+        <div class="row" t-if="visit.done_datetime">
+          <span class="lbl">انتهت · Finished</span>
+          <span class="val" t-out="fmt_dt(visit.done_datetime)"/>
+        </div>
+        <a t-if="visit.location_url" class="btn btn-map" t-att-href="visit.location_url" target="_blank" rel="noopener">&#x1F4CD; موقع بدء الزيارة · Start location</a>
+      </div>
+
+      <!-- Customer -->
+      <div class="box">
+        <h3>&#x1F3E2; العميل · Customer</h3>
+        <div class="row">
+          <span class="lbl">الاسم · Name</span>
+          <span class="val" t-out="partner.display_name"/>
+        </div>
+        <t t-set="phone" t-value="partner.mobile or partner.phone"/>
+        <div class="row" t-if="phone">
+          <span class="lbl">الهاتف · Phone</span>
+          <span class="val"><a t-attf-href="tel:#{phone}" dir="ltr" t-out="phone"/></span>
+        </div>
+        <div class="row" t-if="customer_address">
+          <span class="lbl">العنوان · Address</span>
+          <span class="val" t-out="customer_address"/>
+        </div>
+        <div class="row">
+          <span class="lbl">الرصيد · Balance</span>
+          <span t-attf-class="val #{'neg' if visit.partner_balance &gt; 0 else 'pos'}" dir="ltr"
+                t-out="fmt_money(visit.partner_balance, visit.currency_id)"/>
+        </div>
+        <div class="row" t-if="visit.state == 'done' and visit.balance_at_visit">
+          <span class="lbl">الرصيد وقت الزيارة · At visit</span>
+          <span class="val" dir="ltr" t-out="fmt_money(visit.balance_at_visit, visit.currency_id)"/>
+        </div>
+        <a t-if="customer_map" class="btn btn-map" t-att-href="customer_map" target="_blank" rel="noopener">&#x1F5FA; فتح العنوان على الخريطة · Open in Maps</a>
+      </div>
+
+      <!-- Manager notes -->
+      <div class="box" t-if="visit.notes">
+        <h3>&#x1F4DD; تعليمات المدير · Manager notes</h3>
+        <div class="mgr-notes" t-out="visit.notes"/>
+      </div>
+
+      <!-- Start -->
+      <t t-if="visit.state == 'scheduled'">
+        <form id="startForm" class="box" method="post" t-attf-action="/drivers/visits/#{visit.id}/start">
+          <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+          <input type="hidden" name="latitude" id="fLat"/>
+          <input type="hidden" name="longitude" id="fLng"/>
+          <input type="hidden" name="accuracy" id="fAcc"/>
+          <button type="submit" class="btn btn-green" id="btnStart" style="margin-top:0;">&#x1F4CD; بدء الزيارة · Start Visit</button>
+          <div class="hint">سيتم تسجيل موقعك الحالي · Your current location will be saved</div>
+          <div class="gps-msg" id="gpsMsg"/>
+        </form>
+        <script type="text/javascript">
+          (function () {
+            var form = document.getElementById('startForm');
+            var btn = document.getElementById('btnStart');
+            var msg = document.getElementById('gpsMsg');
+            var label = btn.innerHTML;
+            function fail(text) {
+              msg.textContent = text; msg.style.display = 'block';
+              btn.disabled = false; btn.innerHTML = label;
+            }
+            form.addEventListener('submit', function (e) {
+              e.preventDefault();
+              msg.style.display = 'none';
+              if (!window.isSecureContext || !navigator.geolocation) {
+                fail('الموقع غير متاح على هذا الجهاز أو الرابط (يجب https) / Location not available (https required)');
+                return;
+              }
+              btn.disabled = true;
+              btn.innerHTML = 'جار تحديد الموقع... · Getting location<span class="spinner"></span>';
+              navigator.geolocation.getCurrentPosition(function (pos) {
+                document.getElementById('fLat').value = pos.coords.latitude;
+                document.getElementById('fLng').value = pos.coords.longitude;
+                document.getElementById('fAcc').value = pos.coords.accuracy || 0;
+                form.submit();
+              }, function (err) {
+                if (err &amp;&amp; err.code === 1) {
+                  fail('تم رفض إذن الموقع. اسمح بالموقع من إعدادات المتصفح / Location permission denied');
+                } else if (err &amp;&amp; err.code === 3) {
+                  fail('انتهت مهلة تحديد الموقع، حاول مرة أخرى / Location timed out, try again');
+                } else {
+                  fail('فشل تحديد الموقع، فعّل GPS وحاول مرة أخرى / Could not get location, enable GPS');
+                }
+              }, {enableHighAccuracy: true, timeout: 20000, maximumAge: 0});
+            });
+          })();
+        </script>
+      </t>
+
+      <!-- Report / collection / attachments (editable until done) -->
+      <t t-if="visit.state != 'done'">
+        <form class="box once" method="post" enctype="multipart/form-data"
+              t-attf-action="/drivers/visits/#{visit.id}/save">
+          <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+          <h3>&#x270D;&#xFE0F; تقرير الزيارة · Visit report</h3>
+          <t t-if="visit.visit_type == 'collection'">
+            <t t-if="visit.state == 'in_progress'">
+              <label class="fl" for="collected_money">&#x1F4B0; المبلغ المحصل · Collected money *</label>
+              <input type="text" id="collected_money" name="collected_money"
+                     t-att-value="visit.collected_money or ''"
+                     placeholder="مثال: 15,000 نقدي / شيك رقم 1234"/>
+            </t>
+            <div t-else="" class="hint">&#x1F4B0; يمكنك إدخال المبلغ المحصل بعد بدء الزيارة · Collected money can be entered after starting</div>
+          </t>
+          <label class="fl" for="employee_notes">ملاحظات · Notes</label>
+          <textarea id="employee_notes" name="employee_notes"
+                    placeholder="ماذا حدث في الزيارة؟ · What happened during the visit?"
+                    t-out="visit.employee_notes or ''"/>
+          <label class="fl" for="attachments">&#x1F4CE; صور / ملفات · Photos / files</label>
+          <input type="file" id="attachments" name="attachments" multiple="multiple" accept="image/*,application/pdf"/>
+          <div class="hint">صور أو PDF، حتى 10 ميجا للملف · Photos or PDF, up to 10 MB each</div>
+          <button type="submit" name="action" value="save" class="btn btn-blue">&#x1F4BE; حفظ · Save</button>
+          <button t-if="visit.state == 'in_progress'" type="submit" name="action" value="done" class="btn btn-red"
+                  onclick="return confirm('إنهاء الزيارة؟ لن يمكنك التعديل بعد ذلك.\nFinish the visit? You will not be able to edit it after.');">
+            &#x1F3C1; إنهاء الزيارة · Finish Visit
+          </button>
+        </form>
+      </t>
+      <t t-else="">
+        <div class="box">
+          <h3>&#x270D;&#xFE0F; تقرير الزيارة · Visit report</h3>
+          <div class="row" t-if="visit.visit_type == 'collection'">
+            <span class="lbl">المبلغ المحصل · Collected</span>
+            <span class="val" t-out="visit.collected_money or '-'"/>
+          </div>
+          <div class="mgr-notes" style="white-space:pre-wrap;" t-out="visit.employee_notes or '-'"/>
+        </div>
+      </t>
+
+      <!-- Attachments list -->
+      <div class="box" t-if="visit.attachment_ids">
+        <h3>&#x1F4CE; الملفات المرفقة · Attached files (<t t-out="len(visit.attachment_ids)"/>)</h3>
+        <div class="att" t-foreach="visit.attachment_ids" t-as="att">&#x1F4C4; <t t-out="att.name"/></div>
+      </div>
+
+      <!-- Expenses -->
+      <div class="box">
+        <h3>&#x1F4B8; المصروفات · Expenses
+          <span t-if="expense_lines" style="float:left;" dir="ltr" t-out="fmt_money(expense_total, visit.currency_id)"/>
+        </h3>
+        <div t-if="not expense_lines" class="hint" style="margin-bottom:6px;">لا توجد مصروفات · No expenses yet</div>
+        <div class="exp-line" t-foreach="expense_lines" t-as="line">
+          <div class="exp-top">
+            <span t-out="category_dict.get(line.category, line.category)"/>
+            <span dir="ltr" t-out="fmt_money(line.amount, visit.currency_id)"/>
+          </div>
+          <div class="exp-sub">
+            <span>
+              <t t-out="line.description or ''"/>
+              <t t-if="line.receipt_filename"> &#x1F9FE;</t>
+            </span>
+            <span t-attf-class="badge exp-#{line.state}" t-out="expense_state_labels.get(line.state)"/>
+          </div>
+          <form t-if="line.state == 'draft'" class="once" method="post"
+                t-attf-action="/drivers/visits/#{visit.id}/expense/#{line.id}/delete"
+                onsubmit="return confirm('حذف هذا المصروف؟ · Delete this expense?');">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <button type="submit" class="btn-sm-del">&#x1F5D1; حذف · Delete</button>
+          </form>
+        </div>
+
+        <form class="once" method="post" enctype="multipart/form-data"
+              t-attf-action="/drivers/visits/#{visit.id}/expense/add" style="margin-top:8px;">
+          <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+          <label class="fl" for="exp_category">نوع المصروف · Type *</label>
+          <select id="exp_category" name="category" required="required">
+            <option value="">— اختر · Choose —</option>
+            <t t-foreach="category_labels" t-as="cat">
+              <option t-att-value="cat[0]" t-out="cat[1]"/>
+            </t>
+          </select>
+          <label class="fl" for="exp_amount">المبلغ · Amount *</label>
+          <input type="text" id="exp_amount" name="amount" inputmode="decimal" required="required" placeholder="0.00"/>
+          <label class="fl" for="exp_desc">الوصف · Description</label>
+          <input type="text" id="exp_desc" name="description" placeholder="مثال: تاكسي من المكتب للعميل"/>
+          <label class="fl" for="exp_receipt">&#x1F9FE; الإيصال · Receipt</label>
+          <input type="file" id="exp_receipt" name="receipt" accept="image/*,application/pdf"/>
+          <button type="submit" class="btn btn-green">&#x2795; إضافة مصروف · Add expense</button>
+        </form>
+      </div>
+
+      <a class="btn btn-light" href="/drivers/visits">&#x2192; كل الزيارات · All visits</a>
+    </t>
+  </template>
+</odoo>

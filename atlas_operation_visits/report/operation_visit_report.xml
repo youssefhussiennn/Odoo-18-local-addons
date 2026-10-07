@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ═══════════ Actions (Print menu on list + form) ═══════════ -->
+  <record id="action_report_operation_visit" model="ir.actions.report">
+    <field name="name">Visit Report</field>
+    <field name="model">operation.visit</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">atlas_operation_visits.report_operation_visit</field>
+    <field name="report_file">atlas_operation_visits.report_operation_visit</field>
+    <field name="print_report_name">'Visit - %s' % (object.name)</field>
+    <field name="binding_model_id" ref="model_operation_visit"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <record id="action_report_operation_visit_summary" model="ir.actions.report">
+    <field name="name">Visits Summary</field>
+    <field name="model">operation.visit</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">atlas_operation_visits.report_operation_visit_summary</field>
+    <field name="report_file">atlas_operation_visits.report_operation_visit_summary</field>
+    <field name="print_report_name">'Visits Summary'</field>
+    <field name="binding_model_id" ref="model_operation_visit"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <!-- ═══════════ Shared styles ═══════════ -->
+  <template id="report_visit_styles">
+    <style>
+      .ov-title{font-size:20px;font-weight:bold;color:#2d5a1f;margin:0 0 2px 0;}
+      .ov-sub{font-size:12px;color:#777;margin-bottom:12px;}
+      .ov-badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:bold;color:#fff;}
+      .ov-st-scheduled{background:#8a94a3;}
+      .ov-st-in_progress{background:#e0a400;}
+      .ov-st-done{background:#4a7c3f;}
+      .ov-sec{font-size:13px;font-weight:bold;color:#2d5a1f;border-bottom:2px solid #4a7c3f;padding-bottom:3px;margin:14px 0 6px 0;}
+      table.ov-kv{width:100%;border-collapse:collapse;font-size:12px;}
+      table.ov-kv td{padding:4px 6px;border-bottom:1px solid #e6e9ee;vertical-align:top;}
+      table.ov-kv td.k{color:#666;width:22%;}
+      table.ov-kv td.v{font-weight:bold;width:28%;}
+      table.ov-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+      table.ov-tbl th{background:#eef4ec;color:#2d5a1f;padding:5px;border:1px solid #d5dfd2;text-align:left;}
+      table.ov-tbl td{padding:5px;border:1px solid #e1e5ea;vertical-align:top;}
+      table.ov-tbl tr.total td{font-weight:bold;background:#f6f8f5;}
+      .ov-box{border:1px solid #e1e5ea;border-radius:4px;padding:8px 10px;font-size:12px;min-height:30px;}
+      .ov-pre{white-space:pre-wrap;}
+      .ov-neg{color:#c62828;}
+      .ov-pos{color:#2e7d32;}
+      .ov-img{display:inline-block;width:48%;margin:0 1% 8px 0;vertical-align:top;text-align:center;page-break-inside:avoid;font-size:10px;color:#777;}
+      .ov-img img{max-width:100%;max-height:260px;border:1px solid #e1e5ea;}
+      .ov-sign td{padding-top:40px;font-size:12px;width:50%;}
+      .text-end{text-align:right;}
+    </style>
+  </template>
+
+  <!-- ═══════════ Custom layout: logo header, page-number footer (no company contact info) ═══════════ -->
+  <template id="report_visit_layout">
+    <t t-if="not company">
+      <t t-set="company" t-value="doc.company_id if doc else env.company"/>
+    </t>
+    <div class="header">
+      <table style="width:100%;border-bottom:2px solid #4a7c3f;">
+        <tr>
+          <td style="width:40%;vertical-align:middle;padding-bottom:4px;">
+            <img src="/atlas_operation_visits/static/img/report_logo.jpg" alt="Logo" style="max-height:85px;"/>
+          </td>
+          <td style="text-align:right;vertical-align:middle;">
+            <div style="font-size:16px;font-weight:bold;color:#2d5a1f;" t-out="company.name"/>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="article" t-att-data-oe-model="doc and doc._name" t-att-data-oe-id="doc and doc.id">
+      <t t-call="atlas_operation_visits.report_visit_styles"/>
+      <t t-out="0"/>
+    </div>
+    <div class="footer">
+      <div style="text-align:center;font-size:10px;color:#888;border-top:1px solid #ddd;padding-top:4px;">
+        Page <span class="page"/> / <span class="topage"/>
+      </div>
+    </div>
+  </template>
+
+  <!-- ═══════════ Detailed report: one page per visit ═══════════ -->
+  <template id="report_operation_visit_document">
+    <t t-call="atlas_operation_visits.report_visit_layout">
+      <t t-set="company" t-value="doc.company_id"/>
+      <div class="page">
+        <!-- Header -->
+        <table style="width:100%;">
+          <tr>
+            <td>
+              <div class="ov-title">Visit Report · تقرير زيارة</div>
+              <div class="ov-sub"><span t-field="doc.name"/></div>
+            </td>
+            <td class="text-end" style="vertical-align:top;">
+              <span t-attf-class="ov-badge ov-st-#{doc.state}" t-field="doc.state"/>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Visit info -->
+        <div class="ov-sec">Visit Information · بيانات الزيارة</div>
+        <table class="ov-kv">
+          <tr>
+            <td class="k">Visit Type · النوع</td><td class="v"><span t-field="doc.visit_type"/></td>
+            <td class="k">Visit Date · التاريخ</td><td class="v"><span t-field="doc.visit_date"/></td>
+          </tr>
+          <tr>
+            <td class="k">Employee · الموظف</td><td class="v"><span t-field="doc.employee_id"/></td>
+            <td class="k">Assigned By · بواسطة</td><td class="v"><span t-field="doc.user_id"/></td>
+          </tr>
+          <tr>
+            <td class="k">Started At · بدأت</td>
+            <td class="v"><span t-if="doc.start_datetime" t-field="doc.start_datetime"/><span t-else="">-</span></td>
+            <td class="k">Finished At · انتهت</td>
+            <td class="v"><span t-if="doc.done_datetime" t-field="doc.done_datetime"/><span t-else="">-</span></td>
+          </tr>
+          <tr t-if="doc.start_datetime and doc.done_datetime">
+            <td class="k">Duration · المدة</td>
+            <td class="v" colspan="3">
+              <t t-set="mins" t-value="int((doc.done_datetime - doc.start_datetime).total_seconds() // 60)"/>
+              <t t-out="'%d h %02d min' % (mins // 60, mins % 60)"/>
+            </td>
+          </tr>
+          <tr t-if="doc.location">
+            <td class="k">Start Location · الموقع</td>
+            <td class="v" colspan="3">
+              <a t-att-href="doc.location_url"><span t-field="doc.location"/></a>
+              <span t-if="doc.location_accuracy" style="font-weight:normal;color:#777;">
+                (± <t t-out="int(doc.location_accuracy)"/> m)
+              </span>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Customer -->
+        <div class="ov-sec">Customer · العميل</div>
+        <table class="ov-kv">
+          <tr>
+            <td class="k">Customer · العميل</td><td class="v"><span t-field="doc.partner_id"/></td>
+            <td class="k">Phone · الهاتف</td>
+            <td class="v"><t t-out="doc.partner_id.mobile or doc.partner_id.phone or '-'"/></td>
+          </tr>
+          <tr>
+            <td class="k">Address · العنوان</td>
+            <td class="v" colspan="3">
+              <span t-field="doc.partner_id"
+                    t-options='{"widget": "contact", "fields": ["address"], "no_marker": True, "no_tag_br": True}'/>
+            </td>
+          </tr>
+          <tr>
+            <td class="k">Current Balance · الرصيد الحالي</td>
+            <td t-attf-class="v #{'ov-neg' if doc.partner_balance &gt; 0 else 'ov-pos'}">
+              <span t-field="doc.partner_balance"/>
+            </td>
+            <td class="k">Balance at Visit · الرصيد وقت الزيارة</td>
+            <td class="v"><span t-if="doc.state == 'done'" t-field="doc.balance_at_visit"/><span t-else="">-</span></td>
+          </tr>
+          <tr t-if="doc.visit_type == 'collection'">
+            <td class="k">Collected Money · المبلغ المحصل</td>
+            <td class="v" colspan="3"><t t-out="doc.collected_money or '-'"/></td>
+          </tr>
+        </table>
+
+        <!-- Notes -->
+        <t t-if="doc.notes">
+          <div class="ov-sec">Manager Notes · تعليمات المدير</div>
+          <div class="ov-box"><span t-field="doc.notes"/></div>
+        </t>
+        <div class="ov-sec">Visit Report · تقرير الموظف</div>
+        <div class="ov-box ov-pre" t-out="doc.employee_notes or '-'"/>
+
+        <!-- Expenses -->
+        <t t-set="lines" t-value="doc.expense_ids.line_ids.sorted(lambda l: (l.date, l.expense_id.id, l.sequence, l.id))"/>
+        <div class="ov-sec">Expenses · المصروفات</div>
+        <t t-if="lines">
+          <table class="ov-tbl">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Receipt</th>
+                <th>Status</th>
+                <th class="text-end">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="lines" t-as="line">
+                <td><t t-out="line.expense_id.name"/></td>
+                <td><span t-field="line.date"/></td>
+                <td><span t-field="line.category"/></td>
+                <td><t t-out="line.description or ''"/></td>
+                <td><t t-out="'Yes' if line.receipt else '-'"/></td>
+                <td><span t-field="line.state"/></td>
+                <td class="text-end"><span t-field="line.amount"/></td>
+              </tr>
+              <tr class="total">
+                <td colspan="6" class="text-end">Total · الإجمالي</td>
+                <td class="text-end">
+                  <span t-out="sum(lines.mapped('amount'))"
+                        t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </t>
+        <div t-else="" class="ov-box">No expenses · لا توجد مصروفات</div>
+
+        <!-- Photos: visit attachments + expense receipts (images only) -->
+        <t t-set="photos" t-value="doc.attachment_ids.filtered(lambda a: (a.mimetype or '').startswith('image/'))"/>
+        <t t-set="receipts" t-value="lines.filtered(lambda l: l.report_receipt_is_image())"/>
+        <t t-set="other_files" t-value="doc.attachment_ids - photos"/>
+        <t t-if="photos or receipts or other_files">
+          <div class="ov-sec">Photos &amp; Files · الصور والملفات</div>
+          <div>
+            <div class="ov-img" t-foreach="photos" t-as="att">
+              <img t-att-src="image_data_uri(att.datas)"/>
+              <div t-out="att.name"/>
+            </div>
+            <div class="ov-img" t-foreach="receipts" t-as="line">
+              <img t-att-src="image_data_uri(line.receipt)"/>
+              <div>Receipt · إيصال — <span t-field="line.category"/> (<span t-field="line.amount"/>)</div>
+            </div>
+          </div>
+          <div t-if="other_files" style="font-size:11px;color:#555;">
+            Other files · ملفات أخرى:
+            <t t-foreach="other_files" t-as="att"><t t-out="att.name"/><t t-if="not att_last">, </t></t>
+          </div>
+        </t>
+
+        <!-- Signatures -->
+        <table class="ov-sign" style="width:100%;margin-top:10px;page-break-inside:avoid;">
+          <tr>
+            <td>Employee Signature · توقيع الموظف: ____________________</td>
+            <td>Manager Signature · توقيع المدير: ____________________</td>
+          </tr>
+        </table>
+      </div>
+    </t>
+  </template>
+
+  <template id="report_operation_visit">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="atlas_operation_visits.report_operation_visit_document"/>
+      </t>
+    </t>
+  </template>
+
+  <!-- ═══════════ Summary report: one table for all selected visits ═══════════ -->
+  <template id="report_operation_visit_summary">
+    <t t-call="web.html_container">
+      <t t-set="company" t-value="docs[:1].company_id or env.company"/>
+      <t t-call="atlas_operation_visits.report_visit_layout">
+        <div class="page">
+          <div class="ov-title">Visits Summary · ملخص الزيارات</div>
+          <div class="ov-sub">
+            <t t-set="dates" t-value="docs.mapped('visit_date')"/>
+            <t t-if="dates">
+              <t t-out="min(dates).strftime('%d/%m/%Y')"/> → <t t-out="max(dates).strftime('%d/%m/%Y')"/> ·
+            </t>
+            <t t-out="len(docs)"/> visits
+          </div>
+
+          <t t-set="ordered" t-value="docs.sorted(lambda v: (v.visit_date, v.id))"/>
+          <table class="ov-tbl">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Visit</th>
+                <th>Type</th>
+                <th>Customer</th>
+                <th>Employee</th>
+                <th>Status</th>
+                <th>Started</th>
+                <th>Finished</th>
+                <th>Collected</th>
+                <th class="text-end">Balance</th>
+                <th class="text-end">Expenses</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="ordered" t-as="v">
+                <td><t t-out="v_index + 1"/></td>
+                <td><span t-field="v.visit_date"/></td>
+                <td><t t-out="v.name"/></td>
+                <td><span t-field="v.visit_type"/></td>
+                <td><t t-out="v.partner_id.display_name"/></td>
+                <td><t t-out="v.employee_id.name"/></td>
+                <td><span t-field="v.state"/></td>
+                <td><span t-if="v.start_datetime" t-field="v.start_datetime" t-options='{"format": "dd/MM HH:mm"}'/></td>
+                <td><span t-if="v.done_datetime" t-field="v.done_datetime" t-options='{"format": "dd/MM HH:mm"}'/></td>
+                <td><t t-out="v.collected_money or ''"/></td>
+                <td class="text-end">
+                  <span t-if="v.state == 'done'" t-field="v.balance_at_visit"/>
+                  <span t-else="" t-field="v.partner_balance"/>
+                </td>
+                <td class="text-end"><span t-field="v.expense_total"/></td>
+              </tr>
+              <tr class="total">
+                <td colspan="11" class="text-end">Total Expenses · إجمالي المصروفات</td>
+                <td class="text-end">
+                  <span t-out="sum(docs.mapped('expense_total'))"
+                        t-options='{"widget": "monetary", "display_currency": company.currency_id}'/>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Totals by employee -->
+          <div class="ov-sec">By Employee · حسب الموظف</div>
+          <table class="ov-tbl">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th class="text-end">Visits</th>
+                <th class="text-end">Done</th>
+                <th class="text-end">Collections</th>
+                <th class="text-end">Expenses</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="docs.mapped('employee_id').sorted('name')" t-as="emp">
+                <t t-set="ev" t-value="docs.filtered(lambda v: v.employee_id == emp)"/>
+                <td><t t-out="emp.name"/></td>
+                <td class="text-end"><t t-out="len(ev)"/></td>
+                <td class="text-end"><t t-out="len(ev.filtered(lambda v: v.state == 'done'))"/></td>
+                <td class="text-end"><t t-out="len(ev.filtered(lambda v: v.visit_type == 'collection'))"/></td>
+                <td class="text-end">
+                  <span t-out="sum(ev.mapped('expense_total'))"
+                        t-options='{"widget": "monetary", "display_currency": company.currency_id}'/>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

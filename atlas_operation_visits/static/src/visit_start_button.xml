@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="atlas_operation_visits.VisitStartButton">
+        <button type="button" class="btn btn-primary btn-lg w-100 mb-3"
+                t-att-disabled="state.loading" t-on-click="onClick">
+            <i t-attf-class="fa me-2 {{ state.loading ? 'fa-spinner fa-spin' : 'fa-map-marker' }}"/>
+            <t t-if="state.loading">Getting location...</t>
+            <t t-else="">Start Visit (In Progress)</t>
+        </button>
+    </t>
+</templates>

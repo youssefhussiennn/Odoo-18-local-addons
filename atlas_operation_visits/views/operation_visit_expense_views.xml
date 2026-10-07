@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Expense: List -->
+    <record id="operation_visit_expense_view_list" model="ir.ui.view">
+        <field name="name">operation.visit.expense.list</field>
+        <field name="model">operation.visit.expense</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="date"/>
+                <field name="visit_id"/>
+                <field name="partner_id" optional="show"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="line_count" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'approved'"/>
+                <button name="action_approve" type="object" string="Approve"
+                        icon="fa-check" class="btn-link text-success"
+                        invisible="state != 'draft'"
+                        groups="atlas_operation_visits.group_visit_manager"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Expense: Form -->
+    <record id="operation_visit_expense_view_form" model="ir.ui.view">
+        <field name="name">operation.visit.expense.form</field>
+        <field name="model">operation.visit.expense</field>
+        <field name="arch" type="xml">
+            <form string="Expense">
+                <header>
+                    <button name="action_approve" string="Approve" type="object"
+                            class="oe_highlight" invisible="state != 'draft'"
+                            groups="atlas_operation_visits.group_visit_manager"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                            invisible="state != 'approved'"
+                            groups="atlas_operation_visits.group_visit_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="visit_id" readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
+                            <field name="partner_id"/>
+                            <field name="employee_id" widget="many2one_avatar_employee"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="approved_by_id" invisible="state != 'approved'"/>
+                            <field name="approved_date" invisible="state != 'approved'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Expenses" name="lines">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="category"/>
+                                    <field name="description"
+                                           required="category == 'other'"
+                                           placeholder="e.g. Taxi from office to customer"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="receipt_filename" column_invisible="1"/>
+                                    <field name="receipt" widget="binary"
+                                           filename="receipt_filename"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="amount_total" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" readonly="state != 'draft'"
+                                   placeholder="Any extra notes about these expenses..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Expense: Search -->
+    <record id="operation_visit_expense_view_search" model="ir.ui.view">
+        <field name="name">operation.visit.expense.search</field>
+        <field name="model">operation.visit.expense</field>
+        <field name="arch" type="xml">
+            <search string="Expenses">
+                <field name="name"/>
+                <field name="visit_id"/>
+                <field name="partner_id"/>
+                <field name="employee_id"/>
+                <filter string="My Expenses" name="my_expenses" domain="[('employee_user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="To Approve" name="to_approve" domain="[('state', '=', 'draft')]"/>
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <separator/>
+                <filter string="Date" name="filter_date" date="date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Visit" name="group_visit" context="{'group_by': 'visit_id'}"/>
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Expense: Action -->
+    <record id="action_operation_visit_expense" model="ir.actions.act_window">
+        <field name="name">Expenses</field>
+        <field name="res_model">operation.visit.expense</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="operation_visit_expense_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Record your first visit expense</p>
+            <p>Choose a visit, add a line per expense type with its amount and receipt, then a manager approves it.</p>
+        </field>
+    </record>
+
+    <!-- Expense Lines (analysis): List -->
+    <record id="operation_visit_expense_line_view_list" model="ir.ui.view">
+        <field name="name">operation.visit.expense.line.list</field>
+        <field name="model">operation.visit.expense.line</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="date"/>
+                <field name="expense_id"/>
+                <field name="visit_id"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="partner_id" optional="show"/>
+                <field name="category" widget="badge"/>
+                <field name="description"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="amount" sum="Total"/>
+                <field name="receipt_filename" column_invisible="1"/>
+                <field name="receipt" widget="binary" filename="receipt_filename"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'approved'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Expense Lines: Pivot -->
+    <record id="operation_visit_expense_line_view_pivot" model="ir.ui.view">
+        <field name="name">operation.visit.expense.line.pivot</field>
+        <field name="model">operation.visit.expense.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Expense Analysis" sample="1">
+                <field name="employee_id" type="row"/>
+                <field name="category" type="col"/>
+                <field name="amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Expense Lines: Search -->
+    <record id="operation_visit_expense_line_view_search" model="ir.ui.view">
+        <field name="name">operation.visit.expense.line.search</field>
+        <field name="model">operation.visit.expense.line</field>
+        <field name="arch" type="xml">
+            <search string="Expense Analysis">
+                <field name="expense_id"/>
+                <field name="visit_id"/>
+                <field name="employee_id"/>
+                <field name="partner_id"/>
+                <field name="description"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <separator/>
+                <filter string="Transportation" name="cat_transportation" domain="[('category', '=', 'transportation')]"/>
+                <filter string="Fuel" name="cat_fuel" domain="[('category', '=', 'fuel')]"/>
+                <filter string="Parking" name="cat_parking" domain="[('category', '=', 'parking')]"/>
+                <filter string="Accommodation" name="cat_accommodation" domain="[('category', '=', 'accommodation')]"/>
+                <filter string="Other" name="cat_other" domain="[('category', '=', 'other')]"/>
+                <separator/>
+                <filter string="Without Receipt" name="no_receipt" domain="[('receipt', '=', False)]"/>
+                <separator/>
+                <filter string="Date" name="filter_date" date="date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Category" name="group_category" context="{'group_by': 'category'}"/>
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Visit" name="group_visit" context="{'group_by': 'visit_id'}"/>
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Expense Lines: Action -->
+    <record id="action_operation_visit_expense_line" model="ir.actions.act_window">
+        <field name="name">Expense Analysis</field>
+        <field name="res_model">operation.visit.expense.line</field>
+        <field name="view_mode">pivot,list</field>
+        <field name="search_view_id" ref="operation_visit_expense_line_view_search"/>
+    </record>
+</odoo>

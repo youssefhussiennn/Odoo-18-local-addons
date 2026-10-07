@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_operation_root" name="Operations" sequence="45"
+              groups="group_visit_user"/>
+    <menuitem id="menu_operation_visit" name="Visits" parent="menu_operation_root"
+              action="action_operation_visit" sequence="10"/>
+    <menuitem id="menu_operation_visit_expense" name="Expenses" parent="menu_operation_root"
+              action="action_operation_visit_expense" sequence="20"/>
+    <menuitem id="menu_operation_expense_analysis" name="Expense Analysis" parent="menu_operation_root"
+              action="action_operation_visit_expense_line" sequence="30"
+              groups="atlas_operation_visits.group_visit_manager"/>
+</odoo>

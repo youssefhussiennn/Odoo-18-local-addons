@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_operation_visit_user,operation.visit.user,model_operation_visit,group_visit_user,1,1,1,0
+access_operation_visit_manager,operation.visit.manager,model_operation_visit,group_visit_manager,1,1,1,1
+access_operation_visit_expense_user,operation.visit.expense.user,model_operation_visit_expense,group_visit_user,1,1,1,1
+access_operation_visit_expense_manager,operation.visit.expense.manager,model_operation_visit_expense,group_visit_manager,1,1,1,1
+access_operation_visit_expense_line_user,operation.visit.expense.line.user,model_operation_visit_expense_line,group_visit_user,1,1,1,1
+access_operation_visit_expense_line_manager,operation.visit.expense.line.manager,model_operation_visit_expense_line,group_visit_manager,1,1,1,1
