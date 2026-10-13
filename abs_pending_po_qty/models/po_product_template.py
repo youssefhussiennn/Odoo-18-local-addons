@@ -34,7 +34,7 @@ class PurchaseOrderProductProduct(models.Model):
                 purchase_order_qty = 0
                 purchase_order_line = self.env['purchase.order.line'].search([
                     ('product_id', '=', product.id),
-                    ('order_id.state', 'not in', ('cancel', 'sent', 'to approve')),
+                    ('order_id.state', 'not in', ('cancel', 'sent', 'to approve','purchase')),
                     ('order_id.x_studio_type', '=', 'Global'),
                 ])
                 if purchase_order_line:
@@ -53,7 +53,7 @@ class PurchaseOrderProductProduct(models.Model):
             product_ids = []
             po_line = self.env['purchase.order.line'].search([
                 ('product_id', '=', self.id),
-                ('order_id.state', 'not in', ('cancel', 'sent', 'to approve')),
+                ('order_id.state', 'not in', ('cancel', 'sent', 'to approve','purchase')),
                 ('order_id.x_studio_type', '=', 'Global'),
             ])
             for line_id in po_line:
