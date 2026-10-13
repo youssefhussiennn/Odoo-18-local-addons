@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="egct_supplier_view_list" model="ir.ui.view">
+        <field name="name">egct.supplier.list</field>
+        <field name="model">egct.supplier</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="country"/>
+                <field name="contact"/>
+                <field name="email"/>
+                <field name="phone"/>
+                <field name="po_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="egct_supplier_view_form" model="ir.ui.view">
+        <field name="name">egct.supplier.form</field>
+        <field name="model">egct.supplier</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="country"/>
+                            <field name="contact"/>
+                        </group>
+                        <group>
+                            <field name="email" widget="email"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="website" widget="url"/>
+                        </group>
+                    </group>
+                    <field name="notes" placeholder="Notes..."/>
+                    <notebook>
+                        <page string="Purchase Orders" name="pos">
+                            <field name="po_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="po_date"/>
+                                    <field name="currency"/>
+                                    <field name="total_amount"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="egct_supplier_view_search" model="ir.ui.view">
+        <field name="name">egct.supplier.search</field>
+        <field name="model">egct.supplier</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="country"/>
+                <field name="contact"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="egct_supplier_action" model="ir.actions.act_window">
+        <field name="name">Suppliers</field>
+        <field name="res_model">egct.supplier</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="egct_po_view_list" model="ir.ui.view">
+        <field name="name">egct.po.list</field>
+        <field name="model">egct.po</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="po_date"/>
+                <field name="supplier_id"/>
+                <field name="rep"/>
+                <field name="category"/>
+                <field name="currency"/>
+                <field name="quantity"/>
+                <field name="total_amount"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="egct_po_view_form" model="ir.ui.view">
+        <field name="name">egct.po.form</field>
+        <field name="model">egct.po</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="po_date"/>
+                            <field name="supplier_id"/>
+                        </group>
+                        <group>
+                            <field name="rep"/>
+                            <field name="category"/>
+                            <field name="currency"/>
+                            <field name="total_amount"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Product lines" name="lines">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product"/>
+                                    <field name="qty"/>
+                                    <field name="unit"/>
+                                    <field name="unit_price"/>
+                                    <field name="amount"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Shipment" name="shipment">
+                            <field name="shipment_ids" readonly="1">
+                                <list>
+                                    <field name="stage"/>
+                                    <field name="carrier"/>
+                                    <field name="etd"/>
+                                    <field name="eta"/>
+                                    <field name="customs"/>
+                                    <field name="acid"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Payment" name="payment">
+                            <field name="payment_ids" readonly="1">
+                                <list>
+                                    <field name="invoice"/>
+                                    <field name="total"/>
+                                    <field name="paid"/>
+                                    <field name="remaining"/>
+                                    <field name="status"/>
+                                    <field name="due_date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Documents" name="documents">
+                            <field name="document_ids" readonly="1">
+                                <list>
+                                    <field name="type"/>
+                                    <field name="status"/>
+                                    <field name="reference"/>
+                                    <field name="expiry"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="egct_po_view_search" model="ir.ui.view">
+        <field name="name">egct.po.search</field>
+        <field name="model">egct.po</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="supplier_id"/>
+                <field name="rep"/>
+                <field name="category"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_supplier" string="Supplier" context="{'group_by': 'supplier_id'}"/>
+                    <filter name="group_rep" string="Purchase Rep." context="{'group_by': 'rep'}"/>
+                    <filter name="group_currency" string="Currency" context="{'group_by': 'currency'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="egct_po_action" model="ir.actions.act_window">
+        <field name="name">Purchase Orders</field>
+        <field name="res_model">egct.po</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="egct_shipment_view_list" model="ir.ui.view">
+        <field name="name">egct.shipment.list</field>
+        <field name="model">egct.shipment</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="po_id"/>
+                <field name="stage"/>
+                <field name="carrier"/>
+                <field name="bl"/>
+                <field name="container"/>
+                <field name="etd"/>
+                <field name="eta"/>
+                <field name="actual_arrival"/>
+                <field name="customs"/>
+                <field name="acid"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="egct_shipment_view_form" model="ir.ui.view">
+        <field name="name">egct.shipment.form</field>
+        <field name="model">egct.shipment</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="stage" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Booking">
+                            <field name="po_id"/>
+                            <field name="booking"/>
+                            <field name="bl"/>
+                            <field name="container"/>
+                            <field name="carrier"/>
+                            <field name="vessel"/>
+                            <field name="voyage"/>
+                        </group>
+                        <group string="Schedule &amp; tracking">
+                            <field name="etd"/>
+                            <field name="eta"/>
+                            <field name="actual_arrival"/>
+                            <field name="location"/>
+                            <field name="destination"/>
+                            <field name="tracking_number"/>
+                            <field name="tracking_url" widget="url"/>
+                        </group>
+                        <group string="Customs">
+                            <field name="registration"/>
+                            <field name="customs"/>
+                            <field name="acid"/>
+                        </group>
+                    </group>
+                    <field name="notes" placeholder="Notes..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="egct_shipment_view_search" model="ir.ui.view">
+        <field name="name">egct.shipment.search</field>
+        <field name="model">egct.shipment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="po_id"/>
+                <field name="bl"/>
+                <field name="container"/>
+                <field name="tracking_number"/>
+                <field name="carrier"/>
+                <field name="acid"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_stage" string="Stage" context="{'group_by': 'stage'}"/>
+                    <filter name="group_carrier" string="Carrier" context="{'group_by': 'carrier'}"/>
+                    <filter name="group_customs" string="Customs" context="{'group_by': 'customs'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="egct_shipment_action" model="ir.actions.act_window">
+        <field name="name">Shipments</field>
+        <field name="res_model">egct.shipment</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="egct_payment_view_list" model="ir.ui.view">
+        <field name="name">egct.payment.list</field>
+        <field name="model">egct.payment</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="po_id"/>
+                <field name="currency"/>
+                <field name="invoice"/>
+                <field name="total" sum="Total"/>
+                <field name="paid" sum="Paid"/>
+                <field name="remaining" sum="Remaining"/>
+                <field name="status"/>
+                <field name="due_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="egct_payment_view_form" model="ir.ui.view">
+        <field name="name">egct.payment.form</field>
+        <field name="model">egct.payment</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="po_id"/>
+                            <field name="currency"/>
+                            <field name="invoice"/>
+                            <field name="method"/>
+                        </group>
+                        <group>
+                            <field name="total"/>
+                            <field name="paid"/>
+                            <field name="remaining"/>
+                            <field name="status"/>
+                            <field name="due_date"/>
+                            <field name="paid_date"/>
+                        </group>
+                    </group>
+                    <field name="notes" placeholder="Notes..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="egct_payment_view_search" model="ir.ui.view">
+        <field name="name">egct.payment.search</field>
+        <field name="model">egct.payment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="po_id"/>
+                <field name="invoice"/>
+                <filter name="unpaid" string="Not fully paid" domain="[('remaining', '&gt;', 0)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+                    <filter name="group_currency" string="Currency" context="{'group_by': 'currency'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="egct_payment_action" model="ir.actions.act_window">
+        <field name="name">Payments</field>
+        <field name="res_model">egct.payment</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="egct_document_view_list" model="ir.ui.view">
+        <field name="name">egct.document.list</field>
+        <field name="model">egct.document</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="po_id"/>
+                <field name="type"/>
+                <field name="status"/>
+                <field name="reference"/>
+                <field name="expiry"/>
+                <field name="url" widget="url"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="egct_document_view_form" model="ir.ui.view">
+        <field name="name">egct.document.form</field>
+        <field name="model">egct.document</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="po_id"/>
+                            <field name="type"/>
+                            <field name="status"/>
+                        </group>
+                        <group>
+                            <field name="reference"/>
+                            <field name="expiry"/>
+                            <field name="url" widget="url"/>
+                        </group>
+                    </group>
+                    <field name="notes" placeholder="Notes..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="egct_document_view_search" model="ir.ui.view">
+        <field name="name">egct.document.search</field>
+        <field name="model">egct.document</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="po_id"/>
+                <field name="reference"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_type" string="Type" context="{'group_by': 'type'}"/>
+                    <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="egct_document_action" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">egct.document</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="egct_activity_view_list" model="ir.ui.view">
+        <field name="name">egct.activity.list</field>
+        <field name="model">egct.activity</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0">
+                <field name="create_date"/>
+                <field name="user_id"/>
+                <field name="kind"/>
+                <field name="text"/>
+            </list>
+        </field>
+    </record>
+    <record id="egct_activity_action" model="ir.actions.act_window">
+        <field name="name">Activity Log</field>
+        <field name="res_model">egct.activity</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

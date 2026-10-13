@@ -1,0 +1,20 @@
+{
+  "name": "european-group-control-tower-frontend",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "React front end of the european_group_control_tower Odoo module. `npm run build` writes ../static/dist/egct.iife.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="european_group_control_tower.ControlTowerAction">
+        <div class="o_egct_action">
+            <div t-if="state.loading" class="o_egct_loading">
+                <i class="fa fa-circle-o-notch fa-spin me-2"/>Loading Control Tower…
+            </div>
+            <div class="o_egct_mount" t-ref="mount"/>
+        </div>
+    </t>
+</templates>

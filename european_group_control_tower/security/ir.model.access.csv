@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_egct_supplier_user,egct.supplier user,model_egct_supplier,group_egct_user,1,1,1,1
+access_egct_po_user,egct.po user,model_egct_po,group_egct_user,1,1,1,1
+access_egct_po_line_user,egct.po.line user,model_egct_po_line,group_egct_user,1,1,1,1
+access_egct_shipment_user,egct.shipment user,model_egct_shipment,group_egct_user,1,1,1,1
+access_egct_payment_user,egct.payment user,model_egct_payment,group_egct_user,1,1,1,1
+access_egct_document_user,egct.document user,model_egct_document,group_egct_user,1,1,1,1
+access_egct_activity_user,egct.activity user,model_egct_activity,group_egct_user,1,0,1,0
+access_egct_activity_manager,egct.activity manager,model_egct_activity,group_egct_manager,1,1,1,1

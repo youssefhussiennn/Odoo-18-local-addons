@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The React control tower, embedded as an OWL client action -->
+    <record id="action_egct_app" model="ir.actions.client">
+        <field name="name">Control Tower</field>
+        <field name="tag">european_group_control_tower.control_tower</field>
+    </record>
+
+    <menuitem id="menu_egct_root" name="Control Tower" sequence="30"
+              web_icon="european_group_control_tower,static/description/icon.png"
+              groups="group_egct_user"/>
+
+    <menuitem id="menu_egct_app" name="Control Tower" parent="menu_egct_root" sequence="1"
+              action="action_egct_app" groups="group_egct_user"/>
+
+    <!-- Native Odoo views on the same data, for admins / bulk edits / debugging -->
+    <menuitem id="menu_egct_data" name="Data" parent="menu_egct_root" sequence="50" groups="group_egct_manager"/>
+    <menuitem id="menu_egct_data_po" name="Purchase Orders" parent="menu_egct_data" sequence="1" action="egct_po_action"/>
+    <menuitem id="menu_egct_data_shipment" name="Shipments" parent="menu_egct_data" sequence="2" action="egct_shipment_action"/>
+    <menuitem id="menu_egct_data_payment" name="Payments" parent="menu_egct_data" sequence="3" action="egct_payment_action"/>
+    <menuitem id="menu_egct_data_document" name="Documents" parent="menu_egct_data" sequence="4" action="egct_document_action"/>
+    <menuitem id="menu_egct_data_supplier" name="Suppliers" parent="menu_egct_data" sequence="5" action="egct_supplier_action"/>
+    <menuitem id="menu_egct_data_activity" name="Activity Log" parent="menu_egct_data" sequence="6" action="egct_activity_action"/>
+</odoo>

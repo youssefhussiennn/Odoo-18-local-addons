@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_egct" model="ir.module.category">
+        <field name="name">Control Tower</field>
+        <field name="description">European Group purchase order, shipment and payment tracking.</field>
+        <field name="sequence">60</field>
+    </record>
+
+    <record id="group_egct_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="module_category_egct"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Can use the Control Tower: create and edit purchase orders, shipments, payments, documents and suppliers, and import / export data.</field>
+    </record>
+
+    <record id="group_egct_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="module_category_egct"/>
+        <field name="implied_ids" eval="[(4, ref('group_egct_user'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        <field name="comment">Additionally allowed to replace or clear all Control Tower data and to edit the activity log.</field>
+    </record>
+</odoo>
